@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Landing Page Manager
- * Plugin URI: https://github.com/oduppins/landing-page-manager
+ * Plugin URI: https://github.com/oduppinsjr/landing-page-manager
  * Description: Manage multi-client landing pages with subdomain routing.
  * Version: 1.0.0
  * Author: Odell Duppins

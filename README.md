@@ -21,7 +21,7 @@ API keys (Google Maps, Brandfetch) are stored in **Settings** and are never hard
 - WordPress 5.9+
 - PHP 7.4+
 - [Composer](https://getcomposer.org/) (for development)
-- Optional: [Landing Page Manager Pro](https://github.com/oduppins/landing-page-manager-pro) for analytics and conversion tracking
+- Optional: [Landing Page Manager Pro](https://github.com/oduppinsjr/landing-page-manager-pro) for analytics and conversion tracking
 
 ## Installation
 
