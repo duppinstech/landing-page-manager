@@ -1,0 +1,13 @@
+{
+  "require": {
+      "htmlburger/carbon-fields": "^3.6",
+    "league/color-extractor": "^0.3.2",
+    "pkostadinov-2create/carbon-field-password": "dev-master"
+    },
+  "autoload": {
+  "psr-4": {
+    "LPManager\\": "includes/"
+  }
+ }
+
+}

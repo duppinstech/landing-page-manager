@@ -1,0 +1,31 @@
+# Pro plugin — maintained in a separate repository
+/landing-page-manager-pro/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+
+# Logs and temp
+*.log
+npm-debug.log*
+tmp/
+temp/
+
+# Optional: uncomment if you install Node tooling and don't want to commit it
+# node_modules/
