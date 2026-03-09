@@ -10,7 +10,22 @@
     if (typeof window.lpmanagerTracking === 'undefined') return;
 
     var cfg = window.lpmanagerTracking;
-    var ajaxurl = cfg.ajaxurl;
+    function resolveAjaxUrl(url) {
+        if (!url) return '/wp-admin/admin-ajax.php';
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+            try {
+                var parsed = new URL(url);
+                if (parsed.origin !== window.location.origin) {
+                    return '/wp-admin/admin-ajax.php';
+                }
+            } catch (e) {
+                return '/wp-admin/admin-ajax.php';
+            }
+        }
+        return url;
+    }
+
+    var ajaxurl = resolveAjaxUrl(cfg.ajaxurl);
     var nonce = cfg.nonce;
     var postId = parseInt(cfg.postId, 10) || 0;
 

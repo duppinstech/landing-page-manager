@@ -18,6 +18,7 @@ class Update_Checker {
     public static function init() {
         add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'inject_update' ], 10, 2 );
         add_filter( 'plugin_action_links_' . self::get_plugin_basename(), [ __CLASS__, 'add_plugin_action_links' ] );
+        add_filter( 'upgrader_source_selection', [ __CLASS__, 'normalize_install_source_dir' ], 10, 4 );
         add_action( 'admin_init', [ __CLASS__, 'handle_manual_update_check' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_manual_update_notice' ] );
     }
@@ -238,5 +239,28 @@ class Update_Checker {
             return;
         }
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Landing Page Manager update check completed. Review available updates below.', 'landing-page-manager' ) . '</p></div>';
+    }
+
+    /**
+     * Normalize GitHub zipball extraction folder to plugin slug.
+     * Prevents installs into repo/hash-style directories.
+     */
+    public static function normalize_install_source_dir( $source, $remote_source, $upgrader, $hook_extra ) {
+        if ( empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== self::get_plugin_basename() ) {
+            return $source;
+        }
+        $desired = trailingslashit( $remote_source ) . self::PLUGIN_SLUG;
+        if ( wp_normalize_path( $source ) === wp_normalize_path( $desired ) ) {
+            return $source;
+        }
+        global $wp_filesystem;
+        if ( ! $wp_filesystem || ! $wp_filesystem->exists( $source ) ) {
+            return $source;
+        }
+        if ( $wp_filesystem->exists( $desired ) ) {
+            $wp_filesystem->delete( $desired, true );
+        }
+        $moved = $wp_filesystem->move( $source, $desired );
+        return $moved ? $desired : $source;
     }
 }

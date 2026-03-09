@@ -1,6 +1,25 @@
 jQuery(document).ready(function($) {
+    function resolveAjaxUrl(url) {
+        if (!url) {
+            return '/wp-admin/admin-ajax.php';
+        }
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+            try {
+                var parsed = new URL(url);
+                if (parsed.origin !== window.location.origin) {
+                    return '/wp-admin/admin-ajax.php';
+                }
+            } catch (e) {
+                return '/wp-admin/admin-ajax.php';
+            }
+        }
+        return url;
+    }
+
+    var ajaxUrl = resolveAjaxUrl(lpmanager_vars.ajaxurl);
+
     function loadReviews(postId) {
-        $.post(lpmanager_vars.ajaxurl, {
+        $.post(ajaxUrl, {
             action: 'fetch_google_reviews',
             security: lpmanager_vars.nonce,
             post_id: postId

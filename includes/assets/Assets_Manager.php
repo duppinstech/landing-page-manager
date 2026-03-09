@@ -127,7 +127,7 @@ class Assets_Manager {
         wp_enqueue_script('swiper-js', 'https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js', [], null, true);
         wp_enqueue_script('lpmanager-reviews', LP_MANAGER_PLUGIN_URL . 'assets/js/reviews.js', ['jquery', 'swiper-js'], '1.0', true);
         wp_localize_script( 'lpmanager-reviews', 'lpmanager_vars', [
-            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+            'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
             'nonce'   => wp_create_nonce( 'lpmanager_nonce' ),
             'post_id' => get_the_ID(),
         ] );
