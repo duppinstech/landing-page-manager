@@ -17,6 +17,9 @@ class Update_Checker {
 
     public static function init() {
         add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'inject_update' ], 10, 2 );
+        add_filter( 'plugin_action_links_' . self::get_plugin_basename(), [ __CLASS__, 'add_plugin_action_links' ] );
+        add_action( 'admin_init', [ __CLASS__, 'handle_manual_update_check' ] );
+        add_action( 'admin_notices', [ __CLASS__, 'render_manual_update_notice' ] );
     }
 
     /**
@@ -179,5 +182,61 @@ class Update_Checker {
         }
 
         return $transient;
+    }
+
+    /**
+     * Add "Check for updates" action link on this plugin row.
+     */
+    public static function add_plugin_action_links( $links ) {
+        if ( ! current_user_can( 'update_plugins' ) ) {
+            return $links;
+        }
+        $url = wp_nonce_url(
+            add_query_arg(
+                [ 'lpmanager_check_updates' => '1' ],
+                admin_url( 'plugins.php' )
+            ),
+            'lpmanager_check_updates'
+        );
+        array_unshift(
+            $links,
+            '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Check for updates', 'landing-page-manager' ) . '</a>'
+        );
+        return $links;
+    }
+
+    /**
+     * Handle manual update check trigger from plugin action link.
+     */
+    public static function handle_manual_update_check() {
+        if ( ! is_admin() || ! current_user_can( 'update_plugins' ) ) {
+            return;
+        }
+        if ( empty( $_GET['lpmanager_check_updates'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            return;
+        }
+        check_admin_referer( 'lpmanager_check_updates' );
+
+        if ( ! function_exists( 'wp_update_plugins' ) ) {
+            require_once ABSPATH . 'wp-includes/update.php';
+        }
+
+        delete_site_transient( 'update_plugins' );
+        wp_update_plugins();
+
+        $redirect = admin_url( 'plugins.php' );
+        $redirect = add_query_arg( [ 'lpmanager_updates_checked' => '1' ], $redirect );
+        wp_safe_redirect( $redirect );
+        exit;
+    }
+
+    /**
+     * Admin notice after manual update check.
+     */
+    public static function render_manual_update_notice() {
+        if ( ! is_admin() || empty( $_GET['lpmanager_updates_checked'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            return;
+        }
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Landing Page Manager update check completed. Review available updates below.', 'landing-page-manager' ) . '</p></div>';
     }
 }
