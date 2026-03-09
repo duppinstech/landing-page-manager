@@ -159,11 +159,23 @@ class Plugin_Settings {
                 ->set_help_text( __( 'Add any additional scripts (e.g., tracking or chat scripts) to load on all landing pages.', 'landing-page-manager' ) ),
         ];
 
+        $tab_updates = [
+            Field::make( 'select', 'lpmanager_update_source', __( 'Plugin update source', 'landing-page-manager' ) )
+                ->set_options( [
+                    'wp_org' => __( 'WordPress.org only', 'landing-page-manager' ),
+                    'github' => __( 'GitHub only', 'landing-page-manager' ),
+                    'both'   => __( 'GitHub and WordPress.org (use newest version)', 'landing-page-manager' ),
+                ] )
+                ->set_default_value( 'both' )
+                ->set_help_text( __( 'Where to check for plugin updates. Use "WordPress.org only" after publishing to the plugin directory; use "Both" to get the latest from either source.', 'landing-page-manager' ) ),
+        ];
+
         Container::make( 'theme_options', __( 'Settings', 'landing-page-manager' ) )
             ->set_page_parent( 'lp_dashboard' )
             ->add_tab( __( 'Templates', 'landing-page-manager' ), $tab_templates )
             ->add_tab( $is_premium ? __( 'Conversion Tracking', 'landing-page-manager' ) : __( 'Conversion Tracking (Pro)', 'landing-page-manager' ), $tab_conversion )
-            ->add_tab( __( 'API Keys', 'landing-page-manager' ), $tab_api );
+            ->add_tab( __( 'API Keys', 'landing-page-manager' ), $tab_api )
+            ->add_tab( __( 'Updates', 'landing-page-manager' ), $tab_updates );
     }
 
     public static function render_tracking_toggles_and_intro() {

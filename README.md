@@ -39,7 +39,19 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 - **Keywords** — Add keyword/campaign terms for organizing pages.
 - **Dashboard** — View counts and quick links.
 - **Analytics** — View page views, conversions, and (with Pro) engagement, heatmaps, rage clicks.
-- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps API key, Brandfetch API key, additional scripts. Conversion Tracking tab (Pro): enable/disable tracking options.
+- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps API key, Brandfetch API key, additional scripts. Conversion Tracking tab (Pro): enable/disable tracking options. **Updates tab**: choose where to check for plugin updates—WordPress.org only, GitHub only, or both (use newest version). You can switch to “WordPress.org only” after publishing to the plugin directory, or leave “Both” to get the latest from either source.
+
+## Updates from GitHub
+
+In **Settings → Updates** you can set the plugin update source to **GitHub only** or **GitHub and WordPress.org (use newest version)**. When GitHub is used, the plugin checks the [GitHub releases API](https://api.github.com/repos/oduppinsjr/landing-page-manager/releases/latest) for a new version. Create a release with a tag (e.g. `1.0.1`) to trigger an update. For a reliable update zip, you can upload a correctly structured zip (root folder `landing-page-manager`) as a release asset and use the filter `lpmanager_github_update_package_url` to point to it; otherwise the default zipball from GitHub is used.
+
+Recommended release flow:
+
+1. Bump `Version` in `landing-page-manager.php`.
+2. Commit and push to `main`.
+3. Create a GitHub Release with tag `vX.Y.Z` (e.g. `v1.0.1`).
+4. Attach `landing-page-manager.zip` where the top-level folder is exactly `landing-page-manager`.
+5. On WordPress, click **Dashboard → Updates → Check Again**.
 
 ## Development
 

@@ -13,6 +13,7 @@ use LPManager\templates\Template_Loader;
 use LPManager\ajax\Reviews_Ajax;
 use LPManager\assets\Assets_Manager;
 use LPManager\core\Landing_Page_Validator;
+use LPManager\Update_Checker;
 
 final class Plugin {
 
@@ -38,6 +39,7 @@ final class Plugin {
         // Tracking is loaded by the Pro plugin only.
         Admin_Dashboard::init();
         Plugin_Settings::init();
+        Update_Checker::init();
     }
 
     public static function activate() {
