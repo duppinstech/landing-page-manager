@@ -1,7 +1,8 @@
 <?php
 namespace LPManager\core;
 
-Use LPManager\core\Required_Fields_Registry;
+use LPManager\core\Required_Fields_Registry;
+use LPManager\templates\Template_Loader;
 
 class Landing_Page_Validator {
 
@@ -15,8 +16,7 @@ class Landing_Page_Validator {
     public static function validateLandingPageFields($post_id, $post, $update) {
         //error_log("validateLandingPageFields fired for post_id {$post_id}");
 
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            error_log("Skipping post_id {$post_id} because DOING_AUTOSAVE is true.");
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;
         }
 
@@ -30,58 +30,51 @@ class Landing_Page_Validator {
             $post_id = $parent_post_id;
         }
 
-        if ($post->post_type !== 'landing_page') {
-            error_log("Skipping post_id {$post_id} because post type is {$post->post_type}");
+        if ( $post->post_type !== 'landing_page' ) {
             return;
         }
 
-        if (wp_is_post_autosave($post_id)) {
-            error_log("Skipping post_id {$post_id} because it's an autosave.");
-            return;
-        }
-
-        //$template = get_post_meta($post_id, '_landing_page_template', true);
-        $template = carbon_get_theme_option('lpmanager_active_template');
-        error_log("Template for post_id {$post_id}: " . ($template ?: 'none'));
-
-        if (empty($template)) {
-            error_log("No template set for post_id {$post_id}, skipping.");
-            return;
-        }
-
-        $required_fields = Required_Fields_Registry::get($template);
-        error_log("Required fields for template {$template}: " . print_r($required_fields, true));
-
-        if (empty($required_fields)) {
-            error_log("No required fields registered for template {$template}, skipping.");
+        if ( wp_is_post_autosave( $post_id ) ) {
             return;
         }
 
         $missing_fields = [];
 
-        foreach ($required_fields as $field) {
-            $value = carbon_get_post_meta($post_id, $field);
-            if (empty($value)) {
-                error_log("Missing value for field '{$field}' on post_id {$post_id}");
-                $missing_fields[] = $field;
+        // Core landing page metadata required across all templates.
+        $core_required_fields = [
+            'client'     => 'client',
+            'keyword'    => 'keyword',
+            'client_tel' => 'client_tel',
+        ];
+        foreach ( $core_required_fields as $field_key => $field_label ) {
+            $value = carbon_get_post_meta( $post_id, $field_key );
+            if ( empty( $value ) ) {
+                $missing_fields[] = $field_label;
             }
         }
 
-        if (!empty($missing_fields)) {
-            error_log("Setting transient for post_id {$post_id} with missing fields: " . implode(', ', $missing_fields));
-            set_transient("lp_missing_fields_{$post_id}", $missing_fields, 60);
+        // Template-specific required fields.
+        $template = Template_Loader::get_effective_template_for_page( $post_id );
+        if ( ! empty( $template ) ) {
+            $required_fields = Required_Fields_Registry::get( $template );
+            foreach ( $required_fields as $field ) {
+                $value = carbon_get_post_meta( $post_id, $field );
+                if ( empty( $value ) ) {
+                    $missing_fields[] = $field;
+                }
+            }
+        }
+
+        if ( ! empty( $missing_fields ) ) {
+            set_transient( "lp_missing_fields_{$post_id}", $missing_fields, 60 );
         } else {
-            error_log("All required fields present for post_id {$post_id}. Deleting any existing transient.");
-            delete_transient("lp_missing_fields_{$post_id}");
+            delete_transient( "lp_missing_fields_{$post_id}" );
         }
     }
 
     public static function showLandingPageValidationNotices() {
-        //error_log("showLandingPageValidationNotices fired");
-        error_log("admin_notices action fired on screen: " . get_current_screen()->base);
         $screen = get_current_screen();
-        if ($screen->post_type !== 'landing_page') {
-            error_log("Not on a landing_page screen — current screen: {$screen->post_type}");
+        if ( ! $screen || $screen->post_type !== 'landing_page' ) {
             return;
         }
 
@@ -101,18 +94,16 @@ class Landing_Page_Validator {
             }
         }
 
-        if (!$post_id) {
-            error_log("No post ID available in showLandingPageValidationNotices.");
+        if ( ! $post_id ) {
             return;
         }
 
-        $missing_fields = get_transient("lp_missing_fields_{$post_id}");
-        error_log("Transient lookup for post_id {$post_id}: " . print_r($missing_fields, true));
+        $missing_fields = get_transient( "lp_missing_fields_{$post_id}" );
 
-        if ($missing_fields) {
-            echo '<div class="notice notice-error is-dismissible"><p><strong>Missing Required Fields:</strong></p><ul>';
-            foreach ($missing_fields as $field) {
-                echo "<li>{$field}</li>";
+        if ( $missing_fields ) {
+            echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__( 'Missing required fields for this template:', 'landing-page-manager' ) . '</strong></p><ul>';
+            foreach ( $missing_fields as $field ) {
+                echo '<li>' . esc_html( $field ) . '</li>';
             }
             echo '</ul></div>';
         }

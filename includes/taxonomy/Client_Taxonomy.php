@@ -20,22 +20,14 @@ class Client_Taxonomy {
 	// Hook taxonomy registration into WordPress 'init' action
         add_action( 'init', [ __CLASS__, 'register_taxonomy' ], 0 );
         add_action( 'carbon_fields_register_fields', [ __CLASS__, 'register_fields' ] );
-        //add_action( 'carbon_fields_term_meta_container_saved', 'update_client_location_data', 10, 2 );
 
-        add_action( 'edited_client', [ __CLASS__, 'schedule_domain_sanitization' ], 10, 2 );
-        add_action( 'edited_client', [ __CLASS__, 'schedule_color_extraction_on_term_save' ], 20, 2 );
-        add_action( 'edited_client', [ __CLASS__, 'geocode_address_and_save' ], 20, 1 );
+        /*
+         * Geocode + colors must run *after* Carbon persists term meta. Hooks like create_client /
+         * edited_client at priority 20 often run before created_client @10 where Carbon saves, so
+         * carbon_get_term_meta() was empty on first Add Client save.
+         */
+        add_action( 'carbon_fields_term_meta_container_saved', [ __CLASS__, 'after_client_term_meta_saved' ], 10, 2 );
 
-        add_action( 'create_client', [ __CLASS__, 'geocode_address_and_save' ], 20, 1 );
-        add_action( 'create_client', function( $term_id, $tt_id ) {
-            // Run your sanitization
-            self::sanitize_client_domain( $term_id );
-
-            // Run your color extraction and save
-            self::extract_and_save_colors( $term_id );
-
-        }, 10, 2 );
-        
         add_filter( 'manage_edit-client_columns', [ __CLASS__, 'customize_client_columns' ] ); 
 		add_filter( 'manage_client_custom_column', [ __CLASS__, 'render_client_custom_column' ], 10, 3 );
         
@@ -43,23 +35,27 @@ class Client_Taxonomy {
     	//add_action( 'manage_client_custom_column', [ __CLASS__, 'custom_column_renderer' ], 10, 3 );
         
         add_filter( 'redirect_term_location', [ __CLASS__, 'redirect_client_term_location' ], 10, 2 );
-        
-        add_action( 'create_client', function( $term_id, $tt_id ) {
-            $domain = isset($_POST['carbon_fields_compound_client_domain']) 
-                ? sanitize_text_field($_POST['carbon_fields_compound_client_domain'])
-                : '';
-            
-            self::sanitize_client_domain( $term_id );
+    }
 
-            if ( $domain ) {
-                $colors = self::resolve_client_colors( $term_id );
-                carbon_set_term_meta( $term_id, 'client_primary_color', $colors['primary'] );
-                carbon_set_term_meta( $term_id, 'client_secondary_color', $colors['secondary'] );
-            }
+    /**
+     * Runs when Carbon finishes saving the term meta container (add + edit). Meta is in the DB here.
+     *
+     * @param int                                  $term_id   Term ID.
+     * @param \Carbon_Fields\Container\Container   $container Container instance (unused; all client meta is one container).
+     */
+    public static function after_client_term_meta_saved( $term_id, $container ) {
+        $term_id = (int) $term_id;
+        if ( $term_id <= 0 ) {
+            return;
+        }
+        $term = get_term( $term_id );
+        if ( ! $term || is_wp_error( $term ) || $term->taxonomy !== 'client' ) {
+            return;
+        }
 
-            self::extract_and_save_colors( $term_id );
-
-        }, 10, 2 );
+        self::sanitize_client_domain( $term_id );
+        self::geocode_address_and_save( $term_id );
+        self::extract_and_save_colors( $term_id );
     }
 
     public static function handle_brandfetch_request( $request ) {
@@ -100,15 +96,6 @@ class Client_Taxonomy {
         }
 
         return self::get_default_colors();
-    }
-
-	public static function schedule_color_extraction_on_term_save( $term_id, $tt_id ) {
-        //add_action( 'shutdown', function() use ( $term_id ) {
-        //    Client_Taxonomy::extract_and_save_colors( $term_id );
-        //});
-        
-        // Instead of scheduling, extract immediately
-    	self::extract_and_save_colors( $term_id );
     }
 
     public static function extract_primary_secondary_colors( $image_path ) {
@@ -258,12 +245,6 @@ class Client_Taxonomy {
         return $temp_path;
     }
 	
-    public static function schedule_domain_sanitization( $term_id, $tt_id ) {
-        add_action( 'shutdown', function() use ( $term_id ) {
-            self::sanitize_client_domain( $term_id );
-        });
-    }
-
     public static function sanitize_client_domain( $term_id ) {
         $raw_domain = carbon_get_term_meta( $term_id, 'client_domain' );
         if ( ! $raw_domain ) {
