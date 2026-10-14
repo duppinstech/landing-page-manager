@@ -7,7 +7,7 @@ Manage multi-client landing pages with subdomain routing, templates, and optiona
 Landing Page Manager is a WordPress plugin for creating and managing landing pages across multiple clients. It provides:
 
 - **Landing Page post type** — Dedicated content type for landing pages
-- **Client taxonomy** — Organize pages by client (with optional branding, domain, and template per client)
+- **Client taxonomy** — Organize pages by client (with optional branding and domain per client)
 - **Keyword taxonomy** — Tag pages by keyword/campaign
 - **Templates** — Switchable templates (e.g. whiterail-ai, whiterail-recruits) with template-specific fields
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
@@ -35,7 +35,7 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 ## Usage
 
 - **Landing Pages** — Add and edit landing pages; assign Client and Keyword terms.
-- **Clients** — Add clients; optionally set logo, colors, domain, and template per client.
+- **Clients** — Add clients; optionally set logo, colors, and domain. The landing page template is chosen globally in **Settings → Templates**.
 - **Keywords** — Add keyword/campaign terms for organizing pages.
 - **Dashboard** — View counts and quick links.
 - **Analytics** — View page views, conversions, and (with Pro) engagement, heatmaps, rage clicks.
