@@ -16,6 +16,9 @@
     const errorEl = document.getElementById('lp-analytics-error');
     const clientFilter = document.getElementById('lp-client-filter');
     const templateFilter = document.getElementById('lp-template-filter');
+    const HEATMAP_DESKTOP_WIDTH = 1366;
+    const HEATMAP_CARD_HEIGHT = 2000;
+    const HEATMAP_MODAL_HEIGHT = 2500;
 
     function showLoading(show) {
         if (loadingEl) loadingEl.style.display = show ? 'block' : 'none';
@@ -264,6 +267,45 @@
         return html;
     }
 
+    function stripAdminBarFromIframe(iframe) {
+        if (!iframe) return;
+        iframe.addEventListener('load', function () {
+            try {
+                var doc = iframe.contentDocument || (iframe.contentWindow ? iframe.contentWindow.document : null);
+                if (!doc) return;
+                var adminBar = doc.getElementById('wpadminbar');
+                if (adminBar && adminBar.parentNode) {
+                    adminBar.parentNode.removeChild(adminBar);
+                }
+                var styleId = 'lp-heatmap-hide-adminbar-style';
+                if (!doc.getElementById(styleId)) {
+                    var style = doc.createElement('style');
+                    style.id = styleId;
+                    style.textContent = '#wpadminbar{display:none!important;}html{margin-top:0!important;padding-top:0!important;}body.admin-bar{margin-top:0!important;padding-top:0!important;}';
+                    (doc.head || doc.documentElement).appendChild(style);
+                }
+            } catch (e) {
+                // Ignore cross-origin failures.
+            }
+        });
+    }
+
+    function applyHeatmapScale(previewEl, baseHeight) {
+        if (!previewEl) return;
+        var scroll = previewEl.querySelector('.lp-heatmap-preview__scroll, .lp-heatmap-modal__scroll');
+        var canvas = previewEl.querySelector('.lp-heatmap-preview__canvas, .lp-heatmap-modal__canvas');
+        if (!scroll || !canvas) return;
+
+        var width = previewEl.clientWidth || HEATMAP_DESKTOP_WIDTH;
+        var scale = width / HEATMAP_DESKTOP_WIDTH;
+        if (!isFinite(scale) || scale <= 0) scale = 1;
+
+        canvas.style.setProperty('--lp-heatmap-scale', String(scale));
+        canvas.style.width = HEATMAP_DESKTOP_WIDTH + 'px';
+        canvas.style.height = baseHeight + 'px';
+        scroll.style.height = Math.max(1, Math.round(baseHeight * scale)) + 'px';
+    }
+
     function openHeatmapModal(item) {
         var modal = document.getElementById('lp-heatmap-modal');
         if (!modal) return;
@@ -273,8 +315,13 @@
         var overlay = modal.querySelector('.lp-heatmap-modal__overlay');
         if (titleEl) titleEl.textContent = item.title;
         if (viewLink) { viewLink.href = item.url || '#'; viewLink.style.display = item.url ? '' : 'none'; }
-        if (iframe) iframe.src = item.url || '';
+        if (iframe) {
+            iframe.src = item.url || '';
+            stripAdminBarFromIframe(iframe);
+        }
         if (overlay) overlay.innerHTML = buildHeatmapOverlayCells(item.grid || []);
+        var preview = modal.querySelector('.lp-heatmap-modal__preview');
+        applyHeatmapScale(preview, HEATMAP_MODAL_HEIGHT);
         modal.classList.add('lp-heatmap-modal--open');
         document.body.classList.add('lp-modal-open');
     }
@@ -313,8 +360,7 @@
             modal.innerHTML = '<div class="lp-heatmap-modal__backdrop"></div><div class="lp-heatmap-modal__box">' +
                 '<div class="lp-heatmap-modal__header"><h3 class="lp-heatmap-modal__title"></h3><a class="lp-heatmap-modal__view-page" href="#" target="_blank" rel="noopener">View full page</a><button type="button" class="lp-heatmap-modal__close" aria-label="Close">&times;</button></div>' +
                 '<div class="lp-heatmap-modal__preview">' +
-                '<div class="lp-heatmap-modal__scroll"><iframe class="lp-heatmap-modal__iframe" title="Page preview"></iframe></div>' +
-                '<div class="lp-heatmap-overlay lp-heatmap-modal__overlay"></div>' +
+                '<div class="lp-heatmap-modal__scroll"><div class="lp-heatmap-modal__canvas"><iframe class="lp-heatmap-modal__iframe" title="Page preview"></iframe><div class="lp-heatmap-overlay lp-heatmap-modal__overlay"></div></div></div>' +
                 '</div></div>';
             modal.querySelector('.lp-heatmap-modal__backdrop').addEventListener('click', closeHeatmapModal);
             modal.querySelector('.lp-heatmap-modal__close').addEventListener('click', closeHeatmapModal);
@@ -326,14 +372,19 @@
             cardsHtml += '<div class="lp-heatmap-card" role="button" tabindex="0" data-post-id="' + (h.post_id || '') + '">';
             cardsHtml += '<h4 class="lp-heatmap-card__title">' + escapeHtml(h.title) + '</h4>';
             cardsHtml += '<div class="lp-heatmap-preview">';
-            cardsHtml += '<div class="lp-heatmap-preview__scroll"><iframe class="lp-heatmap-preview__iframe" src="' + url + '" title="' + escapeHtml(h.title) + '"></iframe></div>';
-            cardsHtml += '<div class="lp-heatmap-overlay">' + buildHeatmapOverlayCells(h.grid || []) + '</div>';
+            cardsHtml += '<div class="lp-heatmap-preview__scroll"><div class="lp-heatmap-preview__canvas"><iframe class="lp-heatmap-preview__iframe" src="' + url + '" title="' + escapeHtml(h.title) + '"></iframe><div class="lp-heatmap-overlay">' + buildHeatmapOverlayCells(h.grid || []) + '</div></div></div>';
             cardsHtml += '</div>';
             cardsHtml += '<p class="lp-heatmap-card__hint">Click to view larger</p>';
             cardsHtml += '</div>';
         });
         cardsHtml += '</div>';
         container.innerHTML = cardsHtml;
+        container.querySelectorAll('.lp-heatmap-preview').forEach(function (previewEl) {
+            applyHeatmapScale(previewEl, HEATMAP_CARD_HEIGHT);
+        });
+        container.querySelectorAll('.lp-heatmap-preview__iframe').forEach(function (iframeEl) {
+            stripAdminBarFromIframe(iframeEl);
+        });
         container.querySelectorAll('.lp-heatmap-card').forEach(function (card) {
             var postId = card.getAttribute('data-post-id');
             var item = withData.filter(function (h) { return String(h.post_id) === String(postId); })[0];
@@ -341,6 +392,11 @@
             function open() { openHeatmapModal(item); }
             card.addEventListener('click', open);
             card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+        });
+        window.requestAnimationFrame(function () {
+            container.querySelectorAll('.lp-heatmap-preview').forEach(function (previewEl) {
+                applyHeatmapScale(previewEl, HEATMAP_CARD_HEIGHT);
+            });
         });
     }
 
@@ -413,6 +469,16 @@
         tab.addEventListener('click', function () {
             switchTab(this.getAttribute('data-tab'));
         });
+    });
+
+    window.addEventListener('resize', function () {
+        document.querySelectorAll('.lp-heatmap-preview').forEach(function (previewEl) {
+            applyHeatmapScale(previewEl, HEATMAP_CARD_HEIGHT);
+        });
+        var modalPreview = document.querySelector('.lp-heatmap-modal__preview');
+        if (modalPreview) {
+            applyHeatmapScale(modalPreview, HEATMAP_MODAL_HEIGHT);
+        }
     });
 
     fetchData();

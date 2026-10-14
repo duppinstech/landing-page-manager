@@ -305,11 +305,19 @@
     height: 2000px;
 }
 
+.lp-heatmap-preview__canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+    transform: scale(var(--lp-heatmap-scale, 1));
+}
+
 .lp-heatmap-preview__iframe {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 1366px;
     height: 2000px;
     border: 0;
     pointer-events: none;
@@ -320,8 +328,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    height: 100%;
+    width: 1366px;
+    height: 2000px;
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(10, 1fr);
@@ -436,11 +444,19 @@
     height: 2500px;
 }
 
+.lp-heatmap-modal__canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+    transform: scale(var(--lp-heatmap-scale, 1));
+}
+
 .lp-heatmap-modal__iframe {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 1366px;
     height: 2500px;
     border: 0;
     pointer-events: none;
@@ -451,8 +467,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    height: 100%;
+    width: 1366px;
+    height: 2500px;
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(10, 1fr);
