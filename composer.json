@@ -2,7 +2,7 @@
   "require": {
       "htmlburger/carbon-fields": "^3.6",
     "league/color-extractor": "^0.3.2",
-    "pkostadinov-2create/carbon-field-password": "dev-master"
+    "pkostadinov-2create/carbon-field-password": "dev-master#80df427f3f59f61cf85669041c6fc6fa3966adfa"
     },
   "autoload": {
   "psr-4": {

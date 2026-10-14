@@ -29,6 +29,6 @@ Activate the plugin in WP admin, then set a default template under **Landing Pag
 ## Releases (maintainer only)
 1. Bump `Version:` in `landing-page-manager.php` and move the [Unreleased] entries in `CHANGELOG.md` under the new version.
 2. Commit, then push to `main`.
-3. Tag `vX.Y.Z` and create a GitHub Release.
-4. Attach `landing-page-manager.zip` with the top-level folder `landing-page-manager/`.
+3. Push tag `vX.Y.Z`. The Release workflow builds the zip and publishes the GitHub Release with it attached. Don't create the release by hand first.
+4. Check the release has the `landing-page-manager.zip` asset.
 5. On a test site, run **Dashboard → Updates → Check Again** to confirm the update appears.

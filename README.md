@@ -47,11 +47,13 @@ In **Settings → Updates** you can set the plugin update source to **GitHub onl
 
 Recommended release flow:
 
-1. Bump `Version` in `landing-page-manager.php`.
+1. Bump `Version` in `landing-page-manager.php` and update `CHANGELOG.md`.
 2. Commit and push to `main`.
-3. Create a GitHub Release with tag `vX.Y.Z` (e.g. `v1.0.1`).
-4. Attach `landing-page-manager.zip` where the top-level folder is exactly `landing-page-manager`.
+3. Push a tag `vX.Y.Z` matching the version (e.g. `git tag v1.0.6 && git push origin v1.0.6`).
+4. The **Release** GitHub Action lints, checks the tag matches `Version`, builds `landing-page-manager.zip` (top-level folder `landing-page-manager/`, dev files excluded via `.distignore`), and creates the GitHub Release with the zip attached.
 5. On WordPress, click **Dashboard → Updates → Check Again**.
+
+To build the zip locally: `bin/build-zip.sh` (uses `zip`, or Python if `zip` is missing). The zip is not committed.
 
 ## Development
 
