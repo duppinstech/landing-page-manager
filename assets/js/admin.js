@@ -27,7 +27,7 @@ jQuery(document).ready(function($) {
 
     var form_data = new FormData();
     form_data.append('action', 'lpmanager_upload_template');
-    form_data.append('nonce', lpmanager_vars.nonce);
+    form_data.append('nonce', lpmanager_vars.upload_nonce);
     form_data.append('template_zip', file_data);
 
     $('#lpmanager-upload-spinner').show();
