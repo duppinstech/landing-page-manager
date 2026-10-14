@@ -3,11 +3,15 @@ namespace LPManager\templates;
 
 class Template_Manager {
 
+    /** Nonce action for the template upload — distinct from lpmanager_nonce, which is printed on public pages. */
+    const UPLOAD_NONCE = 'lpmanager_upload_template';
+
     public static function init() {
         add_action( 'wp_ajax_lpmanager_upload_template', [ __CLASS__, 'handle_upload' ] );
+        add_action( 'admin_init', [ __CLASS__, 'remove_legacy_upload_dir' ] );
         // Template_Loader::load_template (priority 99) handles landing page template; no duplicate filter needed.
     }
-	
+
     private static $current_template = 'whiterail-ai'; // or your desired fallback
 
     public static function set_current_template( $slug ) {
@@ -20,12 +24,18 @@ class Template_Manager {
         }
         return self::$current_template;
     }
-    
+
     public static function get_template_path( $file ) {
     	$template_slug = self::get_current_template();
         return plugin_dir_path( __DIR__ ) . "templates/{$template_slug}/{$file}";
     }
-    
+
+    /**
+     * Installed templates, keyed by slug. A template is a folder whose
+     * single-landing_page.php carries a "Template Name:" header.
+     *
+     * @return array<string, array{name: string, description: string, image_url: string}>
+     */
     public static function get_templates() {
         $template_dir = plugin_dir_path(__DIR__) . 'templates/';
         $template_url = plugin_dir_url(__DIR__) . 'templates/';
@@ -34,36 +44,31 @@ class Template_Manager {
 
         foreach (glob($template_dir . '*', GLOB_ONLYDIR) as $dir) {
             $slug = basename($dir);
-
-            // Find PHP file with Template Name header
-            $template_file = null;
-            foreach (glob($dir . '/*.php') as $php_file) {
-                $contents = file_get_contents($php_file);
-                if (preg_match('/Template Name:\s*(.+)/i', $contents)) {
-                    $template_file = $php_file;
-                    break;
-                }
+            // Skip in-progress upload staging dirs (Windows glob matches dot-folders).
+            if ( '.' === $slug[0] ) {
+                continue;
             }
 
-            if ($template_file) {
-                $contents = file_get_contents($template_file);
-                preg_match('/Template Name:\s*(.+)/i', $contents, $name_match);
-                preg_match('/Description:\s*(.+)/i', $contents, $desc_match);
-
-                $name = isset($name_match[1]) ? trim($name_match[1]) : ucfirst(str_replace('-', ' ', $slug));
-                $desc = isset($desc_match[1]) ? trim($desc_match[1]) : '';
-
-                $screenshot_path = $dir . '/screenshot.png';
-                $image = file_exists( $dir . '/screenshot.png' )
-                    ? $template_url . "{$slug}/screenshot.png"
-                    : includes_url( 'images/media/default.png' );
-
-                $templates[ $slug ] = [
-                    'name'        => $name,
-                    'description'=> $desc,
-                    'image_url'   => $image,
-                ];
+            $template_file = $dir . '/single-landing_page.php';
+            if ( ! file_exists( $template_file ) ) {
+                continue;
             }
+
+            // get_file_data() reads only the first 8 KB.
+            $headers = get_file_data( $template_file, [ 'name' => 'Template Name', 'description' => 'Description' ] );
+            if ( '' === $headers['name'] ) {
+                continue;
+            }
+
+            $image = file_exists( $dir . '/screenshot.png' )
+                ? $template_url . "{$slug}/screenshot.png"
+                : includes_url( 'images/media/default.png' );
+
+            $templates[ $slug ] = [
+                'name'        => $headers['name'],
+                'description' => $headers['description'],
+                'image_url'   => $image,
+            ];
         }
 
         return $templates;
@@ -73,12 +78,14 @@ class Template_Manager {
      * AJAX: install a template from an uploaded .zip (Settings → Templates).
      *
      * Templates contain executable PHP, so this is treated like installing a plugin:
-     * nonce + install_plugins capability (which also honors DISALLOW_FILE_MODS),
-     * extraction outside the web root via WP's unzip_file() (rejects ../ paths),
-     * and cleanup on every exit path.
+     * dedicated nonce + install_plugins capability (which also honors DISALLOW_FILE_MODS
+     * and limits multisite to super admins). The archive is pre-scanned, extracted into
+     * a hidden staging folder next to its destination, and moved into place with a
+     * single rename() so a half-copied template is never live. Cleanup also runs on
+     * shutdown so fatals and timeouts don't leave extracted PHP behind.
      */
     public static function handle_upload() {
-        check_ajax_referer( 'lpmanager_nonce', 'nonce' );
+        check_ajax_referer( self::UPLOAD_NONCE, 'nonce' );
 
         if ( ! current_user_can( 'install_plugins' ) ) {
             wp_send_json_error( __( 'You do not have permission to install templates.', 'landing-page-manager' ), 403 );
@@ -94,28 +101,38 @@ class Template_Manager {
             wp_send_json_error( __( 'Please upload a .zip file.', 'landing-page-manager' ), 400 );
         }
 
-        require_once ABSPATH . 'wp-admin/includes/file.php';
-        if ( ! WP_Filesystem() ) {
-            wp_send_json_error( __( 'Could not access the filesystem.', 'landing-page-manager' ), 500 );
+        $problem = self::scan_archive( $file['tmp_name'] );
+        if ( $problem ) {
+            wp_send_json_error( $problem, 400 );
         }
-        global $wp_filesystem;
 
-        $work_dir = trailingslashit( get_temp_dir() ) . 'lpmanager-template-' . wp_generate_password( 12, false );
-        $cleanup  = function () use ( $wp_filesystem, $work_dir ) {
-            $wp_filesystem->delete( $work_dir, true );
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        // Native checks and rename() below assume direct access, like the rest of this plugin's file handling.
+        if ( 'direct' !== get_filesystem_method() || ! WP_Filesystem() ) {
+            wp_send_json_error( __( 'Template upload requires direct filesystem access on this server.', 'landing-page-manager' ), 500 );
+        }
+
+        $templates_dir = plugin_dir_path( __DIR__ ) . 'templates/';
+        $staging       = $templates_dir . '.staging-' . wp_generate_password( 12, false );
+        $cleanup       = function () use ( $staging ) {
+            global $wp_filesystem;
+            if ( $wp_filesystem && file_exists( $staging ) ) {
+                $wp_filesystem->delete( $staging, true );
+            }
         };
+        register_shutdown_function( $cleanup );
 
-        $unzipped = unzip_file( $file['tmp_name'], $work_dir );
+        $unzipped = unzip_file( $file['tmp_name'], $staging );
         if ( is_wp_error( $unzipped ) ) {
             $cleanup();
             wp_send_json_error( __( 'Could not extract the zip file.', 'landing-page-manager' ), 400 );
         }
 
         // Accept either files at the zip root or a single top-level folder.
-        $source  = $work_dir;
-        $entries = array_values( array_diff( (array) scandir( $work_dir ), [ '.', '..', '__MACOSX' ] ) );
-        if ( 1 === count( $entries ) && is_dir( $work_dir . '/' . $entries[0] ) ) {
-            $source = $work_dir . '/' . $entries[0];
+        $source  = $staging;
+        $entries = array_values( array_diff( (array) scandir( $staging ), [ '.', '..', '__MACOSX' ] ) );
+        if ( 1 === count( $entries ) && is_dir( $staging . '/' . $entries[0] ) ) {
+            $source = $staging . '/' . $entries[0];
             $slug   = sanitize_key( $entries[0] );
         } else {
             $slug = sanitize_key( pathinfo( $name, PATHINFO_FILENAME ) );
@@ -126,31 +143,96 @@ class Template_Manager {
             $cleanup();
             wp_send_json_error( __( 'Template must contain single-landing_page.php and screenshot.png.', 'landing-page-manager' ), 400 );
         }
-        if ( ! preg_match( '/Template Name:\s*\S/i', (string) file_get_contents( $entry_file ) ) ) {
+        $headers = get_file_data( $entry_file, [ 'name' => 'Template Name' ] );
+        if ( '' === $headers['name'] ) {
             $cleanup();
             wp_send_json_error( __( 'single-landing_page.php is missing a "Template Name:" header.', 'landing-page-manager' ), 400 );
         }
 
-        if ( '' === $slug ) {
+        if ( '' === $slug || '.' === $slug[0] ) {
             $cleanup();
             wp_send_json_error( __( 'Could not determine a valid template name.', 'landing-page-manager' ), 400 );
         }
 
-        $destination = plugin_dir_path( __DIR__ ) . 'templates/' . $slug;
+        $destination = $templates_dir . $slug;
+        $exists_msg  = sprintf(
+            /* translators: %s: template slug */
+            __( 'A template named "%s" already exists.', 'landing-page-manager' ),
+            $slug
+        );
         if ( file_exists( $destination ) ) {
             $cleanup();
-            /* translators: %s: template slug */
-            wp_send_json_error( sprintf( __( 'A template named "%s" already exists.', 'landing-page-manager' ), $slug ), 409 );
+            wp_send_json_error( $exists_msg, 409 );
         }
 
-        $wp_filesystem->mkdir( $destination );
-        $copied = copy_dir( $source, $destination );
+        // rename() is the atomic step: it fails if a concurrent upload claimed the slug first.
+        if ( ! @rename( $source, $destination ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
+            $cleanup();
+            wp_send_json_error( file_exists( $destination ) ? $exists_msg : __( 'Could not install the template.', 'landing-page-manager' ), file_exists( $destination ) ? 409 : 500 );
+        }
+
         $cleanup();
-        if ( is_wp_error( $copied ) ) {
-            $wp_filesystem->delete( $destination, true );
-            wp_send_json_error( __( 'Could not install the template.', 'landing-page-manager' ), 500 );
+        wp_send_json_success( [ 'slug' => $slug ] );
+    }
+
+    /**
+     * Reject archives with entries WordPress's validate_file() doesn't catch
+     * (backslash traversal on Windows hosts, absolute paths) or server-config files.
+     *
+     * @param string $zip_path Path to the uploaded archive.
+     * @return string Error message, or '' when the archive is acceptable.
+     */
+    private static function scan_archive( $zip_path ) {
+        if ( ! class_exists( 'ZipArchive' ) ) {
+            return __( 'The PHP zip extension is required to upload templates.', 'landing-page-manager' );
         }
 
-        wp_send_json_success( [ 'slug' => $slug ] );
+        $zip = new \ZipArchive();
+        if ( true !== $zip->open( $zip_path ) ) {
+            return __( 'Could not read the zip file.', 'landing-page-manager' );
+        }
+
+        $blocked = [ '.htaccess', '.user.ini', 'web.config' ];
+        $problem = '';
+        for ( $i = 0; $i < $zip->numFiles; $i++ ) {
+            $entry = (string) $zip->getNameIndex( $i );
+            $base  = strtolower( basename( $entry ) );
+            $ext   = strtolower( pathinfo( $entry, PATHINFO_EXTENSION ) );
+
+            if ( false !== strpos( $entry, '\\' ) || '/' === substr( $entry, 0, 1 ) || preg_match( '#(^|/)\.\.(/|$)#', $entry ) || preg_match( '/^[a-z]:/i', $entry ) ) {
+                $problem = __( 'The zip contains unsafe file paths.', 'landing-page-manager' );
+                break;
+            }
+            if ( in_array( $base, $blocked, true ) || in_array( $ext, [ 'phar', 'phtml' ], true ) ) {
+                /* translators: %s: file name inside the zip */
+                $problem = sprintf( __( 'The zip contains a disallowed file: %s', 'landing-page-manager' ), $entry );
+                break;
+            }
+        }
+        $zip->close();
+
+        return $problem;
+    }
+
+    /**
+     * Versions before 1.0.6 extracted uploads into uploads/lpmanager_temp_upload/ and could
+     * leave PHP there. Remove it once.
+     */
+    public static function remove_legacy_upload_dir() {
+        if ( get_option( 'lpmanager_legacy_upload_dir_removed' ) || ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $legacy = wp_upload_dir()['basedir'] . '/lpmanager_temp_upload';
+        if ( file_exists( $legacy ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            if ( ! WP_Filesystem() ) {
+                return; // Try again on a later request.
+            }
+            global $wp_filesystem;
+            $wp_filesystem->delete( $legacy, true );
+        }
+
+        update_option( 'lpmanager_legacy_upload_dir_removed', 1, false );
     }
 }
