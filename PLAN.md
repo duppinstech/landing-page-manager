@@ -26,7 +26,8 @@ _Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
 - [x] **Add a copyright line to LICENSE.**
 - [ ] **Store uploaded templates outside the plugin folder.** (From the security review.) Every plugin update replaces `includes/templates/`, which silently deletes uploaded templates; their landing pages then fall back to a 404. Move uploads to `wp-content/lpmanager-templates/<slug>/` and have `get_templates()` and `Template_Loader` search both locations, with shipped templates taking priority.
 - [ ] **Guard template field loading.** (From the security review.) `Template_Loader` `require_once`s `<slug>/lib/fields/landing-page-fields.php` on wp-admin requests, so a broken uploaded template can take down wp-admin. Do this after the WIP in `Template_Loader.php` is committed.
-- [ ] **Uninstall routine.** Add `uninstall.php` that removes `lpmanager_*` options and leaves content in place, with a documented opt-in for deleting content.
+- [x] **Uninstall routine.** `uninstall.php` removes `lpmanager_*` and `_lpmanager_*` options (but not `lpmanager_pro_*`) and the validation transients, on every site in a multisite network. Content is kept unless `LPMANAGER_UNINSTALL_DELETE_CONTENT` is true. Needs a test on a WP site.
+- [x] **Repo moved to `duppinstech/landing-page-manager`.** Updated the remote, the updater API URL, the Plugin URI and the docs.
 
 ## P2 — later
 
