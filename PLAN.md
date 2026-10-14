@@ -16,6 +16,9 @@ _Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
 
 ## P1 — deployment and quality
 
+- [ ] **Ship v1.0.6 soon. Keep the `oduppinsjr` GitHub account and never create or fork a `landing-page-manager` repo under it.** (From the security review.) Sites on v1.0.5 and earlier still call the old API URL and only reach the new repo through GitHub's redirect. If a repo with that name is ever recreated there, it controls their updates, which means remote code execution on those sites.
+- [ ] **Updater integrity.** Allow package URLs only from `github.com`, `codeload.github.com` and `objects.githubusercontent.com`, and verify a checksum or signature published with the release (for example a `.sha256` asset).
+
 - [x] **CI: lint on push/PR.** `.github/workflows/ci.yml` runs `php -l` on PHP 7.4, 8.1 and 8.3.
 - [ ] **CI: PHPCS (WordPress Coding Standards).** Start non-blocking. This needs the dev-dependency decision below.
 - [x] **CI: release automation.** `.github/workflows/release.yml` runs on a `v*` tag. It lints, checks that the tag matches `Version:`, builds the zip using `.distignore`, checks the zip layout, and creates the release with the zip and changelog notes. It uses the committed `vendor/`, so the shipped zip is exactly what was tested.

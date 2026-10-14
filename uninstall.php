@@ -37,6 +37,23 @@ function lpmanager_uninstall_site() {
         )
     );
 
+    // Settings save stores plaintext copies of the API keys (for the masked-input UI) inside
+    // Carbon's shared container option. Remove only our keys; other plugins may use the option.
+    $container = get_option( 'carbon_fields_theme_options_container' );
+    if ( is_array( $container ) ) {
+        $before = count( $container );
+        foreach ( array_keys( $container ) as $key ) {
+            if ( 0 === strpos( (string) $key, 'lpmanager_' ) && 0 !== strpos( (string) $key, 'lpmanager_pro_' ) ) {
+                unset( $container[ $key ] );
+            }
+        }
+        if ( empty( $container ) ) {
+            delete_option( 'carbon_fields_theme_options_container' );
+        } elseif ( count( $container ) !== $before ) {
+            update_option( 'carbon_fields_theme_options_container', $container );
+        }
+    }
+
     // Transients (validation notices).
     $wpdb->query(
         $wpdb->prepare(
@@ -47,23 +64,21 @@ function lpmanager_uninstall_site() {
     );
 
     if ( defined( 'LPMANAGER_UNINSTALL_DELETE_CONTENT' ) && LPMANAGER_UNINSTALL_DELETE_CONTENT ) {
-        $post_ids = get_posts(
-            [
-                'post_type'      => 'landing_page',
-                'post_status'    => 'any',
-                'posts_per_page' => -1,
-                'fields'         => 'ids',
-            ]
+        // Direct query: get_posts( 'any' ) skips trash and auto-draft.
+        $post_ids = $wpdb->get_col(
+            $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s", 'landing_page' )
         );
         foreach ( $post_ids as $post_id ) {
-            wp_delete_post( $post_id, true );
+            wp_delete_post( (int) $post_id, true );
         }
 
         // The plugin isn't loaded during uninstall, so register the taxonomies for wp_delete_term().
+        // If one is already registered, another plugin owns that slug — leave its terms alone.
         foreach ( [ 'client', 'keyword' ] as $taxonomy ) {
-            if ( ! taxonomy_exists( $taxonomy ) ) {
-                register_taxonomy( $taxonomy, 'landing_page' );
+            if ( taxonomy_exists( $taxonomy ) ) {
+                continue;
             }
+            register_taxonomy( $taxonomy, 'landing_page' );
             $term_ids = get_terms(
                 [
                     'taxonomy'   => $taxonomy,
@@ -79,7 +94,9 @@ function lpmanager_uninstall_site() {
         }
     }
 
-    flush_rewrite_rules( false );
+    // Not flush_rewrite_rules(): inside switch_to_blog() it would write this request's rules into
+    // other sites. Deleting the option makes each site rebuild its own on the next request.
+    delete_option( 'rewrite_rules' );
 }
 
 if ( is_multisite() ) {
