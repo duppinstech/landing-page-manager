@@ -81,6 +81,7 @@ h4 {
 
 .call-button:hover {
     background: #e64a19;
+    color: #fff !important;
 }
 
 /* Trust Bar */
@@ -368,6 +369,16 @@ h4 {
 
 .cta-call-button:hover {
     background-color: #333; /* or a slightly darker variant of $client_secondary_color if desired */
+    color: #fff !important;
+}
+
+.ast-button:hover,
+.button:hover,
+button:hover,
+input[type=button]:hover,
+input[type=submit]:hover,
+.btn:hover {
+  color: #fff !important;
 }
 
 .cta-call-button i {
@@ -386,8 +397,16 @@ h4 {
   font-size: 48px;
 }
 
+.faq-section .container {
+  max-width: none;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .e-n-accordion {
-  max-width: 800px;
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -428,7 +447,7 @@ h4 {
 }
 
 .e-n-accordion-item[open] summary {
-  border-bottom: 1px solid #ccc;
+  border-bottom: none;
 }
 
 .e-n-accordion-item > div {
@@ -450,9 +469,12 @@ h4 {
   display: none;
 }
 
-.e-n-accordion-item summary:focus {
-  outline: 3px solid #333;
-  outline-offset: 2px;
+.e-n-accordion-item summary:focus,
+.e-n-accordion-item summary:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-top: none;
+  border-bottom: none;
 }
 
 /* Section 8 */

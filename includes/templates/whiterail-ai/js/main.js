@@ -99,6 +99,11 @@
                 slidesPerView: 1,
                 spaceBetween: 20,
                 autoHeight: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false
+                },
+                speed: 900,
                 navigation: { prevEl: prevEl, nextEl: nextEl },
                 pagination: { el: paginationEl, clickable: true },
                 breakpoints: {

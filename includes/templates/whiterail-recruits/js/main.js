@@ -441,7 +441,8 @@ jQuery(function($) {
     }
 
     function createMapMarker(options) {
-        var canUseAdvanced = google.maps.marker && google.maps.marker.AdvancedMarkerElement;
+        var hasMapId = options.map && typeof options.map.get === 'function' && !!options.map.get('mapId');
+        var canUseAdvanced = hasMapId && google.maps.marker && google.maps.marker.AdvancedMarkerElement;
         if (canUseAdvanced) {
             var advancedOptions = {
                 map: options.map,
@@ -459,6 +460,19 @@ jQuery(function($) {
             return new google.maps.marker.AdvancedMarkerElement(advancedOptions);
         }
         return new google.maps.Marker(options);
+    }
+
+    function bindMarkerClick(marker, callback) {
+        if (!marker || typeof callback !== 'function') {
+            return;
+        }
+        if (typeof marker.addEventListener === 'function') {
+            marker.addEventListener('gmp-click', callback);
+            return;
+        }
+        if (typeof marker.addListener === 'function') {
+            marker.addListener('click', callback);
+        }
     }
 
     function geocodeAddress(locations, i) {
@@ -488,7 +502,7 @@ jQuery(function($) {
     }
 
     function infoWindow(marker, map, title, address) {
-        google.maps.event.addListener(marker, 'click', function() {
+        bindMarkerClick(marker, function() {
             var html = "<div><h3>" + title + "</h3><p>" + address + "<br></div></p></div>";
             iw = new google.maps.InfoWindow({
                 content: html,
