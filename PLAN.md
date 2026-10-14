@@ -5,27 +5,27 @@ in `.claude/memory/progress.md`. Priority: **P0** = before next release, **P1** 
 
 Status keys: `[ ]` todo · `[~]` in progress · `[x]` done
 
-_Last reviewed: 2026-10-14 (current release: v1.0.5)_
+_Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
 
 ## P0 — before the next release
 
-- [ ] **Secure template zip upload** (`includes/templates/Template_Manager.php` `handle_upload`)
-  - No nonce check on `admin_post_lpmanager_upload_template`: CSRF can make an admin upload PHP. Add `check_admin_referer()` and a nonce field in `Plugin_Settings`.
-  - Zip is extracted into `wp-content/uploads/lpmanager_temp_upload/`, which the web server can reach. When validation fails the extracted folder is never deleted, so executable PHP is left there. Extract outside the web root (or into `get_temp_dir()`) and always clean up recursively.
-  - Template slug comes from the first `*.php` filename. Sanitize it with `sanitize_key()` and use `unzip_file()` / `WP_Filesystem` so archives can't write outside the target folder (zip-slip).
-  - Owner: main + `security-reviewer`.
+- [x] **Secure template zip upload.** Done on `security/template-upload`: dedicated nonce plus the `install_plugins` capability, archive pre-scan, a staging folder with an atomic rename, shutdown and stale-folder cleanup, and removal of the legacy `uploads/` folder. The `security-reviewer` verdict was ok. This also fixed the upload itself, which had never worked because the JS and PHP had drifted apart. Needs a manual test on a WP site before release.
 - [ ] **Triage uncommitted WIP.** 12 modified files (analytics, validator, CPT, client taxonomy, template loader, whiterail templates) plus the untracked `includes/templates/quicktow/` template. Review, split into logical commits, and add a CHANGELOG entry.
-- [ ] **Stop tracking `landing-page-manager.zip` in git.** It is a 3.5 MB binary that is rebuilt on every release and bloats history. Build it in CI and attach it to the GitHub Release instead (see P1 release automation). Add it to `.gitignore` once CI ships it.
-- [ ] **Remove site-specific dequeue handles.** `landing-page-manager.php` hardcodes `elementor-post-3/2708/2702/2693`. Replace them with a pattern match (`elementor-post-*`) or move them into a filter default.
+- [x] **Stop tracking `landing-page-manager.zip` in git.** It is untracked and gitignored now. `bin/build-zip.sh` and the Release workflow build it. Older copies stay in history; rewriting history to purge them is optional and not planned.
+- [x] **Remove site-specific dequeue handles.** `elementor-post-{ID}` is now matched by pattern, using the new filter `lpmanager_unwanted_style_patterns`.
 
 ## P1 — deployment and quality
 
-- [ ] **CI: lint on push/PR.** GitHub Action that runs `php -l` across PHP 7.4 and 8.x, plus PHPCS with the WordPress Coding Standards (start as non-blocking).
-- [ ] **CI: release automation.** On a `v*` tag, run `composer install --no-dev`, build the zip with top-level folder `landing-page-manager/` (excluding `.claude/`, `.github/`, `*.md` except README, and the Pro dir), and attach it to the release.
-- [ ] **Test harness.** Add PHPUnit with `wp-phpunit` or Brain Monkey. First targets: `Update_Checker::version_compare`, `normalize_install_source_dir`, `Landing_Page_Validator`, rewrite-rule host parsing.
-- [ ] **Pin Composer dependency.** `pkostadinov-2create/carbon-field-password` is on `dev-master`, so builds aren't reproducible. Pin it to a commit or tag.
-- [ ] **CHANGELOG backfill** for v1.0.1–v1.0.5 from git history and releases.
-- [ ] **Add a copyright line to LICENSE** (`Copyright (C) 2025-2026 Odell Duppins / Duppins Technology`). Keep GPL-2.0-or-later.
+- [x] **CI: lint on push/PR.** `.github/workflows/ci.yml` runs `php -l` on PHP 7.4, 8.1 and 8.3.
+- [ ] **CI: PHPCS (WordPress Coding Standards).** Start non-blocking. This needs the dev-dependency decision below.
+- [x] **CI: release automation.** `.github/workflows/release.yml` runs on a `v*` tag. It lints, checks that the tag matches `Version:`, builds the zip using `.distignore`, checks the zip layout, and creates the release with the zip and changelog notes. It uses the committed `vendor/`, so the shipped zip is exactly what was tested.
+- [ ] **Decision needed: dev dependencies while `vendor/` is committed.** `composer require --dev phpunit` would commit PHPUnit into `vendor/`. Options: (a) CI runs `composer install` with dev dependencies and the release builds with `--no-dev`, which means no longer committing `vendor/`; (b) install the dev tools globally in CI only (`tools/` or phive).
+- [ ] **Test harness.** Blocked by the decision above. Add PHPUnit with `wp-phpunit` or Brain Monkey. First targets: `Update_Checker::version_compare`, `normalize_install_source_dir`, `Landing_Page_Validator`, rewrite-rule host parsing.
+- [x] **Pin Composer dependency.** `carbon-field-password` is pinned to `dev-master#80df427`, the commit already locked and vendored. Upstream has no tags.
+- [x] **CHANGELOG backfill** for v1.0.1–v1.0.5.
+- [x] **Add a copyright line to LICENSE.**
+- [ ] **Store uploaded templates outside the plugin folder.** (From the security review.) Every plugin update replaces `includes/templates/`, which silently deletes uploaded templates; their landing pages then fall back to a 404. Move uploads to `wp-content/lpmanager-templates/<slug>/` and have `get_templates()` and `Template_Loader` search both locations, with shipped templates taking priority.
+- [ ] **Guard template field loading.** (From the security review.) `Template_Loader` `require_once`s `<slug>/lib/fields/landing-page-fields.php` on wp-admin requests, so a broken uploaded template can take down wp-admin. Do this after the WIP in `Template_Loader.php` is committed.
 - [ ] **Uninstall routine.** Add `uninstall.php` that removes `lpmanager_*` options and leaves content in place, with a documented opt-in for deleting content.
 
 ## P2 — later
@@ -40,4 +40,4 @@ _Last reviewed: 2026-10-14 (current release: v1.0.5)_
 - [x] GitHub-release updater with WP.org toggle (v1.0.1)
 - [x] Manual "check for updates" plugin-row action (v1.0.2)
 - [x] Subdomain AJAX fix and normalized GitHub update install folder (v1.0.5)
-- [x] SDLC and Claude Code scaffolding (this commit)
+- [x] SDLC and Claude Code scaffolding (2026-10-14)
