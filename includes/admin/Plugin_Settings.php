@@ -61,6 +61,7 @@ class Plugin_Settings {
         wp_localize_script('lpmanager-admin-js', 'lpmanager_vars', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('lpmanager_nonce'),
+            'upload_nonce' => wp_create_nonce( \LPManager\templates\Template_Manager::UPLOAD_NONCE ),
         ]);
     }
     
