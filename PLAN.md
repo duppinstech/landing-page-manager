@@ -5,7 +5,7 @@ in `.claude/memory/progress.md`. Priority: **P0** = before next release, **P1** 
 
 Status keys: `[ ]` todo · `[~]` in progress · `[x]` done
 
-_Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
+_Last reviewed: 2026-10-14 (current release: v1.0.6)_
 
 ## P0 — before the next release
 
@@ -18,7 +18,7 @@ _Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
 
 ## P1 — deployment and quality
 
-- [ ] **Ship v1.0.6 soon. Keep the `oduppinsjr` GitHub account and never create or fork a `landing-page-manager` repo under it.** (From the security review.) Sites on v1.0.5 and earlier still call the old API URL and only reach the new repo through GitHub's redirect. If a repo with that name is ever recreated there, it controls their updates, which means remote code execution on those sites.
+- [x] **Shipped v1.0.6 on 2026-10-14.** Ongoing: **keep the `oduppinsjr` GitHub account and never create or fork a `landing-page-manager` repo under it.** (From the security review.) Sites on v1.0.5 and earlier still call the old API URL and only reach the new repo through GitHub's redirect. If a repo with that name is ever recreated there, it controls their updates, which means remote code execution on those sites.
 - [ ] **Updater integrity.** Allow package URLs only from `github.com`, `codeload.github.com` and `objects.githubusercontent.com`, and verify a checksum or signature published with the release (for example a `.sha256` asset).
 
 - [x] **CI: lint on push/PR.** `.github/workflows/ci.yml` runs `php -l` on PHP 7.4, 8.1 and 8.3.
@@ -47,3 +47,4 @@ _Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
 - [x] Manual "check for updates" plugin-row action (v1.0.2)
 - [x] Subdomain AJAX fix and normalized GitHub update install folder (v1.0.5)
 - [x] SDLC and Claude Code scaffolding (2026-10-14)
+- [x] v1.0.6: template upload security, CI-built release zip, uninstall, repo move, Template A template (2026-10-14)
