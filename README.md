@@ -21,7 +21,7 @@ API keys (Google Maps, Brandfetch) are stored in **Settings** and are never hard
 - WordPress 5.9+
 - PHP 7.4+
 - [Composer](https://getcomposer.org/) (for development)
-- Optional: [Landing Page Manager Pro](https://github.com/oduppinsjr/landing-page-manager-pro) for analytics and conversion tracking
+- Optional: [Landing Page Manager Pro](https://github.com/duppinstech/landing-page-manager-pro) for analytics and conversion tracking
 
 ## Installation
 
@@ -43,7 +43,7 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 
 ## Updates from GitHub
 
-In **Settings → Updates** you can set the plugin update source to **GitHub only** or **GitHub and WordPress.org (use newest version)**. When GitHub is used, the plugin checks the [GitHub releases API](https://api.github.com/repos/oduppinsjr/landing-page-manager/releases/latest) for a new version. Create a release with a tag (e.g. `1.0.1`) to trigger an update. For a reliable update zip, you can upload a correctly structured zip (root folder `landing-page-manager`) as a release asset and use the filter `lpmanager_github_update_package_url` to point to it; otherwise the default zipball from GitHub is used.
+In **Settings → Updates** you can set the plugin update source to **GitHub only** or **GitHub and WordPress.org (use newest version)**. When GitHub is used, the plugin checks the [GitHub releases API](https://api.github.com/repos/duppinstech/landing-page-manager/releases/latest) for a new version. Create a release with a tag (e.g. `1.0.1`) to trigger an update. For a reliable update zip, you can upload a correctly structured zip (root folder `landing-page-manager`) as a release asset and use the filter `lpmanager_github_update_package_url` to point to it; otherwise the default zipball from GitHub is used.
 
 Recommended release flow:
 

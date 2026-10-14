@@ -11,8 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Update_Checker {
 
-    const GITHUB_API_URL = 'https://api.github.com/repos/oduppinsjr/landing-page-manager/releases/latest';
-    const REPO_URL        = 'https://github.com/oduppinsjr/landing-page-manager';
+    const GITHUB_API_URL = 'https://api.github.com/repos/duppinstech/landing-page-manager/releases/latest';
+    const REPO_URL        = 'https://github.com/duppinstech/landing-page-manager';
     const PLUGIN_SLUG     = 'landing-page-manager';
 
     public static function init() {

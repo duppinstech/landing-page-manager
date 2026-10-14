@@ -33,7 +33,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/oduppinsjr/landing-page-manager/compare/v1.0.5...HEAD
-[1.0.5]: https://github.com/oduppinsjr/landing-page-manager/releases/tag/v1.0.5
-[1.0.2]: https://github.com/oduppinsjr/landing-page-manager/releases/tag/v1.0.2
-[1.0.1]: https://github.com/oduppinsjr/landing-page-manager/releases/tag/v1.0.1
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.5
+[1.0.2]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.2
+[1.0.1]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.1
