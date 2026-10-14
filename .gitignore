@@ -29,3 +29,7 @@ temp/
 
 # Optional: uncomment if you install Node tooling and don't want to commit it
 # node_modules/
+
+# Claude Code — personal, never committed
+CLAUDE.local.md
+.claude/settings.local.json
