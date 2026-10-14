@@ -17,5 +17,13 @@ Append-only log. Format: `## YYYY-MM-DD — Title`, then Context / Decision / Co
 **Decision:** `vendor/` is committed and shipped.
 **Consequences:** Never hand-edit vendor. Dependency bumps are deliberate commits.
 
+## 2026-10-14 — Template upload is plugin-install privilege
+**Decision:** Uploading a template requires `install_plugins` and its own nonce. Archives are extracted into `templates/.staging-*` and moved into place with `rename()`. Only the direct filesystem method is supported.
+**Consequences:** Non-super-admins on multisite, and sites with `DISALLOW_FILE_MODS`, can't upload templates. This is intended, because templates are executable PHP.
+
+## 2026-10-14 — Release zip is built by CI, not committed
+**Decision:** `.github/workflows/release.yml` builds `landing-page-manager.zip` from the tagged commit, using the committed `vendor/` and the exclusions in `.distignore`, and creates the release with the asset attached in one step.
+**Consequences:** Never create a release by hand before CI runs. A release without the asset makes sites fall back to the GitHub zipball.
+
 ## 2026-10-14 — Claude Code / SDLC scaffolding
 **Decision:** Adopted CLAUDE.md, AGENTS.md, INTENT.md, PLAN.md, and the `.claude/` rules, commands, skills, agents, hooks, memory, and workflows. Hooks enforce PHP lint, block secret and vendor writes, and run phpcbf when it's available.

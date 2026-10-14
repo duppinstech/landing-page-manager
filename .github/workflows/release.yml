@@ -1,0 +1,61 @@
+name: Release
+
+# Push a tag like v1.0.6 (matching `Version:` in landing-page-manager.php).
+# This builds the zip and creates the GitHub Release with the zip attached in
+# one step, so the updater never sees a release without its asset.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Lint
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l | grep -v '^No syntax errors' || [ "${PIPESTATUS[1]}" = 0 ]
+
+      - name: Check version matches tag
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          header="$(sed -n 's/^ \* Version:[[:space:]]*//p' landing-page-manager.php | tr -d '\r')"
+          echo "tag=$tag header=$header"
+          [ "$tag" = "$header" ] || { echo "::error::Tag v$tag does not match plugin Version $header"; exit 1; }
+
+      - name: Build zip
+        run: bash bin/build-zip.sh "$PWD/landing-page-manager.zip"
+
+      - name: Verify zip layout
+        run: |
+          unzip -Z1 landing-page-manager.zip > zip-list.txt
+          bad="$(grep -v '^landing-page-manager/' zip-list.txt || true)"
+          [ -z "$bad" ] || { echo "::error::Unexpected paths in zip:"; echo "$bad"; exit 1; }
+          for f in landing-page-manager.php vendor/autoload.php includes/Plugin.php; do
+            grep -qx "landing-page-manager/$f" zip-list.txt || { echo "::error::Missing $f in zip"; exit 1; }
+          done
+
+      - name: Extract changelog section
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          awk -v h="## [$ver]" 'index($0, h) == 1 {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Release $GITHUB_REF_NAME" > notes.md
+
+      - name: Create release (or update asset if it already exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" landing-page-manager.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" landing-page-manager.zip \
+              --title "Landing Page Manager $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+          fi

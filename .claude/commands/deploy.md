@@ -15,13 +15,12 @@ This ships to live sites through the GitHub updater. **Confirm with Odell before
    - Set ` * Version: $ARGUMENTS` in `landing-page-manager.php`.
    - In `CHANGELOG.md`, move [Unreleased] to `## [$ARGUMENTS] - <today>` and update the compare links.
    - Commit: `Release v$ARGUMENTS`.
-3. **Build the zip** (top-level folder must be exactly `landing-page-manager/`):
-   - Stage a copy that excludes `.git/`, `.github/`, `.claude/`, `CLAUDE*.md`, `AGENTS.md`, `PLAN.md`, `INTENT.md`, `.mcp.json`, `landing-page-manager-pro/`, and any existing zip.
-   - Zip it with PowerShell `Compress-Archive` or `7z`. Verify with `unzip -l` that every path starts with `landing-page-manager/`.
+3. **Dry-run the zip locally** (optional): `bin/build-zip.sh` and check that `unzip -Z1 landing-page-manager.zip` paths all start with `landing-page-manager/`. Don't commit the zip.
 4. **Publish** (ask first)
    - `git push origin main`
    - `git tag v$ARGUMENTS && git push origin v$ARGUMENTS`
-   - `gh release create v$ARGUMENTS landing-page-manager.zip --title "Landing Page Manager v$ARGUMENTS" --notes-file <changelog section>`
+   - The `Release` workflow (`.github/workflows/release.yml`) lints, checks that the tag matches `Version:`, builds the zip, and creates the release with the zip and changelog notes. Watch it with `gh run watch`.
+   - Don't run `gh release create` by hand. A release without the asset makes sites fall back to the raw zipball.
 5. **Verify**
    - `gh release view v$ARGUMENTS` shows the asset.
    - On a staging site, **Dashboard → Updates → Check Again** offers $ARGUMENTS and installs into the correct folder.

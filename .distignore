@@ -1,0 +1,19 @@
+# Paths excluded from the release zip (one per line, relative to repo root).
+.git
+.github
+.claude
+.mcp.json
+.gitignore
+.gitattributes
+.distignore
+bin
+tests
+phpunit.xml.dist
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+INTENT.md
+PLAN.md
+CONTRIBUTING.md
+landing-page-manager-pro
+landing-page-manager.zip
