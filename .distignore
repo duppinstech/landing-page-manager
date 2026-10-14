@@ -17,3 +17,5 @@ PLAN.md
 CONTRIBUTING.md
 landing-page-manager-pro
 landing-page-manager.zip
+# Design mockups (client-named reference HTML) — kept in git, not shipped
+includes/templates/*/*.html

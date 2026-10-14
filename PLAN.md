@@ -10,7 +10,9 @@ _Last reviewed: 2026-10-14 (current release: v1.0.5; next: v1.0.6)_
 ## P0 — before the next release
 
 - [x] **Secure template zip upload.** Done on `security/template-upload`: dedicated nonce plus the `install_plugins` capability, archive pre-scan, a staging folder with an atomic rename, shutdown and stale-folder cleanup, and removal of the legacy `uploads/` folder. The `security-reviewer` verdict was ok. This also fixed the upload itself, which had never worked because the JS and PHP had drifted apart. Needs a manual test on a WP site before release.
-- [ ] **Triage uncommitted WIP.** 12 modified files (analytics, validator, CPT, client taxonomy, template loader, client-b templates) plus the untracked `includes/templates/template_a/` template. Review, split into logical commits, and add a CHANGELOG entry.
+- [x] **Triage uncommitted WIP.** Committed in 6 logical commits on `feature/template-a-ux`, with a CHANGELOG entry. The Template A `.html` mockups are excluded from the release zip by `.distignore`.
+- [ ] **Remove or re-wire the per-client template field.** The client screen still shows "Landing Page Template" (`lpmanager_client_template`), but templates now come only from the global setting. Either remove the field or restore per-client selection. Update the README to match.
+- [ ] **Move the Template A "Style Variant" field out of core.** `Landing_Page_CPT` registers `wra_style_variant`, whose options name a client. It belongs in `template_a/lib/fields/` (see the CLAUDE.md conventions).
 - [x] **Stop tracking `landing-page-manager.zip` in git.** It is untracked and gitignored now. `bin/build-zip.sh` and the Release workflow build it. Older copies stay in history; rewriting history to purge them is optional and not planned.
 - [x] **Remove site-specific dequeue handles.** `elementor-post-{ID}` is now matched by pattern, using the new filter `lpmanager_unwanted_style_patterns`.
 
