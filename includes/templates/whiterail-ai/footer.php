@@ -77,7 +77,9 @@
                         var map = new google.maps.Map(document.getElementById("footer-map"), mapOptions);
 
                         var marker;
+                        var hasMapId = typeof map.get === "function" && !!map.get("mapId");
                         if (
+                            hasMapId &&
                             google.maps.marker &&
                             google.maps.marker.AdvancedMarkerElement
                         ) {
@@ -106,10 +108,16 @@
                             content: infoWindowContent
                         });
 
-                        // Open on marker click
-                        marker.addListener("click", function() {
-                            infoWindow.open(map, marker);
-                        });
+                        // Open on marker click (Advanced Marker uses gmp-click).
+                        if (marker && typeof marker.addEventListener === "function") {
+                            marker.addEventListener("gmp-click", function() {
+                                infoWindow.open(map, marker);
+                            });
+                        } else if (marker && typeof marker.addListener === "function") {
+                            marker.addListener("click", function() {
+                                infoWindow.open(map, marker);
+                            });
+                        }
 
                         // Optionally auto-open on load
                         infoWindow.open(map, marker);
