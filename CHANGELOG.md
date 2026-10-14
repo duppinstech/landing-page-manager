@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.6] - 2026-10-14
 ### Security
 - The updater only installs a release asset named exactly `landing-page-manager.zip` or `landing-page-manager-<version>.zip`. Before, any zip with `landing-page-manager` in its name matched, including a Pro zip.
 - Template zip upload now requires its own nonce and the `install_plugins` capability. It pre-scans archives for unsafe paths and for `.htaccess`/`.phar` files, and installs through a staging folder with a single atomic rename. Cleanup also runs after fatal errors. Previously the upload had no CSRF protection and could leave extracted PHP in `uploads/`. That old folder is now removed once on upgrade.
@@ -46,7 +48,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.5
 [1.0.2]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.2
 [1.0.1]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.1
