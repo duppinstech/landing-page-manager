@@ -14,7 +14,7 @@ owned by Odell Duppins / Duppins Technology (see [OWNERSHIP.md](OWNERSHIP.md)).
 
 ## Local setup
 ```bash
-git clone https://github.com/oduppinsjr/landing-page-manager.git wp-content/plugins/landing-page-manager
+git clone https://github.com/duppinstech/landing-page-manager.git wp-content/plugins/landing-page-manager
 cd wp-content/plugins/landing-page-manager
 composer install
 ```
