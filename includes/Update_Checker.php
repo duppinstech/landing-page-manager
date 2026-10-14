@@ -11,8 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Update_Checker {
 
-    const GITHUB_API_URL = 'https://api.github.com/repos/oduppinsjr/landing-page-manager/releases/latest';
-    const REPO_URL        = 'https://github.com/oduppinsjr/landing-page-manager';
+    const GITHUB_API_URL = 'https://api.github.com/repos/duppinstech/landing-page-manager/releases/latest';
+    const REPO_URL        = 'https://github.com/duppinstech/landing-page-manager';
     const PLUGIN_SLUG     = 'landing-page-manager';
 
     public static function init() {
@@ -99,10 +99,10 @@ class Update_Checker {
                 if ( empty( $asset['name'] ) || empty( $asset['browser_download_url'] ) ) {
                     continue;
                 }
-                $name = strtolower( (string) $asset['name'] );
-                $is_zip = substr( $name, -4 ) === '.zip';
-                $looks_like_plugin_zip = strpos( $name, self::PLUGIN_SLUG ) !== false;
-                if ( $is_zip && $looks_like_plugin_zip ) {
+                // Exact name only (landing-page-manager.zip or landing-page-manager-1.2.3.zip),
+                // so e.g. a landing-page-manager-pro.zip asset is never installed as core.
+                $pattern = '/^' . preg_quote( self::PLUGIN_SLUG, '/' ) . '(-v?\d+(\.\d+)*)?\.zip$/i';
+                if ( preg_match( $pattern, (string) $asset['name'] ) ) {
                     return (string) $asset['browser_download_url'];
                 }
             }

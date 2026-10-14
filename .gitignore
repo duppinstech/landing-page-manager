@@ -33,3 +33,6 @@ temp/
 # Claude Code — personal, never committed
 CLAUDE.local.md
 .claude/settings.local.json
+
+# Release zip — built by bin/build-zip.sh / the Release workflow, never committed
+landing-page-manager.zip

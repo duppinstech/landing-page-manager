@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Landing Page Manager
- * Plugin URI: https://github.com/oduppinsjr/landing-page-manager
+ * Plugin URI: https://github.com/duppinstech/landing-page-manager
  * Description: Manage multi-client landing pages with subdomain routing.
  * Version: 1.0.5
  * Author: Odell Duppins
@@ -145,10 +145,6 @@ add_action( 'template_redirect', function () {
                     'elementor-common',
                     'elementor-pro',
                     'elementor-frontend',
-                    'elementor-post-3',
-                    'elementor-post-2708',
-                    'elementor-post-2702',
-                    'elementor-post-2693',
                     'hello-elementor',
                     'hello-elementor-theme-style',
                     'hello-elementor-header-footer',
@@ -160,7 +156,20 @@ add_action( 'template_redirect', function () {
                 foreach ($unwanted_styles as $style) {
                     wp_dequeue_style($style);
                 }
-    
+
+                // Per-post Elementor CSS handles (elementor-post-{ID}) differ on every site, so match by pattern.
+                $unwanted_style_patterns = apply_filters('lpmanager_unwanted_style_patterns', [
+                    '/^elementor-post-\d+$/',
+                ]);
+                foreach (wp_styles()->queue as $handle) {
+                    foreach ($unwanted_style_patterns as $pattern) {
+                        if (preg_match($pattern, $handle)) {
+                            wp_dequeue_style($handle);
+                            break;
+                        }
+                    }
+                }
+
                 $unwanted_scripts = apply_filters('lpmanager_unwanted_scripts', [
                     'elementor-common',
                     'elementor-pro-notes',
