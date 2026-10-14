@@ -55,6 +55,10 @@ Recommended release flow:
 
 To build the zip locally: `bin/build-zip.sh` (uses `zip`, or Python if `zip` is missing). The zip is not committed.
 
+## Uninstalling
+
+Deleting the plugin removes its settings. Landing pages, clients and keywords are kept. To delete those too, add `define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );` to `wp-config.php` before deleting.
+
 ## Development
 
 - Run `composer install` to install dependencies.
