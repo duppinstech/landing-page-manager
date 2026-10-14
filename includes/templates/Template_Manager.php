@@ -122,7 +122,10 @@ class Template_Manager {
         };
         register_shutdown_function( $cleanup );
 
+        // Force ZipArchive so extraction uses the same parser scan_archive() vetted.
+        add_filter( 'unzip_file_use_ziparchive', '__return_true', PHP_INT_MAX );
         $unzipped = unzip_file( $file['tmp_name'], $staging );
+        remove_filter( 'unzip_file_use_ziparchive', '__return_true', PHP_INT_MAX );
         if ( is_wp_error( $unzipped ) ) {
             $cleanup();
             wp_send_json_error( __( 'Could not extract the zip file.', 'landing-page-manager' ), 400 );
@@ -192,7 +195,7 @@ class Template_Manager {
             return __( 'Could not read the zip file.', 'landing-page-manager' );
         }
 
-        $blocked = [ '.htaccess', '.user.ini', 'web.config' ];
+        $blocked = array_filter( [ '.htaccess', '.user.ini', 'php.ini', 'web.config', strtolower( (string) ini_get( 'user_ini.filename' ) ) ] );
         $problem = '';
         for ( $i = 0; $i < $zip->numFiles; $i++ ) {
             $entry = (string) $zip->getNameIndex( $i );
@@ -215,24 +218,43 @@ class Template_Manager {
     }
 
     /**
-     * Versions before 1.0.6 extracted uploads into uploads/lpmanager_temp_upload/ and could
-     * leave PHP there. Remove it once.
+     * Admin housekeeping for extracted PHP that must not linger:
+     * - staging dirs orphaned when a worker was killed mid-upload (shutdown cleanup never ran);
+     * - versions before 1.0.6 extracted into uploads/lpmanager_temp_upload/ — removed once.
      */
     public static function remove_legacy_upload_dir() {
-        if ( get_option( 'lpmanager_legacy_upload_dir_removed' ) || ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_options' ) ) {
             return;
         }
 
-        $legacy = wp_upload_dir()['basedir'] . '/lpmanager_temp_upload';
-        if ( file_exists( $legacy ) ) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-            if ( ! WP_Filesystem() ) {
-                return; // Try again on a later request.
+        $stale = [];
+        foreach ( (array) glob( plugin_dir_path( __DIR__ ) . 'templates/.staging-*', GLOB_ONLYDIR ) as $dir ) {
+            if ( filemtime( $dir ) < time() - HOUR_IN_SECONDS ) {
+                $stale[] = $dir;
             }
-            global $wp_filesystem;
-            $wp_filesystem->delete( $legacy, true );
         }
 
-        update_option( 'lpmanager_legacy_upload_dir_removed', 1, false );
+        $legacy       = wp_upload_dir()['basedir'] . '/lpmanager_temp_upload';
+        $check_legacy = ! get_option( 'lpmanager_legacy_upload_dir_removed' );
+        if ( ! $stale && ! ( $check_legacy && file_exists( $legacy ) ) ) {
+            if ( $check_legacy ) {
+                update_option( 'lpmanager_legacy_upload_dir_removed', 1, false );
+            }
+            return;
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        if ( ! WP_Filesystem() ) {
+            return; // Try again on a later request.
+        }
+        global $wp_filesystem;
+
+        foreach ( $stale as $dir ) {
+            $wp_filesystem->delete( $dir, true );
+        }
+        // Only mark done once the folder is actually gone, so a failed delete is retried.
+        if ( $check_legacy && ( ! file_exists( $legacy ) || $wp_filesystem->delete( $legacy, true ) ) ) {
+            update_option( 'lpmanager_legacy_upload_dir_removed', 1, false );
+        }
     }
 }
