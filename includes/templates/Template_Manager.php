@@ -4,7 +4,7 @@ namespace LPManager\templates;
 class Template_Manager {
 
     public static function init() {
-        add_action( 'admin_post_lpmanager_upload_template', [ __CLASS__, 'handle_upload' ] );
+        add_action( 'wp_ajax_lpmanager_upload_template', [ __CLASS__, 'handle_upload' ] );
         // Template_Loader::load_template (priority 99) handles landing page template; no duplicate filter needed.
     }
 	
@@ -69,88 +69,88 @@ class Template_Manager {
         return $templates;
     }
 
+    /**
+     * AJAX: install a template from an uploaded .zip (Settings → Templates).
+     *
+     * Templates contain executable PHP, so this is treated like installing a plugin:
+     * nonce + install_plugins capability (which also honors DISALLOW_FILE_MODS),
+     * extraction outside the web root via WP's unzip_file() (rejects ../ paths),
+     * and cleanup on every exit path.
+     */
     public static function handle_upload() {
-        // Check user capabilities
-        if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized');
+        check_ajax_referer( 'lpmanager_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'install_plugins' ) ) {
+            wp_send_json_error( __( 'You do not have permission to install templates.', 'landing-page-manager' ), 403 );
         }
 
-        if (!isset($_FILES['lpmanager_template_upload']) || $_FILES['lpmanager_template_upload']['error'] !== UPLOAD_ERR_OK) {
-            wp_redirect(add_query_arg('upload_error', 'true', wp_get_referer()));
-            exit;
+        if ( ! isset( $_FILES['template_zip'] ) || UPLOAD_ERR_OK !== $_FILES['template_zip']['error'] ) {
+            wp_send_json_error( __( 'No file was uploaded.', 'landing-page-manager' ), 400 );
         }
 
-        $file = $_FILES['lpmanager_template_upload'];
-
-        // Validate file extension is zip
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        if (strtolower($ext) !== 'zip') {
-            wp_redirect(add_query_arg('upload_error', 'invalid_format', wp_get_referer()));
-            exit;
+        $file = $_FILES['template_zip'];
+        $name = sanitize_file_name( wp_unslash( $file['name'] ) );
+        if ( 'zip' !== strtolower( pathinfo( $name, PATHINFO_EXTENSION ) ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
+            wp_send_json_error( __( 'Please upload a .zip file.', 'landing-page-manager' ), 400 );
         }
 
-        // Move uploaded file to a temporary location
-        $tmp_dir = wp_upload_dir()['basedir'] . '/lpmanager_temp_upload';
-        if (!file_exists($tmp_dir)) {
-            wp_mkdir_p($tmp_dir);
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        if ( ! WP_Filesystem() ) {
+            wp_send_json_error( __( 'Could not access the filesystem.', 'landing-page-manager' ), 500 );
         }
-        $tmp_zip_path = $tmp_dir . '/' . basename($file['name']);
-        move_uploaded_file($file['tmp_name'], $tmp_zip_path);
+        global $wp_filesystem;
 
-        // Extract and validate
-        $zip = new ZipArchive;
-        if ($zip->open($tmp_zip_path) === TRUE) {
-            $extract_path = $tmp_dir . '/extracted_' . time();
-            mkdir($extract_path);
+        $work_dir = trailingslashit( get_temp_dir() ) . 'lpmanager-template-' . wp_generate_password( 12, false );
+        $cleanup  = function () use ( $wp_filesystem, $work_dir ) {
+            $wp_filesystem->delete( $work_dir, true );
+        };
 
-            $zip->extractTo($extract_path);
-            $zip->close();
+        $unzipped = unzip_file( $file['tmp_name'], $work_dir );
+        if ( is_wp_error( $unzipped ) ) {
+            $cleanup();
+            wp_send_json_error( __( 'Could not extract the zip file.', 'landing-page-manager' ), 400 );
+        }
 
-            // Validate extracted folder - e.g. check for a PHP template file
-            $template_php_files = glob($extract_path . '/*.php');
-            $screenshot_png = glob($extract_path . '/screenshot.png');
-
-            if (empty($template_php_files) || empty($screenshot_png)) {
-                // Cleanup
-                unlink($tmp_zip_path);
-                // delete extracted folder recursively here (implement a helper function)
-                // Redirect with error
-                wp_redirect(add_query_arg('upload_error', 'missing_files', wp_get_referer()));
-                exit;
-            }
-
-            // Further validate PHP template content (basic check for '<?php')
-            $php_content = file_get_contents($template_php_files[0]);
-            if (strpos($php_content, '<?php') === false) {
-                // Cleanup
-                unlink($tmp_zip_path);
-                // delete extracted folder recursively
-                wp_redirect(add_query_arg('upload_error', 'invalid_template', wp_get_referer()));
-                exit;
-            }
-
-            // Move extracted folder to plugin templates directory
-            $plugin_templates_dir = plugin_dir_path(__DIR__) . 'templates/';
-            $template_slug = basename($template_php_files[0], '.php'); // or extract from zip folder name
-
-            $final_template_path = $plugin_templates_dir . $template_slug;
-
-            if (file_exists($final_template_path)) {
-                // Avoid overwrite, maybe add suffix or reject upload
-                wp_redirect(add_query_arg('upload_error', 'already_exists', wp_get_referer()));
-                exit;
-            }
-
-            rename($extract_path, $final_template_path);
-
-            // Cleanup uploaded zip
-            unlink($tmp_zip_path);
-
-            wp_redirect(add_query_arg('upload_success', 'true', wp_get_referer()));
-            exit;
+        // Accept either files at the zip root or a single top-level folder.
+        $source  = $work_dir;
+        $entries = array_values( array_diff( (array) scandir( $work_dir ), [ '.', '..', '__MACOSX' ] ) );
+        if ( 1 === count( $entries ) && is_dir( $work_dir . '/' . $entries[0] ) ) {
+            $source = $work_dir . '/' . $entries[0];
+            $slug   = sanitize_key( $entries[0] );
         } else {
-            wp_redirect(add_query_arg('upload_error', 'unzip_failed', wp_get_referer()));
-            exit;
+            $slug = sanitize_key( pathinfo( $name, PATHINFO_FILENAME ) );
         }
+
+        $entry_file = $source . '/single-landing_page.php';
+        if ( ! file_exists( $entry_file ) || ! file_exists( $source . '/screenshot.png' ) ) {
+            $cleanup();
+            wp_send_json_error( __( 'Template must contain single-landing_page.php and screenshot.png.', 'landing-page-manager' ), 400 );
+        }
+        if ( ! preg_match( '/Template Name:\s*\S/i', (string) file_get_contents( $entry_file ) ) ) {
+            $cleanup();
+            wp_send_json_error( __( 'single-landing_page.php is missing a "Template Name:" header.', 'landing-page-manager' ), 400 );
+        }
+
+        if ( '' === $slug ) {
+            $cleanup();
+            wp_send_json_error( __( 'Could not determine a valid template name.', 'landing-page-manager' ), 400 );
+        }
+
+        $destination = plugin_dir_path( __DIR__ ) . 'templates/' . $slug;
+        if ( file_exists( $destination ) ) {
+            $cleanup();
+            /* translators: %s: template slug */
+            wp_send_json_error( sprintf( __( 'A template named "%s" already exists.', 'landing-page-manager' ), $slug ), 409 );
+        }
+
+        $wp_filesystem->mkdir( $destination );
+        $copied = copy_dir( $source, $destination );
+        $cleanup();
+        if ( is_wp_error( $copied ) ) {
+            $wp_filesystem->delete( $destination, true );
+            wp_send_json_error( __( 'Could not install the template.', 'landing-page-manager' ), 500 );
+        }
+
+        wp_send_json_success( [ 'slug' => $slug ] );
     }
 }

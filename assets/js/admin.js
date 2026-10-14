@@ -46,9 +46,10 @@ jQuery(document).ready(function($) {
           alert(response.data || 'Upload failed.');
         }
       },
-      error: function() {
+      error: function(xhr) {
         $('#lpmanager-upload-spinner').hide();
-        alert('Upload error.');
+        var msg = xhr.responseJSON && xhr.responseJSON.data;
+        alert(typeof msg === 'string' ? msg : 'Upload error.');
       }
     });
   });
