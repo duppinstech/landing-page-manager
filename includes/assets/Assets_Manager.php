@@ -31,7 +31,7 @@ class Assets_Manager {
                 // Footer cleanup
                 remove_all_actions('wp_footer');
                 add_action('wp_footer', 'wp_print_footer_scripts', 20);
-                add_action('wp_footer', 'wp_auth_check_html', 100);
+                // wp_auth_check_html breaks on stripped landing templates (false "session expired").
                 if ( is_admin_bar_showing() ) {
                     add_action('wp_footer', 'wp_admin_bar_render', 1000);
                 }
@@ -52,6 +52,13 @@ class Assets_Manager {
 
         $instance = new self();
         add_action('wp_enqueue_scripts', [$instance, 'enqueueAssets'], 999);
+
+        add_filter('wp_auth_check_load', function ($load) {
+            if (function_exists('is_singular') && is_singular('landing_page')) {
+                return false;
+            }
+            return $load;
+        }, 5);
 
         // Hook filters for admin bar assets
         add_filter('script_loader_src', [self::class, 'makeAdminBarAssetsRelative'], 10, 2);
@@ -178,13 +185,15 @@ class Assets_Manager {
                 // Log what the function is doing
             	//error_log("Assets_Manager: Found file $filename (type: $extension) at $file_url");
 
+                $ver = @filemtime( $file->getPathname() ) ?: null;
+
                 if ($type === 'style' && $extension === 'css') {
-                    wp_enqueue_style($handle, $file_url);
+                    wp_enqueue_style($handle, $file_url, [], $ver);
                     //error_log("Assets_Manager: Enqueued CSS file $file_url with handle $handle");
                 }
 
                 if ($type === 'script' && $extension === 'js') {
-                    wp_enqueue_script($handle, $file_url, ['jquery'], null, true);
+                    wp_enqueue_script($handle, $file_url, ['jquery'], $ver, true);
                     //error_log("Assets_Manager: Enqueued JS file $file_url with handle $handle");
                 }
             }
