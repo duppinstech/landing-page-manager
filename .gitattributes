@@ -2,3 +2,23 @@
 *.sh text eol=lf
 *.zip binary
 *.png binary
+
+# Keep dev-only files out of GitHub's zipball/tarball. The updater falls back to
+# the zipball if a release has no landing-page-manager.zip asset, so this mirrors
+# .distignore.
+.github             export-ignore
+.claude             export-ignore
+.mcp.json           export-ignore
+.gitignore          export-ignore
+.gitattributes      export-ignore
+.distignore         export-ignore
+bin                 export-ignore
+tests               export-ignore
+phpunit.xml.dist    export-ignore
+CLAUDE.md           export-ignore
+AGENTS.md           export-ignore
+INTENT.md           export-ignore
+PLAN.md             export-ignore
+CONTRIBUTING.md     export-ignore
+meeting-notes       export-ignore
+includes/templates/*/*.html export-ignore
