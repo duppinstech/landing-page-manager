@@ -24,5 +24,5 @@ jobs:
         # 255 on a parse error, which makes xargs stop early, so map it to 1.
         run: |
           find . -name '*.php' -not -path './vendor/*' -print0 \
-            | xargs -0 -n1 -P4 sh -c 'php -l "$0" || exit 1' > lint.log 2>&1 \
-            || { grep -v '^No syntax errors' lint.log; exit 1; }
+            | xargs -0 -n1 -P4 sh -c 'php -l "$0" || exit 1' > "$RUNNER_TEMP/lint.log" 2>&1 \
+            || { grep -v '^No syntax errors' "$RUNNER_TEMP/lint.log"; exit 1; }
