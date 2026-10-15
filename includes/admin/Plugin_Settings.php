@@ -155,14 +155,14 @@ class Plugin_Settings {
         $tab_api = [
             Field::make( 'html', 'lpmanager_google_keys_intro' )
                 ->set_html(
-                    '<p>' . esc_html__( 'Google bills usage to the Google Cloud account that owns each key. Set quotas and budget alerts on both keys in the Google Cloud console.', 'landing-page-manager' ) . '</p>'
+                    '<p>' . esc_html__( 'Google bills usage to the billing account linked to the Google Cloud project that owns each key, and use of these keys is subject to the Google Maps Platform Terms of Service. In the Google Cloud console, set API quotas for the project and a budget alert on its billing account.', 'landing-page-manager' ) . '</p>'
                 ),
             Field::make( 'text', 'lpmanager_google_maps_api_key', __( 'Google Maps browser key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Used in visitors\' browsers to show maps (Maps JavaScript API). It is visible in page source, so restrict it to your site\'s URLs (HTTP referrers) and to the Maps JavaScript API.', 'landing-page-manager' ) ),
-            Field::make( 'text', 'lpmanager_google_server_api_key', __( 'Google server key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Used by this site\'s server to look up client addresses and fetch reviews (Geocoding API and Places API). Restrict it to your server\'s IP address and to those two APIs. If left empty, the browser key is used, which only works while the browser key has no referrer restriction.', 'landing-page-manager' ) ),
-            Field::make( 'text', 'lpmanager_brandfetch_api_key', __( 'Brandfetch API Key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Enter your Brandfetch API key for fetching brand colors.', 'landing-page-manager' ) ),
+                ->set_help_text( __( 'Used in visitors\' browsers to show maps (Maps JavaScript API). It is visible in page source, so in Google Cloud restrict it to websites (HTTP referrers) covering this site and every client subdomain, for example https://example.com/* and https://*.example.com/*, and to the Maps JavaScript API. Save a Google Maps server key below before you restrict this key.', 'landing-page-manager' ) ),
+            Field::make( 'text', 'lpmanager_google_server_api_key', __( 'Google Maps server key', 'landing-page-manager' ) )
+                ->set_help_text( __( 'Used by this site\'s server to look up client addresses and fetch reviews. It needs the Places API (the original "Places API", not "Places API (New)"). Restrict it to your server\'s IP address and to that API. If left empty, the browser key is used, which only works while the browser key has no website restriction.', 'landing-page-manager' ) ),
+            Field::make( 'text', 'lpmanager_brandfetch_api_key', __( 'Brandfetch API key', 'landing-page-manager' ) )
+                ->set_help_text( __( 'Used to fetch client brand colors. Usage is billed to the Brandfetch account that owns this key.', 'landing-page-manager' ) ),
             Field::make( 'textarea', 'lpmanager_additional_scripts', __( 'Additional Scripts', 'landing-page-manager' ) )
                 ->set_help_text( __( 'Add any additional scripts (e.g., tracking or chat scripts) to load on all landing pages.', 'landing-page-manager' ) ),
         ];
@@ -170,7 +170,8 @@ class Plugin_Settings {
         $tab_updates = [
             Field::make( 'html', 'lpmanager_update_source_info' )
                 ->set_html(
-                    '<p>' . esc_html__( 'Updates come from the official GitHub Releases of Landing Page Manager. Use "Check for updates" on the Plugins screen to check now.', 'landing-page-manager' ) . '</p>'
+                    '<p>' . esc_html__( 'Updates come only from Duppins Technology\'s official GitHub releases of Landing Page Manager and are checked automatically. To check now, click "Check for updates" under Landing Page Manager on the Plugins screen.', 'landing-page-manager' ) . '</p>'
+                    . '<p>' . esc_html__( 'The "Plugin update source" setting from earlier versions has been removed; WordPress.org is no longer used for updates.', 'landing-page-manager' ) . '</p>'
                 ),
         ];
 
@@ -221,14 +222,17 @@ class Plugin_Settings {
             return;
         }
         printf(
-            '<div class="notice notice-error"><p>%s</p></div>',
+            '<div class="notice notice-error"><p>%s <a href="%s">%s</a></p></div>',
             esc_html(
                 sprintf(
                     /* translators: %s: template slug */
-                    __( 'Landing Page Manager: the active template "%s" is missing, so landing pages are showing a 404. It was probably removed by a plugin update. Upload it again under Landing Pages → Settings → Templates, or choose another template.', 'landing-page-manager' ),
+                    __( 'Landing Page Manager: the active template "%s" is missing, so landing pages are showing a 404. It was probably removed by a plugin update. Upload it again, or choose another template.', 'landing-page-manager' ),
                     $slug
                 )
-            )
+            ),
+            // Carbon Fields' page slug for the "Settings" theme-options container.
+            esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
+            esc_html__( 'Go to Settings → Templates', 'landing-page-manager' )
         );
     }
 
