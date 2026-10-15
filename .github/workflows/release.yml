@@ -22,7 +22,10 @@ jobs:
           coverage: none
 
       - name: Lint
-        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l | grep -v '^No syntax errors' || [ "${PIPESTATUS[1]}" = 0 ]
+        run: |
+          find . -name '*.php' -not -path './vendor/*' -print0 \
+            | xargs -0 -n1 sh -c 'php -l "$0" || exit 1' > lint.log 2>&1 \
+            || { grep -v '^No syntax errors' lint.log; exit 1; }
 
       - name: Check version matches tag
         run: |
