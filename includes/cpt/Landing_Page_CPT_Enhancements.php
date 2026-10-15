@@ -46,9 +46,15 @@ class Landing_Page_CPT_Enhancements {
             'hide_empty'      => false,
         ] );        
 
-        // Export button
-        $export_url = admin_url( 'admin-post.php?action=export_landing_pages' );
-        echo '<a href="' . esc_url( $export_url ) . '" class="button" id="lp-export-csv-button" style="margin-left: 10px;">Export CSV</a>';
+        // Export button: carries the current client/keyword filters and a nonce.
+        $export_args = [ 'action' => 'export_landing_pages' ];
+        foreach ( [ 'client', 'keyword' ] as $filter ) {
+            if ( ! empty( $_GET[ $filter ] ) ) {
+                $export_args[ $filter ] = absint( $_GET[ $filter ] );
+            }
+        }
+        $export_url = wp_nonce_url( add_query_arg( $export_args, admin_url( 'admin-post.php' ) ), 'lpmanager_export_landing_pages' );
+        echo '<a href="' . esc_url( $export_url ) . '" class="button" id="lp-export-csv-button" style="margin-left: 10px;">' . esc_html__( 'Export CSV', 'landing-page-manager' ) . '</a>';
     }
 
     public static function filter_by_client( $query ) {
@@ -68,8 +74,9 @@ class Landing_Page_CPT_Enhancements {
 
     public static function export_landing_pages_csv() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( 'Unauthorized request' );
+            wp_die( esc_html__( 'You need administrator access to export landing pages.', 'landing-page-manager' ), 403 );
         }
+        check_admin_referer( 'lpmanager_export_landing_pages' );
 
         header( 'Content-Type: text/csv' );
         header( 'Content-Disposition: attachment;filename=landing-pages-export.csv' );
@@ -88,7 +95,7 @@ class Landing_Page_CPT_Enhancements {
             $args['tax_query'][] = [
                 'taxonomy' => 'client',
                 'field'    => 'id',
-                'terms'    => sanitize_text_field( $_GET['client'] ),
+                'terms'    => absint( $_GET['client'] ),
             ];
         }
 
@@ -97,7 +104,7 @@ class Landing_Page_CPT_Enhancements {
             $args['tax_query'][] = [
                 'taxonomy' => 'keyword',
                 'field'    => 'id',
-                'terms'    => sanitize_text_field( $_GET['keyword'] ),
+                'terms'    => absint( $_GET['keyword'] ),
             ];
         }
 
@@ -113,17 +120,29 @@ class Landing_Page_CPT_Enhancements {
                 ? implode( ', ', wp_list_pluck( $keyword_terms, 'name' ) )
                 : 'None';
 
-            fputcsv( $output, [
+            fputcsv( $output, array_map( [ __CLASS__, 'csv_safe' ], [
                 $post->post_title,
                 $url,
                 $client,
                 $keywords,
                 get_the_date( 'Y-m-d', $post ),
-            ]);
+            ] ) );
         }
 
         fclose( $output );
         exit;
+    }
+
+    /**
+     * Stop spreadsheet apps from running a cell as a formula. Titles and term names
+     * come from Contributors and Editors, and the export is opened by admins.
+     */
+    public static function csv_safe( $value ) {
+        $value = (string) $value;
+        if ( '' !== $value && false !== strpos( "=+-@\t\r", $value[0] ) ) {
+            $value = "'" . $value;
+        }
+        return $value;
     }
 
     public static function add_dashboard_widget() {
@@ -141,5 +160,3 @@ class Landing_Page_CPT_Enhancements {
     }
     
 }
-
-Landing_Page_CPT_Enhancements::init();
