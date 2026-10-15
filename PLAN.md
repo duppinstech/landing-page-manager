@@ -16,13 +16,13 @@ _Last reviewed: 2026-10-14, baseline department review (current release: v1.0.6)
 
 These were forwarded by department reviews. Nothing here gets built until Odell answers, and each answer goes in `.claude/memory/decisions.md`.
 
-- [ ] **P0 — Stop WordPress.org from offering updates for this plugin.**
+- [x] **P0 — Stop WordPress.org from offering updates for this plugin.** **Decided (Odell, 10-14): yes.** Updates come from GitHub only until the free core is listed on WordPress.org, and Pro stays the paid add-on. _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** The header has no `Update URI:` line, and the update source defaults to `both`. Whoever publishes `landing-page-manager` on WordPress.org could push code to every site. The slug is currently unclaimed.
   - **Recommendation:** add `Update URI: https://github.com/duppinstech/landing-page-manager`, then hide or remove the `wp_org` and `both` sources. Consider claiming the slug.
   - **Bundled with it:** cache the GitHub release response in a transient (6–12 h) and add `_transient_lpmanager_%` / `_site_transient_lpmanager_%` to `uninstall.php`. Fill `requires_php`.
   - **Review:** this is an updater change, so it needs `security-reviewer`.
   - _(sec, ops, fin · DR 10-14)_
-- [ ] **P0 — Which phone number wins?**
+- [~] **P0 — Which phone number wins?** **Odell answered 10-14. The field mapping is being confirmed before any code changes:** the page field is labelled "Client Phone" (`client_tel`) and the client-level field "Contact Phone" (`client_phone`).
   - **Problem:** Template B shows the page's "Client Phone" but dials the client's "Contact Phone". Template A ignores the page number when the client has one. Call-tracking numbers lose attribution.
   - **Recommendation:** the page number overrides the client number everywhere. Make the page field optional, then use one resolved number for both display and `tel:`, and add help text to both fields.
   - _(prod, ux, sup · DR 10-14)_
@@ -34,7 +34,8 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [ ] **P0 — Google reviews: storage and 4–5★ filtering (Attorney review).**
   - **Problem:** Reviews are stored permanently in post meta, which the Places terms forbid. They lack Google's required attributions, and are filtered to 4–5★ with no disclosure, which risks the FTC review-suppression rule.
   - **Recommendation:** render reviews live with full attribution and a "selected reviews" notice, or switch to a review-widget embed. An attorney needs to say whether disclosure is enough or the filter must go.
-  - _(legal, fin · DR 10-14)_
+  - **Also put to the attorney (10-14b):** `Reviews_Ajax` now caches the Places Details response for 12 hours to control cost. Legal says Google's terms forbid caching Places content beyond place IDs, so a 12-hour cache is itself a breach. Legal's alternative keeps the cost control without caching content: a short timestamp-only lock that refuses repeat fetches.
+  - _(legal, fin · DR 10-14)_ _(legal, sec, prod · DR 10-14b)_
 - [ ] **P0 — One global template, or a template per client?**
   - **Problem:** The WIP finishes the move to global-only, but `INTENT.md` goal 2 still says "set on the client term". An agency can't mix Template A and Client B clients on one install.
   - **Recommendation:**
@@ -73,6 +74,26 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Decide:** for each Duppins-operated install, does it use the client's key or Duppins' key? Should Google, Brandfetch and hosting costs be passed through, bundled into a retainer, or covered by requiring the client's own key?
   - **Fill in:** Brandfetch plan, traffic numbers and support hours in `business-context.md` / `CLAUDE.local.md`.
   - _(fin · DR 10-14)_
+- [ ] **P0 — Before the next release: which live sites need hand-holding?**
+  - **Sites set to "WordPress.org only" in 1.0.6:** they will never be offered this release. Update them by uploading the zip by hand.
+  - **Sites whose active template was uploaded:** they 404 the moment they update. Pause their auto-updates, or re-upload the template right after updating.
+  - **Needed from Odell:** check each site you run. _(DR 10-14b)_ _(ops, sup, prod)_
+- [ ] **P1 — Move to Places API (New)?**
+  - **Problem:** The code calls the legacy Places endpoints (Find Place, Text Search, Details). Google hasn't let new Cloud projects enable those since March 2025, so new operators can't get address lookups or reviews working.
+  - **Interim:** the help text now asks for the original "Places API".
+  - **Migrating:** needs a field mask. Reviews would cost about $25 per 1,000 with 1,000 free a month. _(DR 10-14b)_ _(fin, sup, prod)_
+- [ ] **P1 — Delete the unused vendored files?**
+  - **Template B and Template C:** `payform.min.js`, `jquery-migrate*.js`, `bootstrap-new.js`, the jQuery UI CSS and `sqpaymentform.css`.
+  - **Template C only:** `popper.min.js`, `bootstrap.js` and the Swiper files.
+  - **Also:** the dead `template-c/functions.php`.
+  - **Why:** none of these load any more, but they still ship in the zip and need license credits.
+  - **Needed from Odell:** approval to delete files. _(DR 10-14b)_ _(prod, ux, legal)_
+- [ ] **P1 — Allow iframes in rich-text template fields?**
+  - **Problem:** Escaping now runs Template B `section_4_text_1`, Template C `more_content` and Template B `reviews_html` through `wp_kses_post`, which strips iframes. Video, map or review-widget embeds pasted there no longer show.
+  - **Decide:** allow iframes from an allowlist of hosts (product and security call), or keep stripping them. _(DR 10-14b)_ _(ops, sec)_
+- [ ] **P2 — Should internal planning docs stay in the public repo?**
+  - `PLAN.md`, `meeting-notes/` and `.claude/memory/` are excluded from the zip but readable on GitHub, including the legal-risk analysis.
+  - **Decide:** move them to a private repo or keep them public. _(DR 10-14b)_ _(legal)_
 - [ ] **P2 — Smaller calls.**
   - (a) Should the validator keep incomplete pages as drafts instead of publishing them? _(prod)_
   - (b) Should landing pages get their own capability type instead of `post`? _(sec)_
@@ -88,56 +109,59 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [~] **Move the Template A "Style Variant" field out of core.**
   - **Done:** the WIP moves it to `template_a/lib/fields/` and keeps the `_wra_style_variant` key, so saved styles survive.
   - **To close:** the CHANGELOG entry and the smoke test (style_1/2/3, switching templates, rolling back to v1.0.6).
-- [ ] **CHANGELOG `[Unreleased]` for the WIP.**
+- [x] **CHANGELOG `[Unreleased]` for the WIP.** _(done on `fix/review-p0-batch`, 10-14)_
   - Add a "Removed" entry for the client template field and a "Changed" entry for Style variant moving to Template A → Layout.
   - Correct the 1.0.6 Template A line: it has three layout styles, not four variants.
   - The ready-to-use text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(sup, ops, prod, sec, mkt · DR 10-14)_
-- [ ] **CI lint gate actually fails on a syntax error.**
+- [~] **CI lint gate actually fails on a syntax error.** Fixed on `fix/review-p0-batch` (10-14); lint output now goes to `$RUNNER_TEMP`, so it can't ship in the zip. **To close:** after the branch is pushed, prove it fails with a throwaway PR containing a parse error. _(DR 10-14b)_
   - **Problem:** `php -l | grep -v` with no `pipefail` exits 0, so a parse error can ship.
   - **Fix:** add `defaults: run: shell: bash` to `ci.yml` and `release.yml`, then prove it with a deliberately broken file.
   - _(ops · DR 10-14)_
-- [ ] **Escape all template output.**
+- [x] **Escape all template output.** _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** Meta is echoed raw in the templates, and Contributors and Authors can edit landing-page fields.
   - **Where:** `template-c` (`single-landing_page.php`, `404.php`, `header.php`), `template-b/single-landing_page.php:144`, and Template A's JSON-LD (`header.php:33`).
   - **Fix:** escape by context. For JSON-LD, decode and re-encode with `JSON_HEX_TAG`.
   - **Review:** `security-reviewer`.
   - _(sec · DR 10-14)_
-- [ ] **Explicit per-template asset loading.**
+- [x] **Explicit per-template asset loading.** _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** `Assets_Manager::enqueueFilesInDir()` loads every file in each template's `css/` and `js/` folders. That means about 1 MB per page, two Bootstrap versions, a second jQuery that replaces WordPress's own, three Swiper versions, and unused payform and jQuery UI.
   - **Fix:** use a declared list per template (handle, path, deps), and drop the unused and duplicate files.
   - _(ux · DR 10-14)_
-- [ ] **Above-the-fold content must not wait for JS.**
+- [x] **Above-the-fold content must not wait for JS.** _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** The hero H1 and CTA are hidden by `.wra-fi` and WOW until the footer JS runs.
   - **Fix:**
     - Never apply reveal classes to the hero.
     - Gate the hide under `html.js` + `prefers-reduced-motion: no-preference`.
     - Skip WOW and Swiper autoplay when the user prefers reduced motion.
   - _(ux · DR 10-14)_
-- [ ] **Privacy policy content.**
+- [x] **Privacy policy content.** _(done on `fix/review-p0-batch`, 10-14)_
   - Call `wp_add_privacy_policy_content()` with text covering the Google Fonts, cdnjs and jsDelivr requests, the Maps embed, and view/click tracking. The draft text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(legal · DR 10-14)_
-- [ ] **`.gitattributes` `export-ignore`.**
+- [x] **`.gitattributes` `export-ignore`.** _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** If a release lacks its zip, the updater falls back to the GitHub zipball, which ignores `.distignore`.
   - **Fix:** mirror `.distignore` in `.gitattributes` (mockups, `.claude/`, `CLAUDE.md`, `PLAN.md`, `meeting-notes/` …).
   - _(legal · DR 10-14)_
-- [ ] **Stop per-view billed Places calls; harden `Reviews_Ajax`.**
+- [x] **Stop per-view billed Places calls; harden `Reviews_Ajax`.** _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** `reviews.js` loads on every page and calls Place Details with no `fields` limit and no cache.
   - **Fix:**
     - Stop loading `reviews.js` site-wide.
     - In the handler, require `landing_page` + `publish`, use `rawurlencode`, a timeout, `fields=reviews,rating`, and a per-place transient.
   - **Do not add `nopriv`** until this is done, and keep it coordinated with the reviews decision above.
   - _(fin, sec · DR 10-14)_
-- [ ] **Split the Google API key into browser and server keys, and explain billing.**
+- [x] **Split the Google API key into browser and server keys, and explain billing.** _(done on `fix/review-p0-batch`, 10-14)_
   - **Problem:** One key is printed in page HTML and also used server-side for Places. A referrer restriction breaks the server calls, so operators leave it unrestricted.
   - **Fix:** use two settings (a browser key restricted by referrer, a server key restricted by IP). The help text should name the APIs each one needs and say who is billed. Recommend quotas and budget alerts.
   - _(fin, sup, sec · DR 10-14)_
-- [ ] **Warn that uploaded templates are deleted by updates.**
+- [x] **Warn that uploaded templates are deleted by updates.** _(done on `fix/review-p0-batch`, 10-14; the upgrade note is in the CHANGELOG, 10-14b)_
   - Add a warning on the upload card.
   - In the next release, add an admin notice when the active template folder is missing (pages would 404).
   - Add an upgrade note to the release.
   - The permanent fix is the P1 "store outside plugin folder" item.
   - _(sup · DR 10-14)_
+
+- [ ] **Smoke-test the `fix/review-p0-batch` release on staging.** Run the 15-step test in [the 10-14b appendix](meeting-notes/2026-10-14-2245-p0-batch-review.md#smoke-test). It covers updating through the updater, the asset changes per template, reduced motion, the Google keys and the CSV export. It needs a WordPress staging site, and it's the merge gate for this batch. _(DR 10-14b)_ _(ops, prod, fin)_
+- [ ] **Stop loading Maps JS on every page view (template-b footer).** This is now the biggest per-view Google cost (about $7 per 1,000 loads after the free 10,000), so it moved up from P1. See the P1 entry below for the fix. _(DR 10-14b)_ _(fin)_
 
 ## P1 — deployment and quality
 
@@ -152,7 +176,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **Pin Composer dependency.** `carbon-field-password` is pinned to `dev-master#80df427`, the commit already locked and vendored. Upstream has no tags.
 - [x] **CHANGELOG backfill** for v1.0.1–v1.0.5.
 - [x] **Add a copyright line to LICENSE.**
-- [ ] **Store uploaded templates outside the plugin folder.** (From the security review.) Every plugin update replaces `includes/templates/`, which silently deletes uploaded templates; their landing pages then fall back to a 404. Move uploads to `wp-content/lpmanager-templates/<slug>/` and have `get_templates()` and `Template_Loader` search both locations, with shipped templates taking priority.
+- [ ] **Store uploaded templates outside the plugin folder.** When this is done, `render_missing_template_notice()` must check both locations (DR 10-14b). (From the security review.) Every plugin update replaces `includes/templates/`, which silently deletes uploaded templates; their landing pages then fall back to a 404. Move uploads to `wp-content/lpmanager-templates/<slug>/` and have `get_templates()` and `Template_Loader` search both locations, with shipped templates taking priority.
 - [ ] **Guard template field loading.** (From the security review.) `Template_Loader` `require_once`s `<slug>/lib/fields/landing-page-fields.php` on wp-admin requests, so a broken uploaded template can take down wp-admin. Do this after the WIP in `Template_Loader.php` is committed.
 - [x] **Uninstall routine.** `uninstall.php` removes `lpmanager_*` and `_lpmanager_*` options (but not `lpmanager_pro_*`) and the validation transients, on every site in a multisite network. Content is kept unless `LPMANAGER_UNINSTALL_DELETE_CONTENT` is true. Needs a test on a WP site.
 - [x] **Repo moved to `duppinstech/landing-page-manager`.** Updated the remote, the updater API URL, the Plugin URI and the docs.
@@ -176,7 +200,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Add per-template fonts, `preconnect` and `font-display: swap`.
   - This removes IP leaks to the CDNs and render-blocking CSS.
   - _(sec, legal, ux · DR 10-14)_
-- [ ] **CSV export hardening.**
+- [x] **CSV export hardening.** _(done on `fix/review-p0-batch`, 10-14)_
   - Neutralize cells starting with `= + - @ \t \r`.
   - Add `wp_nonce_url` + `check_admin_referer`.
   - Remove the duplicate `init()` call at `Landing_Page_CPT_Enhancements.php:145`, which registers every hook twice.
@@ -189,10 +213,11 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - _(sec, fin · DR 10-14)_
 - [ ] **API key fields use the password field type.**
   - Use `carbon-field-password`, and remove the `admin.js` masking (which may save `****` over the real key) and the plaintext `*_previous` copies.
+  - Include the new `lpmanager_google_server_api_key`. It's the more sensitive key and is currently shown in clear. _(DR 10-14b)_
   - _(sec, ux · DR 10-14)_
 
 **Cost and data**
-- [ ] **Stop loading Maps JS on every page view (template-b footer).**
+- [ ] **Stop loading Maps JS on every page view (template-b footer).** Moved up to P0; see there.
   - Use the Maps Embed iframe (free) or lazy-load on scroll or click.
   - Add an accessible region name.
   - Never show admin "Map unavailable" messages to visitors.
@@ -222,7 +247,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Opening line:** the new positioning line (marketing).
   - The text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(sup, legal, mkt · DR 10-14)_
-- [ ] **Plugin header.**
+- [~] **Plugin header.** Author, Author URI, Requires and the description are done (10-14b). Still to do: the `template-b/style.css` header.
   - `Author: Odell Duppins / Duppins Technology`
   - `Author URI: https://duppinstech.com`
   - `Requires at least: 5.9`
@@ -235,6 +260,8 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Restore the MIT header on `payform.min.js`.
   - Note that Carbon Fields is GPL-2.0-only, so no GPL-3.0-only or Apache-2.0 code may be added.
   - WOW.js 1.1.2 is MIT: do not upgrade past 1.1.2. Use the `graingert/WOW` fork if needed.
+  - Animate.css: the bundled 2015 MIT build. Do not upgrade to 4.x, which is under the Hippocratic License 2.1 and isn't GPL-compatible. _(DR 10-14b)_
+  - Before anyone adds the American Captain font files that Template C' `fonts.css` references, confirm the font's web-embedding license. _(DR 10-14b)_
   - _(legal · DR 10-14)_
 - [ ] **Remove client names from Template A admin labels, rendered HTML and CSS.**
   - **Labels:** "Standard (service area or services + contact column)", and "Use Heavy-duty for heavy-duty / equipment-transport footers". Add help text for the variant field.
@@ -272,13 +299,17 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Visible `:focus-visible` outlines.
   - Template A FAQ buttons get `aria-expanded` and `aria-controls`.
   - _(ux · DR 10-14)_
+- [ ] **Warn when the server key is empty.** Show an admin notice when a browser key is set but no server key, so operators don't leave an unrestricted key in page HTML. _(DR 10-14b)_ _(fin)_
+- [ ] **Don't load jQuery on Template A.** Template A's `main.js` doesn't use it. Move `wp_enqueue_script('jquery')` into the fallback branch in `Assets_Manager` after checking that no client tracking code relies on it. _(DR 10-14b)_ _(ux)_
+- [ ] **Load Swiper on Template B only when `reviews_html` has content,** and use a minified build. _(DR 10-14b)_ _(ux)_
+- [ ] **Fix the Template C mobile menu button.** It has no handler, so tapping it does nothing. Add a toggle that sets `aria-expanded`, or remove the button. _(DR 10-14b)_ _(ux)_
 - [ ] **Accessibility and Core Web Vitals audit** of each template on mobile, with a Lighthouse baseline. Moved from P2 to P1; the 10-14 UX report is the first pass. _(prod, ux · DR 10-14)_
 
 ## P2 — later
 
 - [ ] **WordPress.org readiness.** `readme.txt` is empty.
   - Write it in WP.org format: stable tag, tested up to, changelog, FAQ, screenshots, and the external-services section.
-  - **Blockers:** the self-updater (guideline 8), CDN scripts, and the Get Pro banner, which can't be dismissed. A WP.org build needs Odell's decision.
+  - **Blockers:** the self-updater (guideline 8), the `Update URI` header, CDN scripts, and the Get Pro banner, which can't be dismissed. A WP.org build needs Odell's decision.
   - _(mkt, legal · DR 10-14)_
 - [ ] **i18n pass.**
   - Regenerate `languages/landing-page-manager.pot`.
@@ -296,6 +327,14 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Add `vendor/league/color-extractor/tests` to `.distignore`.
   - _(ops · DR 10-14)_
 - [ ] **Template upload: cap the uncompressed size** (zip bomb). This touches `handle_upload`, so it needs `security-reviewer`. _(sec · DR 10-14)_
+- [ ] **Updater: answer "View details" from GitHub, and allow the auto-update toggle.**
+  - Add a `plugins_api` handler for this slug built from the cached release, so the details modal can't show a WordPress.org listing under the same name.
+  - Add a `no_update` entry when the site is current, so the Plugins screen shows the auto-update toggle.
+  - **Review:** `security-reviewer`. _(DR 10-14b)_ _(sec, ops, prod)_
+- [ ] **Harden CSS `url()` values in the Template C templates** (`single-landing_page.php:18,180,244`, `404.php:12`). `esc_url` doesn't stop a quote breaking out of the `url('…')` string. Not exploitable today. _(DR 10-14b)_ _(sec)_
+- [ ] **Template A: load only the layout stylesheet for the page's style variant.** _(DR 10-14b)_ _(ux)_
+- [ ] **Reduced motion for smooth scrolling and FAQ transitions** in the Client B templates. _(DR 10-14b)_ _(ux)_
+- [ ] **CSV export uses the last applied filter, not the current dropdown values.** Relabel the button "Export CSV (current filter)", or read the dropdowns when it's clicked. Also check that keyword filtering works in the list itself, not only in the export. _(DR 10-14b)_ _(prod, sup)_
 - [ ] **Admin polish.**
   - Template cards become focusable radio or `aria-pressed` buttons.
   - The upload input should be visually hidden but still keyboard-reachable.
@@ -313,3 +352,4 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] SDLC and Claude Code scaffolding (2026-10-14)
 - [x] v1.0.6: template upload security, CI-built release zip, uninstall, repo move, Template A template (2026-10-14)
 - [x] Department reviewers, `/department-review` and `meeting-notes/` (2026-10-14)
+- [x] P0 batch from the baseline review, with fixes from its department review (`fix/review-p0-batch`, 2026-10-14). The smoke test and CI proof are still open.
