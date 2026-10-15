@@ -20,6 +20,9 @@ class Update_Checker {
     const REPO_URL        = 'https://github.com/duppinstech/landing-page-manager';
     const PLUGIN_SLUG     = 'landing-page-manager';
     const CACHE_KEY       = 'lpmanager_github_release';
+    // Keep in step with "Requires at least" / "Requires PHP" in landing-page-manager.php.
+    const REQUIRES_WP     = '5.9';
+    const REQUIRES_PHP    = '7.4';
 
     public static function init() {
         add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'inject_update' ], 10, 2 );
@@ -136,7 +139,8 @@ class Update_Checker {
         $obj->banners     = [];
         $obj->banners_rtl = [];
         $obj->tested      = '';
-        $obj->requires_php = '';
+        $obj->requires    = self::REQUIRES_WP;
+        $obj->requires_php = self::REQUIRES_PHP;
         return $obj;
     }
 
