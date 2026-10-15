@@ -19,8 +19,8 @@ page platform**:
    page-builder assets so they load fast.
 5. **Measurable** — core counts page views and conversions; the Pro add-on adds
    engagement, heatmaps, rage clicks, and form analytics.
-6. **Self-updating** — sites update from GitHub releases (or WordPress.org) without
-   manual uploads.
+6. **Self-updating** — sites update from GitHub releases without manual uploads; the
+   free core moves to WordPress.org once it is listed there (Pro stays the paid add-on).
 
 ## Users
 - **Operator** (agency admin): creates clients, picks templates, publishes pages, reads analytics.

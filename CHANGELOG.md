@@ -4,24 +4,42 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Upgrade notes
+- **Before you update: uploaded templates are deleted.** If you uploaded a template under Landing Pages → Settings → Templates, keep its .zip. Updating removes it, so upload it again straight afterwards. Until you do, landing pages show a 404 and an admin notice says so.
+- **Update promptly.** Versions 1.0.6 and earlier also check WordPress.org for updates. Sites set to "WordPress.org only" in 1.0.6 won't be offered this update: download `landing-page-manager.zip` from the GitHub release and upload it under Plugins → Add New → Upload Plugin.
+- **Google keys (optional, recommended):** add a **Google Maps server key** under Settings → API Keys, restricted to your server's IP. Then restrict the browser key to your site and its client subdomains (`https://example.com/*`, `https://*.example.com/*`). Save the server key **before** restricting the browser key, or client address lookups and Fetch Reviews stop working. If you ever roll back to 1.0.6, lift the browser key's restriction first, because 1.0.6 doesn't use the server key.
+- **QuickTow:** JSON-LD that isn't valid JSON is no longer output. Check yours with Google's Rich Results Test.
+- **Uploaded templates that used Swiper or a datepicker provided by the plugin** must now include their own copy.
+- No settings re-save, permalink flush or database step is needed.
+
 ### Security
-- **Updates now come only from GitHub Releases.** The plugin declares an `Update URI`, so WordPress no longer asks WordPress.org about it. A different plugin published there under the same name can no longer be offered as an update. The "Plugin update source" setting is gone. The latest release is cached for 6 hours, and "Check for updates" on the Plugins screen checks immediately.
-- The editor's "Fetch Reviews" request now requires permission to edit that landing page.
+- **Updates now come only from GitHub Releases.** The plugin declares an `Update URI`, so WordPress no longer asks WordPress.org about it, and a different plugin published there under the same name can't be offered as an update. The "Plugin update source" setting is gone. The latest release is cached for 6 hours; "Check for updates" on the Plugins screen checks immediately. (Dashboard → Updates → Check Again can show a result up to 6 hours old.)
+- **Landing page templates escape what they print**, so text entered by Contributors and Authors can't inject code. Whiterail Recruits headings and short text keep simple formatting (`<br>`, `<strong>`, `<em>`, `<span>`); other tags show as text. Client and company colors must be hex values such as `#1a2b3c`, otherwise the template default is used.
+- **CSV export is protected.** The Export CSV link carries a security token, so a bookmarked export link now says it has expired; use the button on the Landing Pages list. Cells that start with `=`, `+`, `-` or `@` get a leading apostrophe so spreadsheet apps show them as text instead of running them as formulas.
+- The editor's "Fetch Reviews" request requires permission to edit that landing page.
+
 ### Added
-- **Separate Google server key** (Settings → API Keys). Server-side lookups (client addresses, reviews) use it, so the browser key that maps need can be restricted to your site's URLs. If it's empty, the browser key is used as before.
+- **Separate Google Maps server key** (Settings → API Keys). Server-side lookups (client geocoding and Fetch Reviews) use it, so the browser key that maps need can be restricted to your site and its subdomains. If it's empty, the browser key is used as before.
 - Suggested privacy-policy text for landing pages under **Settings → Privacy → Policy Guide**.
-- An admin notice when the active template is missing (for example, an uploaded template removed by an update), which makes landing pages 404.
+- An admin notice, with a link to Settings, when the active template is missing (for example, an uploaded template removed by an update), which makes landing pages 404.
+- The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
+
 ### Changed
-- **Landing pages load only the CSS and JavaScript their template needs.** Unused and duplicate libraries are no longer loaded: a second copy of jQuery, Bootstrap 5 alongside Bootstrap 4, jQuery UI, payform, and a CDN copy of Swiper. Templates list their files in `lib/assets.php`. Uploaded templates without that file load everything, as before.
-- Landing pages no longer load the reviews script, which requested Google reviews (a billed call) on every view by a logged-in user and wasn't shown by any template. Reviews are requested only by the editor's "Fetch Reviews" button, for the `reviews` and `rating` fields only, and are cached for 12 hours.
+- **Headlines and call buttons appear immediately** on QuickTow and Whiterail Recruits instead of fading in after scripts load. Visitors whose device is set to reduce motion get no scroll-in animations and no autoplaying sliders. The Whiterail AI review slider pauses on hover and stops on keyboard focus.
+- **Landing pages load only the CSS and JavaScript their template needs.** Unused and duplicate libraries are no longer loaded: a second copy of jQuery, Bootstrap 5 alongside Bootstrap 4, jQuery Migrate 1.x, jQuery UI, payform, Popper and Swiper where unused, and a CDN copy of Swiper. Templates list their files in `lib/assets.php`. Uploaded templates without that file still load every file in their own `css/` and `js/` folders.
+- Landing pages no longer load the reviews script, which requested Google reviews (a billed call) on every view by a logged-in user and wasn't shown by any template. Reviews are requested only by the editor's "Fetch Reviews" button, which asks Google for just the reviews and rating, reuses the result for 12 hours, and explains failures (for example a refused key or an unknown Place ID).
+- **Export CSV follows the Client and Keyword filters** you applied, and is shown only to administrators.
 - The template upload card warns that plugin updates delete uploaded templates.
 - **QuickTow "Style variant" has moved** from the "Landing Page Details" box to the new **Layout** tab of the "QuickTow" box. Saved styles are kept. The field only appears when QuickTow is the active template.
 - QuickTow's Style 3 label no longer names a client.
+
 ### Removed
 - **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
+
 ### Fixed
 - CI and the release workflow now fail when a PHP file has a syntax error. Before, the lint step always passed.
 - GitHub's source zip no longer includes development files, in case a release ever lacks its zip asset.
+- Landing page list hooks (filters, Export CSV button, dashboard widget) were registered twice.
 
 ## [1.0.6] - 2026-10-14
 ### Security
