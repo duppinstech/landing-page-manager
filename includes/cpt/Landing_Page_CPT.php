@@ -12,7 +12,8 @@ class Landing_Page_CPT {
         add_action( 'init', [ __CLASS__, 'register_cpt' ] );
 
         // Register Carbon Fields fields after CR loads
-        // Run after settings fields registration so global template value is available.
+        // Priority 20: same as Template_Loader::load_template_fields, so the core "Landing Page Details"
+        // container registers alongside the active template's containers, after theme options.
         add_action( 'carbon_fields_register_fields', [ __CLASS__, 'register_fields' ], 20 );
 
         // Custom admin columns
@@ -93,9 +94,8 @@ class Landing_Page_CPT {
     }
 	
     public static function register_fields() {
-        $global_template = self::get_global_template_slug();
-        $is_quicktow     = ( 'quicktow' === $global_template );
-
+        // Core fields shared by every template. Template-specific fields live in
+        // includes/templates/<slug>/lib/fields/landing-page-fields.php.
         $fields = [
 
                 Field::make( 'select', 'client', 'Client Name' )
@@ -113,40 +113,9 @@ class Landing_Page_CPT {
                     ->set_default_value( '' ),
         ];
 
-        // Always register so Carbon can load the value on the front end. Conditional registration
-        // caused carbon_get_post_meta() to miss the field when the global check differed per request.
-        $style_field = Field::make( 'select', 'wra_style_variant', __( 'Style Variant', 'landing-page-manager' ) )
-            ->add_options( [
-                'style_1' => __( 'Style 1 — Full-width hero with side image, standard header/footer', 'landing-page-manager' ),
-                'style_2' => __( 'Style 2 — Text header, stacked hero, alternate section layout', 'landing-page-manager' ),
-                'style_3' => __( 'Style 3 — James Towing heavy-duty: split hero, checkmark trust bar; footer emphasizes services & service area', 'landing-page-manager' ),
-            ] )
-            ->set_width( 50 )
-            ->set_default_value( 'style_1' );
-        if ( ! $is_quicktow ) {
-            $style_field->set_help_text( __( 'Only affects pages when the site default template is QuickTow.', 'landing-page-manager' ) );
-        } else {
-            $style_field->set_required( true );
-        }
-        $fields[] = $style_field;
-
         Container::make( 'post_meta', 'Landing Page Details' )
             ->where( 'post_type', '=', 'landing_page' )
             ->add_fields( $fields );
-    }
-
-    private static function get_global_template_slug() {
-        $slug = '';
-        if ( function_exists( 'carbon_get_theme_option' ) ) {
-            $slug = (string) carbon_get_theme_option( 'lpmanager_active_template' );
-        }
-        if ( '' === $slug ) {
-            $opts = get_option( 'carbon_fields_theme_options_container' );
-            if ( is_array( $opts ) && ! empty( $opts['lpmanager_active_template'] ) ) {
-                $slug = (string) $opts['lpmanager_active_template'];
-            }
-        }
-        return sanitize_title( $slug ?: 'whiterail-ai' );
     }
 
     public static function get_client_options() {

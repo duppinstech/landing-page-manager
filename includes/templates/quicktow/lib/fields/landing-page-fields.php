@@ -12,6 +12,22 @@ use LPManager\core\Required_Fields_Registry;
 Container::make( 'post_meta', __( 'QuickTow', 'landing-page-manager' ) )
 	->show_on_post_type( 'landing_page' )
 	->add_tab(
+		__( 'Layout', 'landing-page-manager' ),
+		array(
+			// Key kept as wra_style_variant so existing pages keep their saved style.
+			Field::make( 'select', 'wra_style_variant', __( 'Style variant', 'landing-page-manager' ) )
+				->set_options(
+					array(
+						'style_1' => __( 'Style 1 — Full-width hero with side image, standard header/footer', 'landing-page-manager' ),
+						'style_2' => __( 'Style 2 — Text header, stacked hero, alternate section layout', 'landing-page-manager' ),
+						'style_3' => __( 'Style 3 — Heavy-duty: split hero, checkmark trust bar; footer emphasizes services & service area', 'landing-page-manager' ),
+					)
+				)
+				->set_default_value( 'style_1' )
+				->set_required( true ),
+		)
+	)
+	->add_tab(
 		__( 'Header & branding', 'landing-page-manager' ),
 		array(
 			Field::make( 'html', 'wra_hdr_info', '' )->set_html(

@@ -12,7 +12,6 @@ use Carbon_Fields\Container;
 use Carbon_Fields\Field;
 use League\ColorExtractor\Palette;
 use League\ColorExtractor\Color;
-use LPManager\templates\Template_Manager;
 
 class Client_Taxonomy {
 
@@ -301,18 +300,6 @@ class Client_Taxonomy {
         register_taxonomy( 'client', [ 'landing_page' ], $args );
     }
 
-    /**
-     * Options for client template select (slug => label). Empty = use global default.
-     */
-    public static function get_client_template_options() {
-        $opts = [ '' => __( 'Use global default', 'landing-page-manager' ) ];
-        $templates = Template_Manager::get_templates();
-        foreach ( $templates as $slug => $info ) {
-            $opts[ $slug ] = isset( $info['name'] ) ? $info['name'] : $slug;
-        }
-        return $opts;
-    }
-
     public static function register_fields() {
     // Client Taxonomy Meta Fields
     Container::make('term_meta', __('Client Details', 'landing-page-manager'))
@@ -329,10 +316,6 @@ class Client_Taxonomy {
 
             Field::make('color', 'client_secondary_color', 'Secondary Color')
                 ->set_help_text('Secondary brand color for the client.'),
-
-            Field::make('select', 'lpmanager_client_template', __('Landing Page Template', 'landing-page-manager'))
-                ->set_options( self::get_client_template_options() )
-                ->set_help_text(__('Template used for all landing pages under this client. Overrides the global default.', 'landing-page-manager')),
         ])
 
         // Contact Info Tab
