@@ -4,11 +4,24 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
-### Removed
-- **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
+### Security
+- **Updates now come only from GitHub Releases.** The plugin declares an `Update URI`, so WordPress no longer asks WordPress.org about it. A different plugin published there under the same name can no longer be offered as an update. The "Plugin update source" setting is gone. The latest release is cached for 6 hours, and "Check for updates" on the Plugins screen checks immediately.
+- The editor's "Fetch Reviews" request now requires permission to edit that landing page.
+### Added
+- **Separate Google server key** (Settings → API Keys). Server-side lookups (client addresses, reviews) use it, so the browser key that maps need can be restricted to your site's URLs. If it's empty, the browser key is used as before.
+- Suggested privacy-policy text for landing pages under **Settings → Privacy → Policy Guide**.
+- An admin notice when the active template is missing (for example, an uploaded template removed by an update), which makes landing pages 404.
 ### Changed
+- **Landing pages load only the CSS and JavaScript their template needs.** Unused and duplicate libraries are no longer loaded: a second copy of jQuery, Bootstrap 5 alongside Bootstrap 4, jQuery UI, payform, and a CDN copy of Swiper. Templates list their files in `lib/assets.php`. Uploaded templates without that file load everything, as before.
+- Landing pages no longer load the reviews script, which requested Google reviews (a billed call) on every view by a logged-in user and wasn't shown by any template. Reviews are requested only by the editor's "Fetch Reviews" button, for the `reviews` and `rating` fields only, and are cached for 12 hours.
+- The template upload card warns that plugin updates delete uploaded templates.
 - **QuickTow "Style variant" has moved** from the "Landing Page Details" box to the new **Layout** tab of the "QuickTow" box. Saved styles are kept. The field only appears when QuickTow is the active template.
 - QuickTow's Style 3 label no longer names a client.
+### Removed
+- **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
+### Fixed
+- CI and the release workflow now fail when a PHP file has a syntax error. Before, the lint step always passed.
+- GitHub's source zip no longer includes development files, in case a release ever lacks its zip asset.
 
 ## [1.0.6] - 2026-10-14
 ### Security
