@@ -54,12 +54,14 @@ function lpmanager_uninstall_site() {
         }
     }
 
-    // Transients (validation notices).
+    // Transients (validation notices, cached Google reviews).
     $wpdb->query(
         $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
             $wpdb->esc_like( '_transient_lp_missing_fields_' ) . '%',
-            $wpdb->esc_like( '_transient_timeout_lp_missing_fields_' ) . '%'
+            $wpdb->esc_like( '_transient_timeout_lp_missing_fields_' ) . '%',
+            $wpdb->esc_like( '_transient_lpmanager_reviews_' ) . '%',
+            $wpdb->esc_like( '_transient_timeout_lpmanager_reviews_' ) . '%'
         )
     );
 

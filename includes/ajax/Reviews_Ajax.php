@@ -3,7 +3,16 @@ namespace LPManager\ajax;
 
 if ( ! defined('ABSPATH') ) exit;
 
+/**
+ * "Fetch Reviews" button on the landing page editor (assets/js/reviews-fetch.js).
+ *
+ * Admin-only by design: every call is a billed Google Places Details request on the
+ * operator's key. Never register a wp_ajax_nopriv_ handler for this.
+ */
 final class Reviews_Ajax {
+
+    /** Seconds to reuse a place's reviews before calling Google again. */
+    const CACHE_TTL = 12 * HOUR_IN_SECONDS;
 
     public static function init() {
         add_action('wp_ajax_fetch_google_reviews', [self::class, 'fetch_google_reviews']);
@@ -12,9 +21,12 @@ final class Reviews_Ajax {
     public static function fetch_google_reviews() {
         check_ajax_referer('lpmanager_nonce', 'security');
 
-        $current_post_id = intval($_POST['post_id'] ?? 0);
-        if (!$current_post_id) {
+        $current_post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
+        if ( ! $current_post_id || 'landing_page' !== get_post_type( $current_post_id ) ) {
             wp_send_json_error('Missing post ID.');
+        }
+        if ( ! current_user_can( 'edit_post', $current_post_id ) ) {
+            wp_send_json_error( 'You are not allowed to edit this landing page.', 403 );
         }
 
         $client_terms = get_the_terms($current_post_id, 'client');
@@ -24,30 +36,24 @@ final class Reviews_Ajax {
 
         $client_term = $client_terms[0];
         $client_term_id = $client_term->term_id;
-        $place_id = carbon_get_term_meta($client_term_id, 'client_place_id');
-        $api_key = carbon_get_theme_option('lpmanager_google_maps_api_key');
+        $place_id = (string) carbon_get_term_meta($client_term_id, 'client_place_id');
+        $api_key = (string) carbon_get_theme_option('lpmanager_google_maps_api_key');
 
-        if (!$place_id || !$api_key) {
+        if ( '' === $place_id || '' === $api_key ) {
             wp_send_json_error('Missing API key or Place ID.');
         }
 
-        $url = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$place_id&key=$api_key";
-        $response = wp_remote_get($url);
-
-        if (is_wp_error($response)) {
+        $reviews = self::get_place_reviews( $place_id, $api_key );
+        if ( null === $reviews ) {
             wp_send_json_error('Failed to contact Google Places API.');
         }
-
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-
-        if (empty($data['result']['reviews'])) {
+        if (empty($reviews)) {
             wp_send_json_error('No reviews found.');
         }
 
         // Filter reviews rating >= 4
-        $filtered_reviews = array_filter($data['result']['reviews'], function($r) {
-            return $r['rating'] >= 4;
+        $filtered_reviews = array_filter($reviews, function($r) {
+            return isset( $r['rating'] ) && $r['rating'] >= 4;
         });
 
         // Limit to 10 (API only returns 5 at a time currently)
@@ -63,9 +69,9 @@ final class Reviews_Ajax {
             <div class="swiper-wrapper">
                 <?php foreach ($filtered_reviews as $review) : ?>
                     <div class="swiper-slide" style="box-sizing: border-box; padding: 10px;">
-                        <p><?php echo str_repeat('⭐', intval($review['rating'])); ?></p>
-                        <p>"<?php echo esc_html($review['text']); ?>"</p>
-                        <p><strong>- <?php echo esc_html($review['author_name']); ?></strong></p>
+                        <p><?php echo esc_html( str_repeat('⭐', intval($review['rating'])) ); ?></p>
+                        <p>"<?php echo esc_html( isset( $review['text'] ) ? $review['text'] : '' ); ?>"</p>
+                        <p><strong>- <?php echo esc_html( isset( $review['author_name'] ) ? $review['author_name'] : '' ); ?></strong></p>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -77,5 +83,42 @@ final class Reviews_Ajax {
         $output = ob_get_clean();
 
         wp_send_json_success($output);
+    }
+
+    /**
+     * A place's reviews from Places Details, cached per place.
+     *
+     * Requests only the `reviews` and `rating` fields, so Google bills the
+     * Atmosphere SKU alone instead of every field. Returns an array of reviews
+     * (possibly empty), or null if Google couldn't be reached.
+     */
+    private static function get_place_reviews( $place_id, $api_key ) {
+        $cache_key = 'lpmanager_reviews_' . md5( $place_id );
+        $cached = get_transient( $cache_key );
+        if ( is_array( $cached ) ) {
+            return $cached;
+        }
+
+        $url = add_query_arg(
+            [
+                'place_id' => rawurlencode( $place_id ),
+                'fields'   => 'reviews,rating',
+                'key'      => rawurlencode( $api_key ),
+            ],
+            'https://maps.googleapis.com/maps/api/place/details/json'
+        );
+        $response = wp_remote_get( $url, [ 'timeout' => 10 ] );
+        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+            return null;
+        }
+
+        $data = json_decode( wp_remote_retrieve_body( $response ), true );
+        if ( ! is_array( $data ) || ! isset( $data['status'] ) || ! in_array( $data['status'], [ 'OK', 'ZERO_RESULTS' ], true ) ) {
+            return null;
+        }
+
+        $reviews = ( isset( $data['result']['reviews'] ) && is_array( $data['result']['reviews'] ) ) ? $data['result']['reviews'] : [];
+        set_transient( $cache_key, $reviews, self::CACHE_TTL );
+        return $reviews;
     }
 }

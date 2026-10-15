@@ -132,12 +132,9 @@ class Assets_Manager {
         wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Bebas+Neue&family=Roboto:wght@300;400;500;700&display=swap', [], null);
         wp_enqueue_style('swiper-css', 'https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css');
         wp_enqueue_script('swiper-js', 'https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js', [], null, true);
-        wp_enqueue_script('lpmanager-reviews', LP_MANAGER_PLUGIN_URL . 'assets/js/reviews.js', ['jquery', 'swiper-js'], '1.0', true);
-        wp_localize_script( 'lpmanager-reviews', 'lpmanager_vars', [
-            'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
-            'nonce'   => wp_create_nonce( 'lpmanager_nonce' ),
-            'post_id' => get_the_ID(),
-        ] );
+        // assets/js/reviews.js is intentionally not loaded: no template renders #reviews-container, and
+        // each call was a billed Google Places request. Reviews are fetched from the editor and saved
+        // into the template's reviews field instead (Reviews_Ajax).
 
         // --- ENQUEUE landing page local assets ---
         $includes_dir = dirname(plugin_dir_path(__FILE__));
