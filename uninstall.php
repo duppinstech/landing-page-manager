@@ -108,3 +108,6 @@ if ( is_multisite() ) {
 } else {
     lpmanager_uninstall_site();
 }
+
+// Network-wide cache of the latest GitHub release (Update_Checker).
+delete_site_transient( 'lpmanager_github_release' );
