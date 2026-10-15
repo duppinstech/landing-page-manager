@@ -299,7 +299,7 @@ Container::make( 'post_meta', __( 'QuickTow', 'landing-page-manager' ) )
 		__( 'Advanced', 'landing-page-manager' ),
 		array(
 			Field::make( 'textarea', 'wra_schema_json_ld', __( 'JSON-LD (optional)', 'landing-page-manager' ) )
-				->set_help_text( __( 'Paste a full JSON-LD script body (without script tags). Outputs in the head.', 'landing-page-manager' ) )
+				->set_help_text( __( 'Paste the JSON-LD only, without <script> tags. It must be valid JSON; if it isn\'t, nothing is output. Check it with Google\'s Rich Results Test before saving.', 'landing-page-manager' ) )
 				->set_rows( 12 ),
 			Field::make( 'text', 'wra_mobile_call_text', __( 'Mobile bar prefix', 'landing-page-manager' ) )
 				->set_default_value( 'TAP TO CALL:' ),

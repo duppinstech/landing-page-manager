@@ -46,7 +46,11 @@ class Landing_Page_CPT_Enhancements {
             'hide_empty'      => false,
         ] );        
 
-        // Export button: carries the current client/keyword filters and a nonce.
+        // Export button: admins only (the handler requires manage_options). Carries the
+        // current client/keyword filters and a nonce.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
         $export_args = [ 'action' => 'export_landing_pages' ];
         foreach ( [ 'client', 'keyword' ] as $filter ) {
             if ( ! empty( $_GET[ $filter ] ) ) {
