@@ -15,7 +15,7 @@ jQuery(function($) {
     /** open contact form on link START **/
     if( $('.js-contact-form').length ){
         $('.js-contact-form').on('click', function () {
-            $('#contact_form').modal('show');
+            if ($.fn.modal) { $('#contact_form').modal('show'); } // Bootstrap JS isn't loaded by default (lib/assets.php)
         });
     }
     /** open contact form on link END **/
@@ -31,6 +31,9 @@ jQuery(function($) {
     if (!reduceMotion && typeof WOW === 'function') {
         window.wow = new WOW();
         wow.init();
+    } else {
+        // header.css hides .wow until WOW marks it finished; show everything now.
+        $('.wow').addClass('animation_end');
     }
 
     $('.hero.section .section__layer').each(function () {
@@ -998,7 +1001,7 @@ jQuery(function($) {
         if( !$(this).is(':empty')){
             $("#form_response .nf-form-wrap").empty();
             $(this).clone().appendTo($("#form_response .nf-form-wrap"));
-            $('#form_response').modal('show');
+            if ($.fn.modal) { $('#form_response').modal('show'); }
         }
     });
 

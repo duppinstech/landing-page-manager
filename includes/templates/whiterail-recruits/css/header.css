@@ -870,8 +870,19 @@ header.header.stiky{
 .navbar-collapse-inner .buttons_wrapper{
     display: none;
 }
-.wow {
-    opacity: 0;
+/* Scroll-in animations: hidden only when JS runs (html.rec-js, set in <head>) and the visitor
+   allows motion. WOW adds .animation_end when an animation finishes. If WOW never runs (blocked
+   or delayed JS), the fallback animation shows the element after 3s; WOW's inline
+   animation-name overrides it on elements it handles. */
+@media (prefers-reduced-motion: no-preference) {
+    .rec-js .wow {
+        opacity: 0;
+        animation: rec-wow-fallback 0s 3s forwards;
+    }
+}
+
+@keyframes rec-wow-fallback {
+    to { opacity: 1; }
 }
 
 .wow.animation_end {

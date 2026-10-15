@@ -2,6 +2,7 @@
 <html <?php language_attributes() ?>>
     <head>
         <meta charset="<?php bloginfo('charset') ?>" />
+        <script>document.documentElement.className += ' rec-js';</script>
 
         <meta name="format-detection" content="telephone=no">
 

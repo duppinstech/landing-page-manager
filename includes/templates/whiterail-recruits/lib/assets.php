@@ -4,8 +4,9 @@
  *
  * Keys become handles (lpm-whiterail-recruits-<key>). Dependencies name other keys
  * in this file, or core handles such as 'jquery'. Files in css/ and js/ that are not
- * listed here are not loaded. main.js needs Bootstrap 4 (modal, collapse), Swiper
- * and WOW.
+ * listed here are not loaded. main.js only needs WOW: its Swiper and Bootstrap
+ * modal/collapse code checks for markup this template doesn't output, so those
+ * libraries aren't loaded. Bootstrap CSS stays for the grid.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +17,6 @@ return array(
 	'styles'  => array(
 		'bootstrap'  => array( 'css/bootstrap.css' ),
 		'animate'    => array( 'css/animate.min.css' ),
-		'swiper'     => array( 'css/swiper-bundle.css' ),
 		'fonts'      => array( 'css/fonts.css' ),
 		'header'     => array( 'css/header.css' ),
 		'footer'     => array( 'css/footer.css' ),
@@ -24,10 +24,7 @@ return array(
 		'responsive' => array( 'css/responsive.css' ),
 	),
 	'scripts' => array(
-		'popper'    => array( 'js/plugins/popper.min.js' ),
-		'bootstrap' => array( 'js/plugins/bootstrap.js', array( 'jquery', 'popper' ) ),
-		'swiper'    => array( 'js/plugins/swiper.js' ),
-		'wow'       => array( 'js/wow.min.js' ),
-		'main'      => array( 'js/main.js', array( 'jquery', 'bootstrap', 'swiper', 'wow' ) ),
+		'wow'  => array( 'js/wow.min.js' ),
+		'main' => array( 'js/main.js', array( 'jquery', 'wow' ) ),
 	),
 );

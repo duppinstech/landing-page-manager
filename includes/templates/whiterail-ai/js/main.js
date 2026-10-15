@@ -87,14 +87,15 @@
         var selectors = '.reviews-html .reviews-swiper, .reviews-html .swiper, .reviews-html .swiper-container';
         var swipers = document.querySelectorAll(selectors);
         swipers.forEach(function (swiperEl) {
-            if (swiperEl.classList.contains('swiper-initialized')) return;
-            swiperEl.classList.add('swiper');
+            if (swiperEl.classList.contains('swiper-initialized') || swiperEl.classList.contains('swiper-container-initialized')) return;
+            // The bundled Swiper 6 CSS styles .swiper-container; keep .swiper for newer markup.
+            swiperEl.classList.add('swiper', 'swiper-container');
             ensureReviewsSwiperMarkup(swiperEl);
 
             var paginationEl = swiperEl.querySelector('.swiper-pagination');
             var prevEl = swiperEl.querySelector('.swiper-button-prev');
             var nextEl = swiperEl.querySelector('.swiper-button-next');
-            new Swiper(swiperEl, {
+            var reviewsSwiper = new Swiper(swiperEl, {
                 loop: true,
                 slidesPerView: 1,
                 spaceBetween: 20,
@@ -102,7 +103,7 @@
                 // No autoplay for visitors who ask for reduced motion.
                 autoplay: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? false : {
                     delay: 3000,
-                    disableOnInteraction: false
+                    disableOnInteraction: true
                 },
                 speed: 900,
                 navigation: { prevEl: prevEl, nextEl: nextEl },
@@ -112,6 +113,15 @@
                     1024: { slidesPerView: 3 }
                 }
             });
+
+            // Let visitors stop the motion (WCAG 2.2.2): pause on hover, stop on keyboard focus.
+            if (reviewsSwiper && reviewsSwiper.autoplay) {
+                swiperEl.addEventListener('mouseenter', function () { reviewsSwiper.autoplay.stop(); });
+                swiperEl.addEventListener('mouseleave', function () {
+                    if (!swiperEl.contains(document.activeElement)) { reviewsSwiper.autoplay.start(); }
+                });
+                swiperEl.addEventListener('focusin', function () { reviewsSwiper.autoplay.stop(); });
+            }
         });
     }
 
