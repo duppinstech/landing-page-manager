@@ -16,4 +16,5 @@ Use `.github/pull_request_template.md`: summary, type, checklist, test notes. Li
 - Lint is clean.
 - The security review is done for handler, upload, rewrite, and updater changes.
 - `CHANGELOG.md` has an [Unreleased] entry.
+- `/department-review` has been run and no department returned `block`. The sign-off table is in the PR body.
 - The version bump and tag happen only in a dedicated release PR or commit (see `/deploy`).

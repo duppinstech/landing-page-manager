@@ -10,6 +10,7 @@ This ships to live sites through the GitHub updater. **Confirm with Odell before
 1. **Preflight**
    - `git status` must show a clean tree on `main`, up to date with `origin/main`. Stop if not.
    - No open P0 items in PLAN.md, or Odell explicitly waives them.
+   - Run `/department-review v$ARGUMENTS` on everything since the last tag. Any `block` stops the release. Use the marketing release-note draft and the ops smoke test in steps 2 and 5.
    - Lint every PHP file: `find includes -name '*.php' -print0 | xargs -0 -n1 php -l` plus `php -l landing-page-manager.php`.
 2. **Bump**
    - Set ` * Version: $ARGUMENTS` in `landing-page-manager.php`.

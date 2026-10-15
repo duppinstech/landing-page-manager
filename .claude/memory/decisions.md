@@ -27,3 +27,15 @@ Append-only log. Format: `## YYYY-MM-DD — Title`, then Context / Decision / Co
 
 ## 2026-10-14 — Claude Code / SDLC scaffolding
 **Decision:** Adopted CLAUDE.md, AGENTS.md, INTENT.md, PLAN.md, and the `.claude/` rules, commands, skills, agents, hooks, memory, and workflows. Hooks enforce PHP lint, block secret and vendor writes, and run phpcbf when it's available.
+
+## 2026-10-14 — Department review gate
+**Context:** Security was the only review after development. Legal (licensing, disclaimers, privacy), pricing, docs, release safety and UX were checked ad hoc or not at all.
+**Decision:** Added read-only department reviewers (`legal-`, `finance-`, `product-`, `marketing-`, `support-docs-`, `release-ops-`, and `ux-reviewer`) alongside `security-reviewer`. `/department-review` runs them in parallel once development is done and produces one sign-off table. It is wired into the feature-build, bug-fix and code-review workflows, the `/deploy` preflight, the PR template, and the merge gates.
+**Consequences:** Any `block` verdict stops the merge or release. Only Odell can waive High security or legal findings. Business facts the agents rely on are in `.claude/memory/business-context.md` (public-safe) and in `CLAUDE.local.md` (private numbers).
+
+## 2026-10-14 — Approved department-review items are worked without waiting
+**Decision (Odell):** Routine items that a department review approves into PLAN.md are open to work right away. Only "Decisions needed (Odell)" items wait for him. The safety boundaries (pushing to main, tags and releases, deleting files, history rewrites) still need his go-ahead.
+
+## 2026-10-14 — Updates come only from GitHub until a WordPress.org listing exists
+**Context:** The `landing-page-manager` slug is unclaimed on WordPress.org, and the plugin had no `Update URI`. Whoever published that slug could push code to every site.
+**Decision (Odell):** Close the gap now. Add `Update URI` and use GitHub Releases as the only update source. Plan for WordPress.org later: the free core goes on WordPress.org, and Pro stays the paid add-on. Revisit this decision when the listing is created.
