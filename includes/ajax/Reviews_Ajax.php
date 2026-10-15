@@ -14,6 +14,9 @@ final class Reviews_Ajax {
     /** Seconds to reuse a place's reviews before calling Google again. */
     const CACHE_TTL = 12 * HOUR_IN_SECONDS;
 
+    /** Seconds to refuse repeat calls after Google rejected or failed a request. */
+    const FAILURE_TTL = 10 * MINUTE_IN_SECONDS;
+
     public static function init() {
         add_action('wp_ajax_fetch_google_reviews', [self::class, 'fetch_google_reviews']);
     }
@@ -23,10 +26,11 @@ final class Reviews_Ajax {
 
         $current_post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
         if ( ! $current_post_id || 'landing_page' !== get_post_type( $current_post_id ) ) {
-            wp_send_json_error('Missing post ID.');
+            wp_send_json_error( __( 'Save the landing page first, then fetch reviews.', 'landing-page-manager' ) );
         }
+        // No 403 status: reviews-fetch.js only shows the message for 2xx responses.
         if ( ! current_user_can( 'edit_post', $current_post_id ) ) {
-            wp_send_json_error( 'You are not allowed to edit this landing page.', 403 );
+            wp_send_json_error( __( 'You are not allowed to edit this landing page.', 'landing-page-manager' ) );
         }
 
         $client_terms = get_the_terms($current_post_id, 'client');
@@ -40,12 +44,12 @@ final class Reviews_Ajax {
         $api_key = lpmanager_google_server_api_key();
 
         if ( '' === $place_id || '' === $api_key ) {
-            wp_send_json_error('Missing API key or Place ID.');
+            wp_send_json_error( __( 'Add a Google Maps server key under Landing Pages → Settings → API Keys, and make sure this page\'s client has a Google Place ID.', 'landing-page-manager' ) );
         }
 
         $reviews = self::get_place_reviews( $place_id, $api_key );
-        if ( null === $reviews ) {
-            wp_send_json_error('Failed to contact Google Places API.');
+        if ( is_wp_error( $reviews ) ) {
+            wp_send_json_error( $reviews->get_error_message() );
         }
         if (empty($reviews)) {
             wp_send_json_error('No reviews found.');
@@ -88,15 +92,23 @@ final class Reviews_Ajax {
     /**
      * A place's reviews from Places Details, cached per place.
      *
-     * Requests only the `reviews` and `rating` fields, so Google bills the
-     * Atmosphere SKU alone instead of every field. Returns an array of reviews
-     * (possibly empty), or null if Google couldn't be reached.
+     * Requests only the `reviews` and `rating` fields, so Google bills Places Details
+     * plus Atmosphere Data and skips Contact Data. Returns an array of reviews
+     * (possibly empty), or a WP_Error with a message for the editor.
      */
     private static function get_place_reviews( $place_id, $api_key ) {
         $cache_key = 'lpmanager_reviews_' . md5( $place_id );
         $cached = get_transient( $cache_key );
         if ( is_array( $cached ) ) {
             return $cached;
+        }
+
+        // After a failure, refuse repeats for a while so a bad key or Place ID can't
+        // be hammered into billed requests.
+        $failure_key = $cache_key . '_fail';
+        $failure = get_transient( $failure_key );
+        if ( is_string( $failure ) && '' !== $failure ) {
+            return new \WP_Error( 'lpmanager_reviews_failed', $failure );
         }
 
         $url = add_query_arg(
@@ -108,13 +120,23 @@ final class Reviews_Ajax {
             'https://maps.googleapis.com/maps/api/place/details/json'
         );
         $response = wp_remote_get( $url, [ 'timeout' => 10 ] );
-        if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-            return null;
-        }
+        $data = ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) )
+            ? null
+            : json_decode( wp_remote_retrieve_body( $response ), true );
+        $status = ( is_array( $data ) && isset( $data['status'] ) ) ? (string) $data['status'] : '';
 
-        $data = json_decode( wp_remote_retrieve_body( $response ), true );
-        if ( ! is_array( $data ) || ! isset( $data['status'] ) || ! in_array( $data['status'], [ 'OK', 'ZERO_RESULTS' ], true ) ) {
-            return null;
+        if ( ! in_array( $status, [ 'OK', 'ZERO_RESULTS' ], true ) ) {
+            if ( 'REQUEST_DENIED' === $status ) {
+                $message = __( 'Google refused the request. Check the Google Maps server key under Landing Pages → Settings → API Keys: it needs the Places API enabled and must not be restricted to websites (HTTP referrers).', 'landing-page-manager' );
+            } elseif ( in_array( $status, [ 'NOT_FOUND', 'INVALID_REQUEST' ], true ) ) {
+                $message = __( 'Google did not recognise this client\'s Place ID. Check the Place ID on the client screen.', 'landing-page-manager' );
+            } elseif ( 'OVER_QUERY_LIMIT' === $status ) {
+                $message = __( 'Google\'s quota for this key has been reached. Try again later, or raise the quota in the Google Cloud console.', 'landing-page-manager' );
+            } else {
+                $message = __( 'Could not reach Google. Try again in a few minutes.', 'landing-page-manager' );
+            }
+            set_transient( $failure_key, $message, self::FAILURE_TTL );
+            return new \WP_Error( 'lpmanager_reviews_failed', $message );
         }
 
         $reviews = ( isset( $data['result']['reviews'] ) && is_array( $data['result']['reviews'] ) ) ? $data['result']['reviews'] : [];
