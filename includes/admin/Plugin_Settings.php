@@ -161,14 +161,10 @@ class Plugin_Settings {
         ];
 
         $tab_updates = [
-            Field::make( 'select', 'lpmanager_update_source', __( 'Plugin update source', 'landing-page-manager' ) )
-                ->set_options( [
-                    'wp_org' => __( 'WordPress.org only', 'landing-page-manager' ),
-                    'github' => __( 'GitHub only', 'landing-page-manager' ),
-                    'both'   => __( 'GitHub and WordPress.org (use newest version)', 'landing-page-manager' ),
-                ] )
-                ->set_default_value( 'both' )
-                ->set_help_text( __( 'Where to check for plugin updates. Use "WordPress.org only" after publishing to the plugin directory; use "Both" to get the latest from either source.', 'landing-page-manager' ) ),
+            Field::make( 'html', 'lpmanager_update_source_info' )
+                ->set_html(
+                    '<p>' . esc_html__( 'Updates come from the official GitHub Releases of Landing Page Manager. Use "Check for updates" on the Plugins screen to check now.', 'landing-page-manager' ) . '</p>'
+                ),
         ];
 
         Container::make( 'theme_options', __( 'Settings', 'landing-page-manager' ) )
