@@ -9,6 +9,7 @@ class Plugin_Settings {
     public static function init() {
         add_action( 'carbon_fields_register_fields', [ __CLASS__, 'register_settings' ] );
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_styles']);
+        add_action( 'admin_notices', [ __CLASS__, 'render_missing_template_notice' ] );
 		add_action('carbon_fields_theme_options_container_saved', function() {
             $fields = [
                 'lpmanager_google_maps_api_key',
@@ -200,6 +201,31 @@ class Plugin_Settings {
         return $intro;
     }
 
+    /**
+     * Warn admins when the active template's folder is gone (for example, an uploaded
+     * template removed by a plugin update), because every landing page then 404s.
+     */
+    public static function render_missing_template_notice() {
+        if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
+            return;
+        }
+        $slug = sanitize_title( (string) carbon_get_theme_option( 'lpmanager_active_template' ) );
+        // Runs on every admin screen, so check one file rather than scanning all templates.
+        if ( '' === $slug || file_exists( LP_MANAGER_PLUGIN_PATH . 'includes/templates/' . $slug . '/single-landing_page.php' ) ) {
+            return;
+        }
+        printf(
+            '<div class="notice notice-error"><p>%s</p></div>',
+            esc_html(
+                sprintf(
+                    /* translators: %s: template slug */
+                    __( 'Landing Page Manager: the active template "%s" is missing, so landing pages are showing a 404. It was probably removed by a plugin update. Upload it again under Landing Pages → Settings → Templates, or choose another template.', 'landing-page-manager' ),
+                    $slug
+                )
+            )
+        );
+    }
+
     public static function render_template_selector_and_upload() {
         $templates = Template_Manager::get_templates();
         //$active_template = get_option('lpmanager_active_template');
@@ -231,6 +257,12 @@ class Plugin_Settings {
         $html .= '</label>';
 
         $html .= '</div>';
+
+        // Uploaded templates live inside the plugin folder until PLAN.md "Store uploaded templates
+        // outside the plugin folder" lands, so a plugin update deletes them.
+        $html .= '<p class="description" style="margin-top: 12px;"><strong>' . esc_html__( 'Important:', 'landing-page-manager' ) . '</strong> '
+            . esc_html__( 'Uploaded templates are stored inside the plugin folder and are deleted when the plugin updates. Keep your template .zip and upload it again after each update.', 'landing-page-manager' )
+            . '</p>';
 
         // Hidden input to track selected template
         $html .= '<input type="hidden" id="lpmanager_active_template" name="lpmanager_active_template" value="' . esc_attr($active_template) . '">';
