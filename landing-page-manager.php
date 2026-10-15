@@ -2,9 +2,12 @@
 /**
  * Plugin Name: Landing Page Manager
  * Plugin URI: https://github.com/duppinstech/landing-page-manager
- * Description: Manage multi-client landing pages with subdomain routing.
+ * Description: Launch fast, client-branded landing pages on subdomains for every service, keyword and city.
  * Version: 1.0.6
- * Author: Odell Duppins
+ * Requires at least: 5.9
+ * Requires PHP: 7.4
+ * Author: Odell Duppins / Duppins Technology
+ * Author URI: https://duppinstech.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: landing-page-manager
