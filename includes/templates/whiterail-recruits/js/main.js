@@ -20,14 +20,18 @@ jQuery(function($) {
     }
     /** open contact form on link END **/
 
-    $.browser.safari = ($.browser.webkit && !(/chrome/.test(navigator.userAgent.toLowerCase())));
-
-    if ($.browser.safari) {
+    // $.browser only existed through jQuery Migrate 1.x, which is no longer loaded.
+    var ua = navigator.userAgent.toLowerCase();
+    if (/webkit/.test(ua) && !/chrome/.test(ua)) {
         $('body').addClass('is_safari');
     }
 
-    window.wow = new WOW();
-    wow.init();
+    // Visitors who ask for reduced motion get no scroll-in animations or autoplaying sliders.
+    var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (!reduceMotion && typeof WOW === 'function') {
+        window.wow = new WOW();
+        wow.init();
+    }
 
     $('.hero.section .section__layer').each(function () {
         var attr = $(this).data('bg-videos');
@@ -94,7 +98,7 @@ jQuery(function($) {
             slidesPerView: 1,
             slidesPerGroup: 1,
             followFinger: false,
-            autoplay: {
+            autoplay: reduceMotion ? false : {
                 delay: 10000,
             },
             speed: 1500,
@@ -139,7 +143,7 @@ jQuery(function($) {
             slidesPerGroup: 1,
             loop: true,
             followFinger: false,
-            autoplay: {
+            autoplay: reduceMotion ? false : {
                 delay: 10000,
             },
             speed: 1500,

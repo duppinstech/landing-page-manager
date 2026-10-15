@@ -20,7 +20,7 @@ $cm_chk  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="
 		<div class="hero-img-fade" aria-hidden="true"></div>
 	</div>
 	<?php endif; ?>
-	<div class="hero-inner wra-fi">
+	<div class="hero-inner">
 		<?php if ( ! empty( $wra_hero_eyebrow ) ) : ?>
 			<div class="hero-eyebrow"><?php echo esc_html( $wra_hero_eyebrow ); ?></div>
 		<?php endif; ?>

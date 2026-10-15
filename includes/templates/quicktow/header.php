@@ -37,6 +37,7 @@ if ( 'james_heavy' === $style_variant ) {
 	<meta charset="<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="format-detection" content="telephone=no" />
+	<script>document.documentElement.className += ' qt-js';</script>
 	<?php wp_head(); ?>
 	<?php if ( '' !== $qt_schema_json ) : ?>
 	<script type="application/ld+json">

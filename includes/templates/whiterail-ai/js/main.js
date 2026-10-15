@@ -99,7 +99,8 @@
                 slidesPerView: 1,
                 spaceBetween: 20,
                 autoHeight: true,
-                autoplay: {
+                // No autoplay for visitors who ask for reduced motion.
+                autoplay: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? false : {
                     delay: 3000,
                     disableOnInteraction: false
                 },

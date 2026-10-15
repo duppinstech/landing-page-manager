@@ -39,8 +39,8 @@ section{padding:72px 0}
 .ph{background:var(--gray-light);border:2px dashed var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#999;font-size:13px;font-weight:600;letter-spacing:.05em;text-align:center;padding:24px}
 .ph-icon{font-size:40px;opacity:.4;display:block}
 .r43{aspect-ratio:4/3}
-.wra-fi{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
-.wra-fi.wra-fi-on{opacity:1;transform:none}
+/* Scroll reveal: only when JS runs (html.qt-js, set in <head>) and the visitor allows motion. Never on the hero. */
+@media (prefers-reduced-motion:no-preference){.qt-js .wra-fi{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}.qt-js .wra-fi.wra-fi-on{opacity:1;transform:none}}
 #hdr{position:sticky;top:0;z-index:1000;background:rgba(10,12,30,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:3px solid var(--red)}
 .hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:0 24px;max-width:1180px;margin:0 auto;height:70px;gap:16px}
 .logo-wrap{display:flex;align-items:center;gap:12px;flex-shrink:0;text-decoration:none;color:inherit}

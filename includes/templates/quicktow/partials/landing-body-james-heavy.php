@@ -27,7 +27,7 @@ $cm_chk = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="c
 		<?php endif; ?>
 	</div>
 	<div class="hero-gradient" aria-hidden="true"></div>
-	<div class="hero-inner hero-inner--james-heavy wra-fi">
+	<div class="hero-inner hero-inner--james-heavy">
 		<?php if ( ! empty( $wra_hero_eyebrow ) ) : ?>
 			<div class="hero-eyebrow"><?php echo esc_html( $wra_hero_eyebrow ); ?></div>
 		<?php endif; ?>

@@ -21,7 +21,7 @@ Description: A simple landing page template for Whiterail Recruits.
 			<div class="row">
 				<div class="col-lg-8 col-sm-12">
 					<?php if ( !empty( $hero_section_heading ) ) : ?>
-					<div class="title_wrapper wow slideInUp" data-wow-duration="1s" >
+					<div class="title_wrapper">
 						<h1>
 							<?php echo esc_html( $hero_section_heading ); ?>
 						</h1>
