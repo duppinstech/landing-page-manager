@@ -13,6 +13,8 @@ Description: A simple landing page template for Whiterail Recruits.
 	// Invalid colours sanitize to empty, so the existing "else" branches below supply the fallback.
 	$company_color_main = sanitize_hex_color( (string) carbon_get_the_post_meta('company_color_main') );
 	$company_color_secondary = sanitize_hex_color( (string) carbon_get_the_post_meta('company_color_secondary') );
+	// Headings and short text fields were printed raw before 1.0.7; keep the inline tags editors use.
+	$lpm_inline_tags = array( 'br' => array(), 'strong' => array(), 'b' => array(), 'em' => array(), 'i' => array(), 'span' => array( 'class' => array() ) );
 ?>
 
 <section class="hero section blur_sides" style="background:url(' <?php echo esc_url( $hero_section_bg ); ?> ')">
@@ -23,7 +25,7 @@ Description: A simple landing page template for Whiterail Recruits.
 					<?php if ( !empty( $hero_section_heading ) ) : ?>
 					<div class="title_wrapper">
 						<h1>
-							<?php echo esc_html( $hero_section_heading ); ?>
+							<?php echo wp_kses( $hero_section_heading, $lpm_inline_tags ); ?>
 						</h1>
 					</div>
 					<?php endif; ?>
@@ -70,7 +72,7 @@ Description: A simple landing page template for Whiterail Recruits.
 			<div class="title_wrapper_color wow slideInUp" data-wow-duration="1s" >
 		<?php endif; ?>
 			<h2 style="color:#fff;text-transform:uppercase;font-size:3em;">
-				<?php echo esc_html( $company_content_title ); ?>
+				<?php echo wp_kses( $company_content_title, $lpm_inline_tags ); ?>
 			</h2>
 		</div>
 		<div class="content">
@@ -99,11 +101,11 @@ Description: A simple landing page template for Whiterail Recruits.
 							<?php endif; ?>
 
 							<?php if( !empty( $review['review_title'] ) ): ?>
-							<h3 class="review-heading" ><?php echo esc_html( $review['review_title'] ); ?></h3>
+							<h3 class="review-heading" ><?php echo wp_kses( $review['review_title'], $lpm_inline_tags ); ?></h3>
 							<?php endif; ?>
 
 							<?php if( !empty( $review['review_desc'] ) ): ?>
-							<p class="review-text" ><?php echo esc_html( $review['review_desc'] ); ?></p>
+							<p class="review-text" ><?php echo wp_kses( $review['review_desc'], $lpm_inline_tags ); ?></p>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -128,7 +130,7 @@ Description: A simple landing page template for Whiterail Recruits.
 			<div class="title_wrapper_color wow slideInUp" data-wow-duration="1s" >
 		<?php endif; ?>
 			<h2 style="color:#fff;text-transform:uppercase;font-size:3em;">
-				<?php echo esc_html( $benefits_content_title ); ?>
+				<?php echo wp_kses( $benefits_content_title, $lpm_inline_tags ); ?>
 			</h2>
 		</div>
 		<div>
@@ -154,11 +156,11 @@ Description: A simple landing page template for Whiterail Recruits.
 							<?php endif; ?>
 
 							<?php if( !empty( $benefit['benefits_title'] ) ): ?>
-							<h3 class="benefit-heading" ><?php echo esc_html( $benefit['benefits_title'] ); ?></h3>
+							<h3 class="benefit-heading" ><?php echo wp_kses( $benefit['benefits_title'], $lpm_inline_tags ); ?></h3>
 							<?php endif; ?>
 
 							<?php if( !empty( $benefit['benefits_desc'] ) ): ?>
-							<p class="benefit-text" ><?php echo esc_html( $benefit['benefits_desc'] ); ?></p>
+							<p class="benefit-text" ><?php echo wp_kses( $benefit['benefits_desc'], $lpm_inline_tags ); ?></p>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -224,7 +226,7 @@ Description: A simple landing page template for Whiterail Recruits.
 			<div class="title_wrapper_color wow slideInUp" data-wow-duration="1s" >
 		<?php endif; ?>
 			<h2 style="color:#fff;text-transform:uppercase;font-size:3em;">
-				<?php echo esc_html( $more_content_title ); ?>
+				<?php echo wp_kses( $more_content_title, $lpm_inline_tags ); ?>
 			</h2>
 		</div>
 		<div class="content">
