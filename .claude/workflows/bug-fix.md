@@ -7,5 +7,6 @@
 5. **Fix.** Make the smallest change that addresses the root cause, PHP 7.4 compatible.
 6. **Verify.** The test passes, lint is clean, and the original repro no longer reproduces. Check you haven't regressed subdomain AJAX or update installs.
 7. **Review.** Run `/review`. Use the `security-reviewer` when the fix touches handlers, uploads, rewrites, or the updater.
-8. **Ship.** Add a CHANGELOG `### Fixed` entry and open the PR. If the bug hurts live sites, propose a patch release through `/deploy`.
-9. **Log.** Add a line to `progress.md`, and to `decisions.md` if the fix changed a design assumption.
+8. **Department review.** Run `/department-review`. For a small fix, most departments return `n/a` quickly. Security, ops and support always matter.
+9. **Ship.** Add a CHANGELOG `### Fixed` entry and open the PR. If the bug hurts live sites, propose a patch release through `/deploy`.
+10. **Log.** Add a line to `progress.md`, and to `decisions.md` if the fix changed a design assumption.

@@ -8,5 +8,6 @@
 6. **Tests.** Have the `test-writer` agent add coverage, or record manual smoke steps per `testing-standard.md`.
 7. **Review.** Run `/review`. The `security-reviewer` runs automatically for sensitive areas. Fix every High finding.
 8. **Docs.** Add a CHANGELOG [Unreleased] entry, update README if behavior changed, and update `decisions.md` if architecture changed.
-9. **PR.** Draft with the `pr-description` skill, then open it once Odell approves.
-10. **Close out.** Mark PLAN.md `[x]` and add a line to `progress.md`.
+9. **Department review.** Run `/department-review`. Security, legal, finance, product, marketing, support, ops and UX each sign off. Resolve every `block`, and apply the agreed fixes.
+10. **PR.** Draft with the `pr-description` skill, include the department sign-off table, then open it once Odell approves.
+11. **Close out.** Mark PLAN.md `[x]` and add a line to `progress.md`.

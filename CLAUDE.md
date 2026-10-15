@@ -54,6 +54,7 @@ Local PHP: `C:\xampp\php\php.exe`. GitHub CLI `gh` is installed and authenticate
 ## Safety boundaries
 - Ask before: pushing to `main`, creating tags/releases, deleting files, rewriting history, changing the updater.
 - Changes to `Update_Checker.php`, `Rewrite_Rules.php`, or `Template_Manager::handle_upload` require the `security-reviewer` agent.
+- When development on a change is done, run `/department-review` (security, legal, finance, product, marketing, support, ops, UX) before opening a PR or releasing. It adds routine suggestions to PLAN.md, forwards owner decisions to Odell, and writes timestamped notes in `meeting-notes/`. **Approved routine items are open to work right away; don't wait for Odell.** Only the "Decisions needed" items wait for him.
 
 ## Memory
 Durable project context lives in `.claude/memory/` — read `project-context.md` at the
