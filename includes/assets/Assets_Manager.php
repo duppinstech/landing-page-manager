@@ -130,11 +130,12 @@ class Assets_Manager {
 
         // --- ENQUEUE external fonts ---
         wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Bebas+Neue&family=Roboto:wght@300;400;500;700&display=swap', [], null);
-        wp_enqueue_style('swiper-css', 'https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css');
-        wp_enqueue_script('swiper-js', 'https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js', [], null, true);
+        // Swiper is not loaded from a CDN: the templates that use it ship their own copy (see lib/assets.php).
         // assets/js/reviews.js is intentionally not loaded: no template renders #reviews-container, and
         // each call was a billed Google Places request. Reviews are fetched from the editor and saved
         // into the template's reviews field instead (Reviews_Ajax).
+
+        wp_enqueue_script('jquery');
 
         // --- ENQUEUE landing page local assets ---
         $includes_dir = dirname(plugin_dir_path(__FILE__));
@@ -148,17 +149,55 @@ class Assets_Manager {
         $template_dir = $includes_dir . '/templates/' . $current_template . '/';
         $template_url = $includes_url . 'templates/' . $current_template . '/';
 
-        $this->enqueueFilesInDir($template_dir . 'css/', $template_url . 'css/', 'style');
-        $this->enqueueFilesInDir($template_dir . 'js/', $template_url . 'js/', 'script');
-
-        // --- Load jQuery and UI if needed ---
-        wp_enqueue_script('jquery');
-        wp_enqueue_script('jquery-ui-datepicker');
+        if ( file_exists( $template_dir . 'lib/assets.php' ) ) {
+            $this->enqueueTemplateManifest( $current_template, $template_dir, $template_url );
+        } else {
+            // Templates without a manifest (e.g. uploaded ones) keep the old behaviour: load every file.
+            $this->enqueueFilesInDir($template_dir . 'css/', $template_url . 'css/', 'style');
+            $this->enqueueFilesInDir($template_dir . 'js/', $template_url . 'js/', 'script');
+        }
 
         if (defined('WP_DEBUG') && WP_DEBUG) {
             global $wp_styles, $wp_scripts;
             //error_log('Enqueued Styles: ' . print_r($wp_styles->queue, true));
             //error_log('Enqueued Scripts: ' . print_r($wp_scripts->queue, true));
+        }
+    }
+
+    /**
+     * Enqueue the assets a template declares in lib/assets.php, in the order listed.
+     *
+     * Loading every file in css/ and js/ pulled in duplicate and unused libraries
+     * (two Bootstraps, a second jQuery that replaced WordPress's own, payform, jQuery UI).
+     */
+    private function enqueueTemplateManifest($slug, $template_dir, $template_url) {
+        $manifest = include $template_dir . 'lib/assets.php';
+        if ( ! is_array( $manifest ) ) {
+            return;
+        }
+
+        $prefix = 'lpm-' . sanitize_key( $slug ) . '-';
+        foreach ( [ 'styles', 'scripts' ] as $group ) {
+            if ( empty( $manifest[ $group ] ) || ! is_array( $manifest[ $group ] ) ) {
+                continue;
+            }
+            foreach ( $manifest[ $group ] as $key => $asset ) {
+                $path = isset( $asset[0] ) ? ltrim( (string) $asset[0], '/' ) : '';
+                if ( '' === $path || false !== strpos( $path, '..' ) || ! file_exists( $template_dir . $path ) ) {
+                    continue;
+                }
+                $deps = [];
+                foreach ( isset( $asset[1] ) ? (array) $asset[1] : [] as $dep ) {
+                    // A dependency that names another entry in this group gets its prefixed handle.
+                    $deps[] = isset( $manifest[ $group ][ $dep ] ) ? $prefix . $dep : $dep;
+                }
+                $ver = @filemtime( $template_dir . $path ) ?: null;
+                if ( 'styles' === $group ) {
+                    wp_enqueue_style( $prefix . $key, $template_url . $path, $deps, $ver );
+                } else {
+                    wp_enqueue_script( $prefix . $key, $template_url . $path, $deps, $ver, true );
+                }
+            }
         }
     }
 
