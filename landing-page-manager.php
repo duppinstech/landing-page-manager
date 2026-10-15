@@ -34,6 +34,27 @@ function lpmanager_is_premium() {
 }
 
 /**
+ * Google API key for server-side calls (Places, Geocoding).
+ *
+ * The browser key (`lpmanager_google_maps_api_key`) is printed in page HTML for the
+ * Maps JavaScript API, so it should be restricted to the site's URLs, and a key
+ * restricted that way can't be used from the server. Sites that haven't set a
+ * separate server key fall back to the browser key, as before.
+ *
+ * @return string
+ */
+function lpmanager_google_server_api_key() {
+    if ( ! function_exists( 'carbon_get_theme_option' ) ) {
+        return '';
+    }
+    $key = trim( (string) carbon_get_theme_option( 'lpmanager_google_server_api_key' ) );
+    if ( '' === $key ) {
+        $key = trim( (string) carbon_get_theme_option( 'lpmanager_google_maps_api_key' ) );
+    }
+    return $key;
+}
+
+/**
  * Which conversion-tracking options are enabled (Pro + Settings). Used to gate tracking and UI.
  *
  * @return array{ track_page_views: bool, track_link_clicks: bool, enable_conversion_tracking: bool, track_time_on_page: bool, track_scroll_depth: bool, track_heatmap: bool, track_rage_clicks: bool, track_outbound_clicks: bool, track_cta_visibility: bool, track_form_interactions: bool }

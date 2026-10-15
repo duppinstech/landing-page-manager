@@ -37,7 +37,7 @@ final class Reviews_Ajax {
         $client_term = $client_terms[0];
         $client_term_id = $client_term->term_id;
         $place_id = (string) carbon_get_term_meta($client_term_id, 'client_place_id');
-        $api_key = (string) carbon_get_theme_option('lpmanager_google_maps_api_key');
+        $api_key = lpmanager_google_server_api_key();
 
         if ( '' === $place_id || '' === $api_key ) {
             wp_send_json_error('Missing API key or Place ID.');

@@ -153,8 +153,14 @@ class Plugin_Settings {
         }
 
         $tab_api = [
-            Field::make( 'text', 'lpmanager_google_maps_api_key', __( 'Google Maps API Key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Enter your Google Maps JavaScript API key for use on landing pages.', 'landing-page-manager' ) ),
+            Field::make( 'html', 'lpmanager_google_keys_intro' )
+                ->set_html(
+                    '<p>' . esc_html__( 'Google bills usage to the Google Cloud account that owns each key. Set quotas and budget alerts on both keys in the Google Cloud console.', 'landing-page-manager' ) . '</p>'
+                ),
+            Field::make( 'text', 'lpmanager_google_maps_api_key', __( 'Google Maps browser key', 'landing-page-manager' ) )
+                ->set_help_text( __( 'Used in visitors\' browsers to show maps (Maps JavaScript API). It is visible in page source, so restrict it to your site\'s URLs (HTTP referrers) and to the Maps JavaScript API.', 'landing-page-manager' ) ),
+            Field::make( 'text', 'lpmanager_google_server_api_key', __( 'Google server key', 'landing-page-manager' ) )
+                ->set_help_text( __( 'Used by this site\'s server to look up client addresses and fetch reviews (Geocoding API and Places API). Restrict it to your server\'s IP address and to those two APIs. If left empty, the browser key is used, which only works while the browser key has no referrer restriction.', 'landing-page-manager' ) ),
             Field::make( 'text', 'lpmanager_brandfetch_api_key', __( 'Brandfetch API Key', 'landing-page-manager' ) )
                 ->set_help_text( __( 'Enter your Brandfetch API key for fetching brand colors.', 'landing-page-manager' ) ),
             Field::make( 'textarea', 'lpmanager_additional_scripts', __( 'Additional Scripts', 'landing-page-manager' ) )

@@ -507,7 +507,7 @@ class Client_Taxonomy {
         }
         $company_name = $term->name;
         $address     = carbon_get_term_meta( $term_id, 'client_address' );
-        $api_key     = carbon_get_theme_option( 'lpmanager_google_maps_api_key' );
+        $api_key     = lpmanager_google_server_api_key();
         if ( ! $address || ! $api_key ) {
             return;
         }
