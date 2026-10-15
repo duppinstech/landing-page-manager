@@ -9,8 +9,8 @@
         <meta name="HandheldFriendly" content="true" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         
-        <link rel="icon" type="image/png" href="<?php echo plugins_url('css/images/favicons/favicon-32x32.png', __FILE__); ?>" sizes="32x32" />
-		<link rel="icon" type="image/png" href="<?php echo plugins_url('css/images/favicons/favicon-16x16.png', __FILE__); ?>" sizes="16x16" />
+        <link rel="icon" type="image/png" href="<?php echo esc_url( plugins_url('css/images/favicons/favicon-32x32.png', __FILE__) ); ?>" sizes="32x32" />
+		<link rel="icon" type="image/png" href="<?php echo esc_url( plugins_url('css/images/favicons/favicon-16x16.png', __FILE__) ); ?>" sizes="16x16" />
         
         <?php do_action( 'wp_head' ); ?>
     </head>
@@ -61,7 +61,7 @@
 									<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
 										<div class="site-branding ast-site-identity" itemtype="https://schema.org/Organization" itemscope="itemscope">
 											<span class="site-logo-img">
-												<a href="<?php echo esc_url( get_permalink() ); ?>" class="custom-logo-link" rel="home" aria-current="page" aria-expanded="false"><img width="180" height="113" src="<?php echo $client_logo_url; ?>" class="custom-logo" alt="<?php echo $client_name; ?> Jobs">
+												<a href="<?php echo esc_url( get_permalink() ); ?>" class="custom-logo-link" rel="home" aria-current="page" aria-expanded="false"><img width="180" height="113" src="<?php echo esc_url( $client_logo_url ); ?>" class="custom-logo" alt="<?php echo esc_attr( $client_name ); ?> Jobs">
 												</a>
 											</span>				
 										</div>
@@ -122,8 +122,8 @@
                                                                         echo '<ul class="client-landing-pages">';
                                                                         while ($query->have_posts()) {
                                                                             $query->the_post();
-                                                                            echo '<li class="menu-item page-item-' . get_the_ID() . '">';
-                                                                            echo '<a href="' . get_permalink() . '">' . get_the_title() . '</a>';
+                                                                            echo '<li class="menu-item page-item-' . esc_attr( get_the_ID() ) . '">';
+                                                                            echo '<a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ) . '</a>';
                                                                             echo '</li>';
 
                                                                             error_log('Landing Pages Debug: Outputting page: ' . get_the_title() . ' (ID: ' . get_the_ID() . ')');
@@ -139,7 +139,7 @@
 														</li>
 														<li id="menu-item-58" class="menu-item"><a href="#about" class="menu-link">About Us</a></li>
 														<li id="menu-item-59" class="menu-item"><a href="#benefits" class="menu-link">Benefits</a></li>
-														<li id="menu-item-60" class="menu-item"><a href="#more" class="menu-link">More About <?php echo $client_name; ?></a></li>
+														<li id="menu-item-60" class="menu-item"><a href="#more" class="menu-link">More About <?php echo esc_html( $client_name ); ?></a></li>
 													</ul>
 												</div>
 											</nav>
@@ -160,7 +160,7 @@
 						<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
 							<div class="site-branding ast-site-identity" itemtype="https://schema.org/Organization" itemscope="itemscope">
 								<span class="site-logo-img">
-									<a href="<?php echo site_url(); ?>" class="custom-logo-link" rel="home" aria-current="page"><img width="180" height="113" src="<?php echo $client_logo_url; ?>" class="custom-logo" alt="<?php echo $client_name; ?> Jobs" ></a>
+									<a href="<?php echo esc_url( site_url() ); ?>" class="custom-logo-link" rel="home" aria-current="page"><img width="180" height="113" src="<?php echo esc_url( $client_logo_url ); ?>" class="custom-logo" alt="<?php echo esc_attr( $client_name ); ?> Jobs" ></a>
 								</span>				
 							</div><!-- .site-branding -->
 						</div>

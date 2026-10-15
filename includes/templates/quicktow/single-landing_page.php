@@ -37,6 +37,9 @@ if ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) {
 
 $client_primary = ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) ? carbon_get_term_meta( $client_term_id, 'client_primary_color' ) : '';
 $client_secondary = ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) ? carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) : '';
+// Printed into a <style> block, so only a real hex colour is allowed through.
+$client_primary = sanitize_hex_color( (string) $client_primary );
+$client_secondary = sanitize_hex_color( (string) $client_secondary );
 $client_primary = $client_primary ? $client_primary : '#002868';
 $client_secondary = $client_secondary ? $client_secondary : '#B22234';
 

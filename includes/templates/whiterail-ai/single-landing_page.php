@@ -33,8 +33,9 @@ if ($client_place_id) {
     $gmb_reviews_url = $client_google_search_url;
 }
 
-$client_primary_color = $client_term_id ? carbon_get_term_meta($client_term_id, 'client_primary_color') : '#007BFF'; // fallback color: web-safe blue
-$client_secondary_color = $client_term_id ? carbon_get_term_meta($client_term_id, 'client_secondary_color') : '#FF4136'; // fallback color: web-safe red
+// Colours land in style attributes, so only accept a real hex value; anything else uses the fallback.
+$client_primary_color = sanitize_hex_color( $client_term_id ? (string) carbon_get_term_meta($client_term_id, 'client_primary_color') : '' ) ?: '#007BFF'; // fallback color: web-safe blue
+$client_secondary_color = sanitize_hex_color( $client_term_id ? (string) carbon_get_term_meta($client_term_id, 'client_secondary_color') : '' ) ?: '#FF4136'; // fallback color: web-safe red
 $contrast_text_color = Assets_Manager::get_contrast_text_color($client_primary_color);
 $contrast_text_color_alt = Assets_Manager::get_contrast_text_color($client_secondary_color);
 
@@ -141,7 +142,7 @@ if ($section_8_img_id) {
 <section id="services" class="icon-boxes-section">
   <div class="container">
     <h2><?php echo esc_html( $section_4_h2 ); ?></h2>
-    <p class="section-intro"><?php echo $section_4_text_1; ?></p>
+    <p class="section-intro"><?php echo wp_kses_post( $section_4_text_1 ); ?></p>
 
     <?php 
     $icon_boxes = carbon_get_the_post_meta('icon_boxes');

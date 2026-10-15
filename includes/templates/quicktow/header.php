@@ -12,6 +12,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 global $wra_schema_json_ld;
+
+// Re-encode the stored JSON-LD so it can never close the <script> tag; drop it if it isn't valid JSON.
+$qt_schema_json = '';
+if ( is_string( $wra_schema_json_ld ) && '' !== trim( $wra_schema_json_ld ) ) {
+	$qt_schema_decoded = json_decode( $wra_schema_json_ld, true );
+	if ( is_array( $qt_schema_decoded ) ) {
+		$qt_schema_json = (string) wp_json_encode( $qt_schema_decoded, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+	}
+}
+
 $style_variant = isset( $wra_style_variant ) ? $wra_style_variant : 'james';
 $qt_fixed_palette = in_array( $style_variant, array( 'james', 'charmeck', 'james_heavy' ), true );
 $qt_body_classes  = array( 'quicktow' );
@@ -28,9 +38,9 @@ if ( 'james_heavy' === $style_variant ) {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="format-detection" content="telephone=no" />
 	<?php wp_head(); ?>
-	<?php if ( ! empty( $wra_schema_json_ld ) ) : ?>
+	<?php if ( '' !== $qt_schema_json ) : ?>
 	<script type="application/ld+json">
-	<?php echo $wra_schema_json_ld; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD from trusted editor. ?>
+	<?php echo $qt_schema_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Re-encoded above with JSON_HEX_TAG, so it cannot contain "<". ?>
 	</script>
 	<?php endif; ?>
 	<style id="qt-brand-vars">

@@ -44,8 +44,8 @@
 		$client_term_id = $client_term->term_id;
 		$client_logo_id = carbon_get_term_meta( $client_term_id, 'client_logo' );
 		$client_logo_url = $client_logo_id ? wp_get_attachment_image_url( $client_logo_id, 'full' ) : '';
-		$client_primary_color = carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ?: '#007BFF';
-		$client_secondary_color = carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ?: '#FF4136';
+		$client_primary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ) ?: '#007BFF';
+		$client_secondary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ) ?: '#FF4136';
 		$client_address = carbon_get_term_meta( $client_term_id, 'client_address' ) ?: '';
 		$client_place_id = carbon_get_term_meta( $client_term_id, 'client_place_id' ) ?: '';
 		$gmb_url = $client_place_id ? Google_Maps_Helper::get_gmb_url( $client_place_id ) : '';
@@ -85,7 +85,7 @@
         <?php if (!empty($client_phone)) : ?>
             <span class="header-bar__text">
                 Need Help Now? 
-                <a href="tel:<?php echo preg_replace('/[^0-9+]/', '', $client_phone); ?>" style="color: <?php echo esc_attr($contrast_text_color); ?>">
+                <a href="tel:<?php echo esc_attr( preg_replace('/[^0-9+]/', '', $client_phone) ); ?>" style="color: <?php echo esc_attr($contrast_text_color); ?>">
                     <i class="fas fa-phone-alt" aria-hidden="true"></i> <span style="color: inherit!important;">Call <?php echo esc_html($client_phone);?></span>
                 </a>
             </span>

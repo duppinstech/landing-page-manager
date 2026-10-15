@@ -32,8 +32,8 @@
             $client_place_id = carbon_get_term_meta( $client_term_id, 'client_place_id' ) ?: '';
             $client_google_search_url = carbon_get_term_meta( $client_term_id, 'client_google_search_url' ) ?: '';
             $gmb_url = $client_place_id ? Google_Maps_Helper::get_gmb_url( $client_place_id ) : $client_google_search_url;
-            $client_primary_color = carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ?: '#007BFF';
-            $client_secondary_color = carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ?: '#FF4136';
+            $client_primary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ) ?: '#007BFF';
+            $client_secondary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ) ?: '#FF4136';
             $client_logo_id = carbon_get_term_meta( $client_term_id, 'client_logo' );
             $client_logo_url = $client_logo_id ? wp_get_attachment_image_url( $client_logo_id, 'full' ) : '';
             $social_links = carbon_get_term_meta( $client_term_id, 'social_links' ) ?: [];
@@ -96,11 +96,12 @@
                             });
                         }
 
+                        // Values are interpolated as JSON string literals: esc_html alone does not stop ` or ${ breaking out of a template literal.
                         var infoWindowContent = `
                             <div style="max-width:200px;">
-                                <h3 style="margin-top:0;"><?php echo esc_html($client_name); ?></h3>
-                                <p><?php echo esc_html($client_address); ?></p>
-                                <p><a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $client_phone ) ); ?>"><?php echo esc_html( $client_phone ); ?></a></p>
+                                <h3 style="margin-top:0;">${<?php echo wp_json_encode( esc_html( $client_name ) ); ?>}</h3>
+                                <p>${<?php echo wp_json_encode( esc_html( $client_address ) ); ?>}</p>
+                                <p><a href="tel:${<?php echo wp_json_encode( esc_attr( preg_replace( '/[^0-9+]/', '', $client_phone ) ) ); ?>}">${<?php echo wp_json_encode( esc_html( $client_phone ) ); ?>}</a></p>
                             </div>
                         `;
 
@@ -181,7 +182,7 @@
         <div class="footer-bottom" style="background-color:<?php echo esc_attr($client_secondary_color); ?>;">
             <div class="footer-container">
                 <div class="copyright" style="color:<?php echo esc_attr($copyright_text_color); ?>;">
-                    &copy; <?php echo date('Y'); ?> <?php echo esc_html(get_bloginfo('name')); ?>. All rights reserved.
+                    &copy; <?php echo esc_html( date('Y') ); ?> <?php echo esc_html(get_bloginfo('name')); ?>. All rights reserved.
                 </div>
 
                 <?php if ( ! empty( $social_links ) && is_array( $social_links ) ) : ?>
