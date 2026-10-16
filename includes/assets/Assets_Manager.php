@@ -136,8 +136,18 @@ class Assets_Manager {
         // into the template's reviews field instead (Reviews_Ajax).
 
         // jQuery is not loaded for every page: manifest templates pull it in through their script
-        // dependencies (Template A doesn't need it). Keep it when the client's tracking code uses it.
-        if ( self::client_tracking_code_uses_jquery() ) {
+        // dependencies (Template A doesn't need it). Keep it when the client's tracking code looks like
+        // it uses jQuery.
+        /**
+         * Filters whether landing pages load jQuery even if the template doesn't need it.
+         *
+         * Return true for tags that need jQuery but aren't in the client's Header Tracking Code,
+         * for example a jQuery-based Custom HTML tag in Google Tag Manager.
+         *
+         * @param bool $load    Default: whether the client's Header Tracking Code appears to use jQuery or GTM.
+         * @param int  $post_id Landing page ID.
+         */
+        if ( apply_filters( 'lpmanager_load_jquery', self::client_tracking_code_uses_jquery(), get_queried_object_id() ) ) {
             wp_enqueue_script('jquery');
         }
 
@@ -170,7 +180,8 @@ class Assets_Manager {
     }
 
     /**
-     * Whether the current page's client "Header Tracking Code" (printed in wp_head) calls jQuery.
+     * Whether the current page's client "Header Tracking Code" (printed in wp_head) appears to use
+     * jQuery: it mentions jQuery, calls $( or $., or loads Google Tag Manager, whose tags often do.
      *
      * @return bool
      */
@@ -180,7 +191,15 @@ class Assets_Manager {
             return false;
         }
         $code = (string) carbon_get_term_meta( $terms[0]->term_id, 'header_tracking_code' );
-        return '' !== $code && ( false !== stripos( $code, 'jquery' ) || false !== strpos( $code, '$(' ) );
+        if ( '' === $code ) {
+            return false;
+        }
+        foreach ( [ 'jquery', '$(', '$.', 'googletagmanager.com', 'gtm.js' ] as $needle ) {
+            if ( false !== stripos( $code, $needle ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -200,6 +219,7 @@ class Assets_Manager {
             if ( empty( $manifest[ $group ] ) || ! is_array( $manifest[ $group ] ) ) {
                 continue;
             }
+            $enqueued = [];
             foreach ( $manifest[ $group ] as $key => $asset ) {
                 $path = isset( $asset[0] ) ? ltrim( (string) $asset[0], '/' ) : '';
                 if ( '' === $path || false !== strpos( $path, '..' ) || ! file_exists( $template_dir . $path ) ) {
@@ -207,9 +227,16 @@ class Assets_Manager {
                 }
                 $deps = [];
                 foreach ( isset( $asset[1] ) ? (array) $asset[1] : [] as $dep ) {
-                    // A dependency that names another entry in this group gets its prefixed handle.
-                    $deps[] = isset( $manifest[ $group ][ $dep ] ) ? $prefix . $dep : $dep;
+                    if ( ! isset( $manifest[ $group ][ $dep ] ) ) {
+                        $deps[] = $dep; // Core handle such as 'jquery'.
+                    } elseif ( isset( $enqueued[ $dep ] ) ) {
+                        // Another entry in this group gets its prefixed handle.
+                        $deps[] = $prefix . $dep;
+                    }
+                    // An entry skipped above (missing file) is dropped: WordPress would otherwise
+                    // silently skip this asset for depending on an unregistered handle.
                 }
+                $enqueued[ $key ] = true;
                 $ver = @filemtime( $template_dir . $path ) ?: null;
                 if ( 'styles' === $group ) {
                     wp_enqueue_style( $prefix . $key, $template_url . $path, $deps, $ver );
