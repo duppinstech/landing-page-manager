@@ -18,7 +18,7 @@ Items marked _TBD_ are open questions for Odell. Agents must not fill them in by
 |---|---|---|---|
 | Core (free, GPL) | CPT, clients and keywords, one site-wide template, subdomain routing, GitHub updater. No analytics (Odell, 10-16). | _TBD_ | GitHub Releases (WordPress.org planned, PLAN.md P2) |
 | Pro add-on | All analytics (views, conversions, engagement, heatmaps, rage clicks, form analytics) and per-client template choice (separate private repo) | _TBD_ | _TBD_ |
-| Templates | Reusable Duppins products shipped in core (`client-b-*`, `template_a`). Template A is anonymized; the Client B names are an open question (DR 10-16c); clients pay for customization (Odell, 10-16) | _TBD (customization quote)_ | Shipped in core |
+| Templates | Reusable Duppins products shipped in core (`client-b-*`, `template_a`). Template A is anonymized in shipped code (its `.html` mockups, in git but not shipped, still carry client names; PLAN: move mockups); the Client B names are an open question (DR 10-16c); clients pay for customization (Odell, 10-16) | _TBD (customization quote)_ | Shipped in core |
 
 - **Licensing model for Pro:** _TBD (per site? per agency? annual?)_
 - **What triggers an upgrade:** _TBD_
