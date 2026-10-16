@@ -1,7 +1,7 @@
 # Commits & pull requests
 
 ## Branches
-`feature/<name>`, `fix/<name>`, `chore/<name>`, `template/<name>`, `security/<name>`, all branched from `main`.
+`feature/<name>`, `fix/<name>`, `chore/<name>`, `template/<name>`, `security/<name>`, `perf/<name>`, all branched from `main`.
 
 ## Commits
 - Use the imperative mood and keep the subject to 72 characters or less, matching history: "Fix subdomain AJAX and normalize GitHub update installs."

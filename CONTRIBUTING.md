@@ -5,7 +5,7 @@ your contributions are licensed under GPL-2.0-or-later and that the project is
 owned by Odell Duppins / Duppins Technology (see [OWNERSHIP.md](OWNERSHIP.md)).
 
 ## Workflow
-1. Branch from `main`: `feature/<short-name>`, `fix/<short-name>`, or `chore/<short-name>`.
+1. Branch from `main`: `feature/<short-name>`, `fix/<short-name>`, `chore/<short-name>`, `template/<short-name>`, `security/<short-name>` or `perf/<short-name>`.
 2. Make focused commits. Write messages in the imperative ("Fix subdomain AJAX", not "Fixed…").
 3. Lint every PHP file you touched with `php -l`.
 4. Update `CHANGELOG.md` under **[Unreleased]**.
