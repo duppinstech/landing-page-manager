@@ -36,20 +36,20 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Recommendation:** render reviews live with full attribution and a "selected reviews" notice, or switch to a review-widget embed. An attorney needs to say whether disclosure is enough or the filter must go.
   - **Also put to the attorney (10-14b):** `Reviews_Ajax` now caches the Places Details response for 12 hours to control cost. Legal says Google's terms forbid caching Places content beyond place IDs, so a 12-hour cache is itself a breach. Legal's alternative keeps the cost control without caching content: a short timestamp-only lock that refuses repeat fetches.
   - _(legal, fin · DR 10-14)_ _(legal, sec, prod · DR 10-14b)_
-- [x] **P0 — One global template, or a template per client?** **Decided (Odell, 10-16): per-client is a Pro feature.** Core stays global-only and exposes an `lpmanager_template_for_post` filter; Pro adds the per-client UI. Update INTENT.md goal 2 to match.
+- [x] **P0 — One global template, or a template per client?** **Decided (Odell, 10-16): per-client is a Pro feature.** Core stays global-only and exposes an `lpmanager_template_for_post` filter; Pro adds the per-client UI. Update INTENT.md goal 2 to match. **Docs done 10-16** (INTENT, OWNERSHIP). Still to do: add the `lpmanager_template_for_post` filter.
   - **Problem:** The WIP finishes the move to global-only, but `INTENT.md` goal 2 still says "set on the client term". An agency can't mix Template A and Client B clients on one install.
   - **Recommendation:**
     - **If global-only:** log the decision, update `INTENT.md:15`, and add a warning on the Templates tab.
     - **If per-client:** decide whether it's core or a Pro upsell. If Pro, core only exposes an `lpmanager_template_for_post` filter.
   - _(prod, fin, legal · DR 10-14)_
-- [x] **P1 — Analytics: core or Pro only?** **Decided (Odell, 10-16): Pro-only.** Correct README, INTENT and business-context, and move `tracking.js` and the tracking-toggle definitions into the Pro repo.
+- [x] **P1 — Analytics: core or Pro only?** **Decided (Odell, 10-16): Pro-only.** Correct README, INTENT and business-context, and move `tracking.js` and the tracking-toggle definitions into the Pro repo. **Docs done 10-16** (INTENT, business-context; README already said Pro). Still to do: move `tracking.js` and the toggle definitions into the Pro repo.
   - **Problem:** INTENT, the README and business-context say core counts views and conversions. In the code, core counts nothing without Pro. Pro's tracking JS and settings schema also live in this public repo.
   - **Recommendation:** pick one of these:
     - (a) Add a minimal core view and tel-click counter, which makes a natural upgrade prompt.
     - (b) Declare analytics Pro-only and move `tracking.js` and the toggle definitions into Pro.
   - Either way, the docs get corrected now (see P1).
   - _(mkt, prod, fin, legal · DR 10-14)_
-- [x] **P1 — Pro offer: URL, price, licensing unit, update channel.** **Interim decided (Odell, 10-16):** buttons say "Pro analytics is coming soon — contact Duppins Technology for early access" and link to duppinstech.com. Price, licensing unit and EULA are still open.
+- [x] **P1 — Pro offer: URL, price, licensing unit, update channel.** **Interim decided (Odell, 10-16):** buttons say "Pro analytics is coming soon — contact Duppins Technology for early access" and link to duppinstech.com. Price, licensing unit and EULA are still open. **Banner done 10-16** (`Admin_Dashboard`); the Settings-page prompt follows after the security review.
   - **Problem:** Every "Get Pro Now" button links to `#`, and the README links to a private repo. No price or licensing unit is defined.
   - **Recommendation:** set a duppinstech.com Pro or contact page and the licensing model. Until then, hide the button or use "Pro analytics is coming soon — contact Duppins Technology for early access."
   - The Pro EULA should restrict only support, updates and keys, not GPL redistribution (Attorney review).
@@ -62,7 +62,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Problem:** With Pro active, every behavioral tracker (heatmap, rage clicks, form interactions) defaults to on, and there's no consent hook.
   - **Recommendation:** default the behavioral trackers to off, keeping views and clicks on. Add an `lpmanager_tracking_consent` filter.
   - _(legal · DR 10-14)_
-- [x] **P1 — Image and code provenance in Template C.** **Decided (Odell, 10-16): image rights are cleared; keep the default images.** Still to do: build the copyright line from the site or client name instead of the hardcoded "© Template C".
+- [x] **P1 — Image and code provenance in Template C.** **Decided (Odell, 10-16): image rights are cleared; keep the default images.** Still to do: build the copyright line from the site or client name instead of the hardcoded "© Template C". **Copyright line done 10-16.**
   - **Problem:** The default hero images are hotlinked from the client's site and include a car-care brand–named photo, so their rights are unknown. The footer hardcodes "© Template C" on every client's pages. The `client_g` text domain suggests the code came from another project.
   - **Recommendation:** confirm the rights, use operator-uploaded media only, set the copyright line from the site name, and decide whether "Apply Now" becomes an HTML button.
   - _(legal, ux · DR 10-14)_
@@ -101,7 +101,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **P2 — Should internal planning docs stay in the public repo?** **Decided (Odell, 10-16): keep them public.**
   - `PLAN.md`, `meeting-notes/` and `.claude/memory/` are excluded from the zip but readable on GitHub, including the legal-risk analysis.
   - **Decide:** move them to a private repo or keep them public. _(DR 10-14b)_ _(legal)_
-- [x] **P2 — Smaller calls.** **Decided (Odell, 10-16): yes to all four** — (a) incomplete pages stay drafts, (b) landing pages get their own capability type, (c) uninstall deletes the orphaned `_lpmanager_client_template` meta, (d) correct the v1.0.6 release notes.
+- [x] **P2 — Smaller calls.** **Decided (Odell, 10-16): yes to all four** — (a) incomplete pages stay drafts, (b) landing pages get their own capability type, (c) uninstall deletes the orphaned `_lpmanager_client_template` meta, (d) correct the v1.0.6 release notes. **(c) and (d) done 10-16:** uninstall deletes the orphaned meta, and the v1.0.6 release notes are corrected.
   - (a) Should the validator keep incomplete pages as drafts instead of publishing them? _(prod)_
   - (b) Should landing pages get their own capability type instead of `post`? _(sec)_
   - (c) Should uninstall always delete the orphaned `_lpmanager_client_template` meta? _(ops)_

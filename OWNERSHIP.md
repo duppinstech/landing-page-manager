@@ -7,6 +7,6 @@ Odell Duppins / Duppins Technology. The plugin is distributed under
 GPL-2.0-or-later (see [LICENSE](LICENSE)).
 
 **Clients:** This is a Duppins Technology product, not work-for-hire for a single
-client. Client-specific templates (for example `template-b`,
-`template-c`, `template_a`) are built *for* those clients and licensed to
-them for use. Clients do not acquire ownership of the source.
+client. The bundled templates (`template-b`, `template-c`, `template_a`)
+are reusable Duppins Technology products. Clients pay for customization and are
+licensed to use the result. Clients do not acquire ownership of the source.

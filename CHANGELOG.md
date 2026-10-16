@@ -29,6 +29,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
 ### Changed
+- The "Get Pro" prompts now say Pro analytics is coming soon and link to Duppins Technology for early access, instead of a dead link.
+- Template C: the footer copyright line shows the year and the client's (or site's) name instead of "Template C" on every client's pages.
+- Uninstall also removes the leftover per-client template setting from the removed field.
 - **The Template B footer map loads only when a visitor scrolls near it.** Google bills each Maps JavaScript load, and many visitors never scroll to the footer. The map keeps its space on the page, so nothing shifts when it appears, and its info window opens without taking keyboard focus. The "Map unavailable" and "No client assigned" messages are now shown only to logged-in editors.
 - **jQuery loads only for templates that use it.** Template A pages no longer load it, unless the client's Header Tracking Code mentions jQuery, calls `$(` or `$.`, or contains a Google Tag Manager container snippet, or when the client's new **Tracking tags need jQuery** box is ticked. Uploaded templates still get it. New filter: `lpmanager_load_jquery`.
 - **Template B loads the review slider only on pages with reviews**, and uses the minified Swiper build. That saves about 300 KB (uncompressed) on pages without reviews and about 160 KB on pages with them. Pages without reviews no longer show an empty "Reviews" heading.
