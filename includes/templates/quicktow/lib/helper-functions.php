@@ -132,12 +132,27 @@ if ( ! function_exists( 'lpm_qt_contrast_with_white' ) ) {
 	}
 }
 
+if ( ! function_exists( 'lpm_qt_contrast' ) ) {
+	/**
+	 * WCAG contrast ratio between two hex colours.
+	 *
+	 * @param string $a #rrggbb.
+	 * @param string $b #rrggbb.
+	 * @return float
+	 */
+	function lpm_qt_contrast( $a, $b ) {
+		$la = 1.05 / lpm_qt_contrast_with_white( $a ) - 0.05; // Relative luminance.
+		$lb = 1.05 / lpm_qt_contrast_with_white( $b ) - 0.05;
+		return ( max( $la, $lb ) + 0.05 ) / ( min( $la, $lb ) + 0.05 );
+	}
+}
+
 if ( ! function_exists( 'lpm_qt_brand_palette' ) ) {
 	/**
 	 * CSS custom properties that apply the client's colours to QuickTow.
 	 *
 	 * QuickTow puts white text on its red and navy, so a client colour too light for that is
-	 * darkened until white text reaches WCAG AA (4.5:1). Returns an empty array when the client
+	 * darkened until white text on it reaches 4.5:1 (navy further, for its semi-transparent text). Returns an empty array when the client
 	 * uses the default red and navy, so the built-in palette applies unchanged.
 	 *
 	 * @param string $primary   Client primary colour (#rrggbb), used where QuickTow uses navy.
@@ -165,12 +180,20 @@ if ( ! function_exists( 'lpm_qt_brand_palette' ) ) {
 			}
 			return $hex;
 		};
+		// Navy also carries semi-transparent white text (about 72% white) and is used as text on the
+		// light tint, so it must be darker: 72% white on it reaches 4.5:1, and it reaches 5.3:1 on white.
+		$readable_navy = function ( $hex ) {
+			for ( $i = 0; $i < 40 && ( lpm_qt_contrast_with_white( $hex ) < 5.3 || lpm_qt_contrast( lpm_qt_mix( $hex, '#ffffff', 0.72 ), $hex ) < 4.5 ); $i++ ) {
+				$hex = lpm_qt_mix( $hex, '#000000', 0.06 );
+			}
+			return $hex;
+		};
 		$red  = $readable( $secondary );
-		$navy = $readable( $primary );
+		$navy = $readable_navy( $primary );
 		return array(
 			'--red'       => $red,
 			'--red-dark'  => lpm_qt_mix( $red, '#000000', 0.22 ),
-			'--red-light' => lpm_qt_mix( $red, '#ffffff', 0.9 ),
+			'--red-light' => lpm_qt_mix( $red, '#ffffff', 0.94 ),
 			'--navy'      => $navy,
 			'--navy-dark' => lpm_qt_mix( $navy, '#000000', 0.35 ),
 		);
