@@ -64,8 +64,11 @@
             $api_key = carbon_get_theme_option('lpmanager_google_maps_api_key');
 
             if ($lat && $lng && $api_key) :
+                $maps_src = 'https://maps.googleapis.com/maps/api/js?key=' . rawurlencode( $api_key ) . '&libraries=marker&loading=async&callback=initFooterMap';
+                /* translators: %s: business name */
+                $map_label = $client_name ? sprintf( __( 'Map showing the location of %s', 'landing-page-manager' ), $client_name ) : __( 'Location map', 'landing-page-manager' );
             ?>
-                <div id="footer-map" style="width: 100%; height: 400px;"></div>
+                <div id="footer-map" role="region" aria-label="<?php echo esc_attr( $map_label ); ?>" style="width: 100%; height: 400px;"></div>
                 <script>
                     function initFooterMap() {
                         var mapOptions = {
@@ -123,16 +126,46 @@
                         // Optionally auto-open on load
                         infoWindow.open(map, marker);
                     }
+
+                    // Maps JS is billed per load, and the map sits at the bottom of the page: only load it
+                    // when the visitor scrolls near it. The container's fixed height prevents layout shift.
+                    (function () {
+                        var el = document.getElementById("footer-map");
+                        var src = <?php echo wp_json_encode( $maps_src ); ?>;
+                        var loaded = false;
+                        function loadMaps() {
+                            if (loaded) return;
+                            loaded = true;
+                            var s = document.createElement("script");
+                            s.src = src;
+                            s.async = true;
+                            document.head.appendChild(s);
+                        }
+                        if (el && "IntersectionObserver" in window) {
+                            var io = new IntersectionObserver(function (entries) {
+                                for (var i = 0; i < entries.length; i++) {
+                                    if (entries[i].isIntersecting) {
+                                        io.disconnect();
+                                        loadMaps();
+                                        break;
+                                    }
+                                }
+                            }, { rootMargin: "300px 0px" });
+                            io.observe(el);
+                        } else {
+                            loadMaps();
+                        }
+                    })();
                 </script>
-                <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr($api_key); ?>&libraries=marker&loading=async&callback=initFooterMap" async defer></script>
             <?php
-            else :
+            elseif ( current_user_can( 'edit_posts' ) ) :
+                // Setup hints are for editors only; visitors just don't see a map.
             ?>
-                <p style="text-align:center; color:#fff;">Map unavailable — missing latitude, longitude, or API key.</p>
+                <p style="text-align:center; color:#fff;"><?php esc_html_e( 'Map unavailable: the client needs a geocoded address and a Google Maps browser key must be set. (Only logged-in editors see this.)', 'landing-page-manager' ); ?></p>
             <?php
             endif;
-        } else {
-            echo '<p style="text-align:center; color:#fff;">No client assigned to this landing page.</p>';
+        } elseif ( current_user_can( 'edit_posts' ) ) {
+            echo '<p style="text-align:center; color:#fff;">' . esc_html__( 'No client assigned to this landing page. (Only logged-in editors see this.)', 'landing-page-manager' ) . '</p>';
         }
         ?>
 
