@@ -82,7 +82,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Problem:** The code calls the legacy Places endpoints (Find Place, Text Search, Details). Google hasn't let new Cloud projects enable those since March 2025, so new operators can't get address lookups or reviews working.
   - **Interim:** the help text now asks for the original "Places API".
   - **Migrating:** needs a field mask. Reviews would cost about $25 per 1,000 with 1,000 free a month. _(DR 10-14b)_ _(fin, sup, prod)_
-- [x] **P1 — Delete the unused vendored files?** **Decided (Odell, 10-16): yes, delete them.** `swiper.js` waits one release after 10-16.
+- [x] **P1 — Delete the unused vendored files?** **Decided (Odell, 10-16): yes, delete them.** `swiper.js` waits one release after 10-16. **Done 10-16** on `fix/owner-decisions-p0` (19 files). **Not on the approved list, also unused:** Whiterail AI `js/plugins/bootstrap.js`, `js/plugins/popper.min.js` and `css/animate.min.css` — ask Odell before deleting.
   - **Whiterail AI and Recruits:** `payform.min.js`, `jquery-migrate*.js`, `bootstrap-new.js`, the jQuery UI CSS and `sqpaymentform.css`.
   - **Recruits only:** `popper.min.js`, `bootstrap.js` and the Swiper files.
   - **Also:** the dead `whiterail-recruits/functions.php`.
