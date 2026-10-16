@@ -143,14 +143,18 @@ function lpmanager_get_landing_phone( $post_id = 0 ) {
  */
 function lpmanager_kses_rich_text( $html ) {
     $html = (string) $html;
-    if ( false === stripos( $html, '<iframe' ) || ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
-        return wp_kses_post( $html );
+    // Post rules without iframes, whatever other plugins add to them.
+    $no_iframes = wp_kses_allowed_html( 'post' );
+    unset( $no_iframes['iframe'] );
+    if ( false === stripos( $html, 'iframe' ) || ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+        return wp_kses( $html, $no_iframes );
     }
 
     /**
      * Filters the URL patterns an iframe src must fully match to be kept in rich-text fields.
      *
-     * @param string[] $patterns PCRE patterns, anchored, https only.
+     * @param string[] $patterns PCRE patterns. Each must start with `#^https://` and end with `$#`,
+     *                           or it is ignored.
      */
     $patterns = (array) apply_filters(
         'lpmanager_iframe_src_patterns',
@@ -172,13 +176,15 @@ function lpmanager_kses_rich_text( $html ) {
         if ( $ok ) {
             $ok = false;
             foreach ( $patterns as $pattern ) {
-                if ( is_string( $pattern ) && preg_match( $pattern, $src ) ) {
+                // Only anchored https patterns count, so a loose pattern from a filter can't widen the check.
+                if ( is_string( $pattern ) && 0 === strpos( $pattern, '#^https://' ) && '$#' === substr( $pattern, -2 ) && preg_match( $pattern, $src ) ) {
                     $ok = true;
                     break;
                 }
             }
         }
         if ( ! $ok ) {
+            $processor->remove_attribute( 'data-lpm-embed' ); // No smuggled markers.
             continue;
         }
         $allow = [];
@@ -203,7 +209,7 @@ function lpmanager_kses_rich_text( $html ) {
     $html = $processor->get_updated_html();
 
     // 2. Standard post filtering; iframes survive only as bare markers.
-    $allowed           = wp_kses_allowed_html( 'post' );
+    $allowed           = $no_iframes;
     $allowed['iframe'] = [ 'data-lpm-embed' => true ];
     $html              = wp_kses( $html, $allowed );
 
