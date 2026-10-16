@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Help button on the plugin's admin screens.** A round **Help** button at the bottom right of the Dashboard, Landing Pages, Clients, Keywords, Analytics and each Settings tab opens short notes about that screen and a link to its section of the user guide. It doesn't appear on Posts, Pages or other screens. Developers can change the guide address with the `lpmanager_user_guide_url` filter.
 
 ## [1.0.7] - 2026-10-16
 ### Upgrade notes
