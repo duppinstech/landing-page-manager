@@ -26,14 +26,16 @@ function lpmanager_uninstall_site() {
     global $wpdb;
 
     // Settings. Carbon Fields stores theme options as `_<field>` rows (plus `_<field>|...` for complex fields).
-    // `lpmanager_pro_*` belongs to the Pro add-on, which manages its own uninstall.
+    // `lpmanager_pro_*` and the tracking toggles `_lpmanager_track_*` belong to the Pro add-on
+    // (agreed with the Pro repo, 10-16), which removes them in its own uninstall.
     $wpdb->query(
         $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE ( option_name LIKE %s OR option_name LIKE %s ) AND option_name NOT LIKE %s AND option_name NOT LIKE %s",
+            "DELETE FROM {$wpdb->options} WHERE ( option_name LIKE %s OR option_name LIKE %s ) AND option_name NOT LIKE %s AND option_name NOT LIKE %s AND option_name NOT LIKE %s",
             $wpdb->esc_like( 'lpmanager_' ) . '%',
             $wpdb->esc_like( '_lpmanager_' ) . '%',
             $wpdb->esc_like( 'lpmanager_pro_' ) . '%',
-            $wpdb->esc_like( '_lpmanager_pro_' ) . '%'
+            $wpdb->esc_like( '_lpmanager_pro_' ) . '%',
+            $wpdb->esc_like( '_lpmanager_track_' ) . '%'
         )
     );
 
