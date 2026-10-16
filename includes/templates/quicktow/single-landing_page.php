@@ -14,14 +14,9 @@ $post_id = get_the_ID();
 $client_terms = get_the_terms( $post_id, 'client' );
 $client_term_id = ( $client_terms && ! is_wp_error( $client_terms ) && ! empty( $client_terms ) ) ? (int) $client_terms[0]->term_id : 0;
 
-$client_tel = function_exists( 'carbon_get_the_post_meta' ) ? carbon_get_the_post_meta( 'client_tel' ) : '';
-$client_phone = '';
-if ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) {
-	$client_phone = carbon_get_term_meta( $client_term_id, 'client_phone' );
-}
-if ( empty( $client_phone ) ) {
-	$client_phone = $client_tel;
-}
+// The page's own number wins, then the client's default (one number for display and tel: links).
+$client_phone = lpmanager_get_landing_phone( $post_id );
+$client_tel   = $client_phone;
 
 $client_name = $client_term_id ? get_term_field( 'name', $client_term_id, 'client' ) : '';
 if ( is_wp_error( $client_name ) ) {

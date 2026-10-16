@@ -12,7 +12,7 @@
         $client_place_id = '';
         $client_google_search_url = '';
         $gmb_url = '';
-        $client_tel = carbon_get_the_post_meta( 'client_tel' );
+        $client_tel = lpmanager_get_landing_phone( get_the_ID() ); // page number wins, then the client's default
         $client_primary_color = '#007BFF';
         $client_secondary_color = '#FF4136';
         $client_logo_id = 0;
@@ -41,7 +41,6 @@
             if ( $client_domain && strpos( $client_domain, '://' ) === false ) {
                 $client_domain = 'https://' . $client_domain;
             }
-            $client_phone = carbon_get_term_meta( $client_term_id, 'client_phone' ) ?: $client_tel;
             $footer_text_color = Assets_Manager::get_contrast_text_color( $client_primary_color );
             $copyright_text_color = Assets_Manager::get_contrast_text_color( $client_secondary_color );
         }

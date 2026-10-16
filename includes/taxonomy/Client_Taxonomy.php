@@ -340,7 +340,7 @@ class Client_Taxonomy {
 
             Field::make('text', 'client_phone', 'Contact Phone')
                 ->set_required(true)
-                ->set_help_text('Contact phone number for the client.'),
+                ->set_help_text( __( 'Default phone number for this client\'s landing pages. A page\'s own Client Phone overrides it on that page.', 'landing-page-manager' ) ),
 
             Field::make('text', 'client_domain', 'Client Domain')
                 ->set_required(true)

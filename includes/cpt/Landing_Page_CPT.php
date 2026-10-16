@@ -104,6 +104,7 @@ class Landing_Page_CPT {
                     ->set_default_value( '' ),
                 
                 Field::make( 'text', 'client_tel', 'Client Phone' )
+                    ->set_help_text( __( 'Optional. Overrides the client\'s Contact Phone on this page only, for example a call-tracking number. Leave empty to use the client\'s number.', 'landing-page-manager' ) )
                     ->set_width( 50 )
                     ->set_default_value( '' ),
 

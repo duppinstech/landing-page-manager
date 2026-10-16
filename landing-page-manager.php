@@ -95,6 +95,31 @@ function lpmanager_tracking_options() {
     ];
 }
 
+/**
+ * The phone number a landing page shows and dials.
+ *
+ * The page's own "Client Phone" (e.g. a call-tracking number for that page) wins; otherwise the
+ * client's default "Contact Phone" is used. Every template uses this for both display and tel: links.
+ *
+ * @param int $post_id Landing page ID. Defaults to the current post.
+ * @return string Phone number as entered (may be empty).
+ */
+function lpmanager_get_landing_phone( $post_id = 0 ) {
+    $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+    if ( ! $post_id || ! function_exists( 'carbon_get_post_meta' ) ) {
+        return '';
+    }
+    $page_phone = trim( (string) carbon_get_post_meta( $post_id, 'client_tel' ) );
+    if ( '' !== $page_phone ) {
+        return $page_phone;
+    }
+    $terms = get_the_terms( $post_id, 'client' );
+    if ( empty( $terms ) || is_wp_error( $terms ) ) {
+        return '';
+    }
+    return trim( (string) carbon_get_term_meta( $terms[0]->term_id, 'client_phone' ) );
+}
+
 // Load composer autoloader first (needed for LPManager namespace classes)
 if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
     add_action( 'admin_notices', function () {

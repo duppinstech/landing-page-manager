@@ -10,7 +10,8 @@ use LPManager\core\Google_Maps_Helper;
 <?php include \LPManager\templates\Template_Manager::get_template_path('header.php'); ?>
 
 <?php
-$client_tel = carbon_get_the_post_meta('client_tel');
+// The page's own number wins, then the client's default (one number for display and tel: links).
+$client_tel = lpmanager_get_landing_phone( get_the_ID() );
 // Ensure client/keyword/phone available for body (header may have set them from term)
 if ( empty( $client_term_id ) ) {
     $client_terms = get_the_terms( get_the_ID(), 'client' );
@@ -19,10 +20,7 @@ if ( empty( $client_term_id ) ) {
 $client_name_for_alt = $client_term_id ? get_term_field( 'name', $client_term_id, 'client' ) : '';
 $keyword_terms = get_the_terms( get_the_ID(), 'keyword' );
 $keyword_name_for_alt = ( $keyword_terms && ! is_wp_error( $keyword_terms ) && ! empty( $keyword_terms ) ) ? $keyword_terms[0]->name : '';
-$client_phone = $client_term_id ? carbon_get_term_meta( $client_term_id, 'client_phone' ) : '';
-if ( empty( $client_phone ) ) {
-    $client_phone = $client_tel;
-}
+$client_phone = $client_tel;
 $client_place_id = $client_term_id ? carbon_get_term_meta( $client_term_id, 'client_place_id' ) : '';
 $client_google_search_url = $client_term_id ? carbon_get_term_meta($client_term_id, 'client_google_search_url') : '';
 if ($client_place_id) {
