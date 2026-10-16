@@ -997,6 +997,10 @@ header.header.stiky{
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 }
+.lpm-mobile-nav a[aria-current="page"] {
+	font-weight: 700;
+	box-shadow: inset 3px 0 0 currentColor;
+}
 .lpm-mobile-nav__group ul a {
 	padding-left: 32px;
 	font-weight: 400;

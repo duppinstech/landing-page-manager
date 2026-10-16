@@ -1077,12 +1077,32 @@ jQuery(function($) {
 
 });
 
-// The desktop "Services" item only opens its dropdown; don't jump to the top of the page.
+// Desktop "Services" dropdown (disclosure button). Hover still opens it via CSS; the button toggles
+// it for click/keyboard, and Escape, focus leaving, or a click elsewhere closes it.
 (function () {
-    var parents = document.querySelectorAll('.lpm-submenu-parent');
-    for (var i = 0; i < parents.length; i++) {
-        parents[i].addEventListener('click', function (e) { e.preventDefault(); });
-    }
+    var buttons = document.querySelectorAll('.lpm-submenu-parent');
+    Array.prototype.forEach.call(buttons, function (button) {
+        var item = button.parentNode;
+        function setOpen(open) {
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+            item.classList.toggle('lpm-open', open);
+        }
+        button.addEventListener('click', function () {
+            setOpen(button.getAttribute('aria-expanded') !== 'true');
+        });
+        item.addEventListener('keydown', function (e) {
+            if ((e.key === 'Escape' || e.key === 'Esc') && button.getAttribute('aria-expanded') === 'true') {
+                setOpen(false);
+                button.focus();
+            }
+        });
+        item.addEventListener('focusout', function (e) {
+            if (!e.relatedTarget || !item.contains(e.relatedTarget)) setOpen(false);
+        });
+        document.addEventListener('click', function (e) {
+            if (!item.contains(e.target)) setOpen(false);
+        });
+    });
 })();
 
 // Mobile menu: the header toggle opens #lpm-mobile-nav. Closes on link tap or Escape.

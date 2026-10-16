@@ -46,19 +46,22 @@
     }
 
     // The client's published landing pages, for the "Services" menu (desktop dropdown and mobile panel).
+    // Same client as the logo and name above (the term), falling back to the Client Name field.
     $lpm_client_pages = array();
-    $lpm_client_id    = $current_post_id ? (int) carbon_get_post_meta( $current_post_id, 'client' ) : 0;
+    $lpm_client_id    = ! empty( $client_term_id ) ? (int) $client_term_id : ( $current_post_id ? (int) carbon_get_post_meta( $current_post_id, 'client' ) : 0 );
     if ( $lpm_client_id ) {
-        $lpm_page_ids = get_posts(
+        // Full post objects (not 'fields' => 'ids') so WordPress primes the post and term caches in
+        // one pass; get_the_title()/get_permalink() then don't query once per page.
+        $lpm_pages = get_posts(
             array(
-                'post_type'      => 'landing_page',
-                'post_status'    => 'publish',
-                'posts_per_page' => -1,
-                'fields'         => 'ids',
-                'orderby'        => 'title',
-                'order'          => 'ASC',
-                'no_found_rows'  => true,
-                'tax_query'      => array(
+                'post_type'              => 'landing_page',
+                'post_status'            => 'publish',
+                'posts_per_page'         => -1,
+                'orderby'                => 'title',
+                'order'                  => 'ASC',
+                'no_found_rows'          => true,
+                'update_post_meta_cache' => false,
+                'tax_query'              => array(
                     array(
                         'taxonomy' => 'client',
                         'field'    => 'term_id',
@@ -67,14 +70,16 @@
                 ),
             )
         );
-        foreach ( $lpm_page_ids as $lpm_page_id ) {
+        foreach ( $lpm_pages as $lpm_page_post ) {
             $lpm_client_pages[] = array(
-                'id'    => (int) $lpm_page_id,
-                'title' => get_the_title( $lpm_page_id ),
-                'url'   => get_permalink( $lpm_page_id ),
+                'id'    => (int) $lpm_page_post->ID,
+                'title' => get_the_title( $lpm_page_post ),
+                'url'   => get_permalink( $lpm_page_post ),
             );
         }
     }
+    // A menu whose only entry is the page you're on isn't useful.
+    $lpm_show_services = count( $lpm_client_pages ) > 1;
 ?>
 	
     <body <?php body_class() ?>>
@@ -103,11 +108,11 @@
 										<div class="main-header-bar-navigation">
 											<nav class="site-navigation ast-flex-grow-1 navigation-accessibility site-header-focus-item" id="primary-site-navigation-desktop" aria-label="Site Navigation" itemtype="https://schema.org/SiteNavigationElement" itemscope="itemscope">
 												<div class="main-navigation ast-inline-flex">
-													<ul id="ast-hf-menu-1" class="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border stack-on-mobile" aria-expanded="false">
-														<?php if ( $lpm_client_pages ) : ?>
+													<ul id="ast-hf-menu-1" class="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border stack-on-mobile">
+														<?php if ( $lpm_show_services ) : ?>
 														<li id="menu-item-57" class="menu-item menu-item-has-children">
-															<a href="#" class="menu-link lpm-submenu-parent" aria-haspopup="true"><?php esc_html_e( 'Services', 'landing-page-manager' ); ?></a>
-															<ul class="sub-menu client-landing-pages">
+															<button type="button" class="menu-link lpm-submenu-parent" aria-expanded="false" aria-controls="lpm-services-sub"><?php esc_html_e( 'Services', 'landing-page-manager' ); ?></button>
+															<ul id="lpm-services-sub" class="sub-menu client-landing-pages">
 																<?php foreach ( $lpm_client_pages as $lpm_page ) : ?>
 																<li class="menu-item page-item-<?php echo esc_attr( $lpm_page['id'] ); ?>"><a href="<?php echo esc_url( $lpm_page['url'] ); ?>" class="menu-link"<?php echo ( $lpm_page['id'] === (int) $current_post_id ) ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $lpm_page['title'] ); ?></a></li>
 																<?php endforeach; ?>
@@ -168,7 +173,7 @@
 		</div>
 		<nav id="lpm-mobile-nav" class="lpm-mobile-nav" aria-label="<?php esc_attr_e( 'Main menu', 'landing-page-manager' ); ?>" hidden>
 			<ul>
-				<?php if ( $lpm_client_pages ) : ?>
+				<?php if ( $lpm_show_services ) : ?>
 				<li class="lpm-mobile-nav__group">
 					<span class="lpm-mobile-nav__label" id="lpm-mobile-nav-services"><?php esc_html_e( 'Services', 'landing-page-manager' ); ?></span>
 					<ul aria-labelledby="lpm-mobile-nav-services">
