@@ -11,7 +11,7 @@ Landing Page Manager is a WordPress plugin for creating and managing landing pag
 - **Keyword taxonomy** — Tag pages by keyword/campaign
 - **Templates** — One site-wide template (Whiterail AI, Whiterail Recruits, QuickTow), each with its own fields, chosen in Settings → Templates
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
-- **Analytics** (Pro) — Page views, conversions, link clicks, engagement, heatmaps, rage clicks. Without Pro, this screen shows an upgrade prompt.
+- **Analytics** (Pro) — Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Without Pro, this screen shows an upgrade prompt.
 - **Settings** — Templates, API keys (Google Maps browser key, Google Maps server key, Brandfetch), and (with Pro) conversion-tracking toggles
 
 API keys are stored in **Settings** and are never hardcoded. Google and Brandfetch bill usage to the account that owns each key, so set quotas and budget alerts. All sensitive options are saved via the plugin’s settings UI only.
@@ -61,7 +61,7 @@ Deleting the plugin removes its settings. Landing pages, clients and keywords ar
 
 ## Developer hooks
 
-- `lpmanager_load_jquery` (filter, `bool $load, int $post_id`): return `true` to load jQuery on landing pages whose template doesn't need it. Operators can do the same per client with the **Tracking tags need jQuery** box.
+- `lpmanager_load_jquery` (filter, `bool $load, int $post_id`): return `true` to load jQuery on landing pages whose template doesn't need it. It also loads automatically when Additional Scripts or a client's Header Tracking Code mention jQuery or a Google Tag Manager container. Operators can force it per client with the **Tracking tags need jQuery** box.
 - `lpmanager_unwanted_styles`, `lpmanager_unwanted_style_patterns`, `lpmanager_unwanted_scripts` (filters): styles and scripts removed from landing pages.
 - `lpmanager_template_for_post` (filter, `string $slug, int $post_id`): the template a landing page uses. Defaults to the site-wide template; an unknown slug falls back to it.
 - `lpmanager_iframe_src_patterns` (filter, `string[]`): anchored PCRE patterns an iframe `src` must fully match to be kept in rich-text template fields. Defaults cover YouTube `/embed/`, Vimeo `/video/` and Google Maps `/maps/embed` (https only). Kept iframes are rebuilt with a fixed set of attributes.

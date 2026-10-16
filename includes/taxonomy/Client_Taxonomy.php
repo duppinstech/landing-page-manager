@@ -310,7 +310,7 @@ class Client_Taxonomy {
     private static function header_tracking_code_field() {
         $field = Field::make( 'textarea', 'header_tracking_code', __( 'Header tracking code (call tracking, pixels, tags)', 'landing-page-manager' ) )
             ->set_rows( 4 )
-            ->set_help_text( __( 'Paste your tracking script here. It is added to the head of all of this client\'s landing pages. Only administrators (super admins on multisite) can change it.', 'landing-page-manager' ) );
+            ->set_help_text( __( 'Paste your tracking script here. It is added to the head of all of this client\'s landing pages. Only users who can post unfiltered HTML (administrators and editors on a single site, super admins on multisite) can change it.', 'landing-page-manager' ) );
         if ( ! current_user_can( 'unfiltered_html' ) ) {
             $field->set_attribute( 'readOnly', 'readonly' );
         }

@@ -193,7 +193,7 @@ class Assets_Manager {
          * Return true for tags that need jQuery but aren't in the client's Header Tracking Code,
          * for example a jQuery-based Custom HTML tag in Google Tag Manager.
          *
-         * @param bool $load    Default: whether the client's Header Tracking Code appears to use jQuery or a GTM container.
+         * @param bool $load    Default: whether Additional Scripts or the client's Header Tracking Code appear to use jQuery or a GTM container.
          * @param int  $post_id Landing page ID.
          */
         if ( apply_filters( 'lpmanager_load_jquery', self::client_tracking_code_uses_jquery(), get_queried_object_id() ) ) {

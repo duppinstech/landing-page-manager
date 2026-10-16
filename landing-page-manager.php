@@ -106,7 +106,7 @@ function lpmanager_tracking_options() {
 /**
  * The phone number a landing page shows and dials.
  *
- * The page's own "Client Phone" (e.g. a call-tracking number for that page) wins; otherwise the
+ * The page's own "Page phone" (meta key client_tel; e.g. a call-tracking number for that page) wins; otherwise the
  * client's default "Contact Phone" is used. Every template uses this for both display and tel: links.
  *
  * @param int $post_id Landing page ID. Defaults to the current post.
@@ -202,6 +202,9 @@ function lpmanager_kses_rich_text( $html ) {
             if ( ! is_string( $value ) || ! preg_match( '#^\s*([0-9]{1,4})\s*(%?)\s*$#', $value, $m ) ) {
                 return '';
             }
+            if ( 0 === (int) $m[1] ) {
+                return ''; // A zero size would hide the embed.
+            }
             return '%' === $m[2] ? min( 100, (int) $m[1] ) . '%' : (string) min( 2000, (int) $m[1] );
         };
         $title = $processor->get_attribute( 'title' );
@@ -249,7 +252,8 @@ function lpmanager_kses_rich_text( $html ) {
             }
             // Responsive: never wider than its container; pixel sizes keep their aspect ratio.
             $style = 'max-width:100%;';
-            if ( ctype_digit( $e['width'] ) && ctype_digit( $e['height'] ) && (int) $e['width'] > 0 && (int) $e['height'] > 0 ) {
+            // preg_match, not ctype_digit: the ctype extension can be missing on some hosts.
+            if ( preg_match( '/^[0-9]+$/', $e['width'] ) && preg_match( '/^[0-9]+$/', $e['height'] ) ) {
                 $style .= 'height:auto;aspect-ratio:' . (int) $e['width'] . '/' . (int) $e['height'] . ';';
             }
             $out = '<iframe class="lpm-embed" src="' . $src . '"';

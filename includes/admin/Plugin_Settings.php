@@ -481,8 +481,9 @@ class Plugin_Settings {
             'lpmanager_approve_additional_scripts'
         );
         printf(
-            '<div class="notice notice-warning"><p>%s</p><pre style="max-height:12em;overflow:auto;background:#f6f7f7;padding:8px;white-space:pre-wrap;">%s</pre><p><a class="button button-primary" href="%s">%s</a> <a href="%s">%s</a></p></div>',
-            esc_html__( 'Landing Page Manager: these Additional Scripts were not approved by an administrator, so they are not printed on landing pages. This happens after a site migration or a change of security keys, or when the code was saved another way. Review the code below; approve it only if you trust it.', 'landing-page-manager' ),
+            '<div class="notice notice-warning"><p>%s</p><pre tabindex="0" aria-label="%s" style="max-height:12em;overflow:auto;background:#f6f7f7;padding:8px;white-space:pre-wrap;">%s</pre><p><a class="button button-primary" href="%s">%s</a> <a href="%s">%s</a></p></div>',
+            esc_html__( 'Landing Page Manager: these Additional Scripts are not printed on landing pages until an administrator approves them. This is expected after updating to this version, after a site migration or a change of security keys, or when the code was saved another way. Before approving, remove any tag that is already in a client\'s Header Tracking Code, or conversions are counted twice. Approve only code you trust.', 'landing-page-manager' ),
+            esc_attr__( 'Additional Scripts code', 'landing-page-manager' ),
             esc_html( $code ),
             esc_url( $approve_url ),
             esc_html__( 'Approve Additional Scripts', 'landing-page-manager' ),

@@ -42,7 +42,7 @@ final class Reviews_Ajax {
 
         $client_terms = get_the_terms($current_post_id, 'client');
         if (is_wp_error($client_terms) || empty($client_terms)) {
-            wp_send_json_error( __( 'No client is assigned to this page.', 'landing-page-manager' ) );
+            wp_send_json_error( __( 'No client is assigned to this page. Choose a client, update the page, then fetch reviews.', 'landing-page-manager' ) );
         }
 
         $client_term = $client_terms[0];
@@ -59,7 +59,7 @@ final class Reviews_Ajax {
             wp_send_json_error( $reviews->get_error_message() );
         }
         if (empty($reviews)) {
-            wp_send_json_error( __( 'Google returned no reviews for this place.', 'landing-page-manager' ) );
+            wp_send_json_error( __( 'Google returned no reviews for this place. Check the client\'s Google Place ID.', 'landing-page-manager' ) );
         }
 
         // Filter reviews rating >= 4
