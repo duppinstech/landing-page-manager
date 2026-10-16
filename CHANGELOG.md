@@ -21,10 +21,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ### Added
 - **Separate Google Maps server key** (Settings → API Keys). Server-side lookups (client geocoding and Fetch Reviews) use it, so the browser key that maps need can be restricted to your site and its subdomains. If it's empty, the browser key is used as before.
 - Suggested privacy-policy text for landing pages under **Settings → Privacy → Policy Guide**.
+- An admin notice on the plugin's screens when a Google Maps browser key is set but no server key. Without a server key, address lookups and Fetch Reviews use the browser key, so it can't be restricted.
 - An admin notice, with a link to Settings, when the active template is missing (for example, an uploaded template removed by an update), which makes landing pages 404.
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
 ### Changed
+- **The Whiterail AI footer map loads only when a visitor scrolls near it.** Google bills each Maps JavaScript load, and most visitors never reach the footer. The map keeps its space on the page, so nothing shifts when it appears. The "Map unavailable" and "No client assigned" messages are now shown only to logged-in editors.
+- **jQuery loads only for templates that use it.** QuickTow pages no longer load it, unless the client's Header Tracking Code calls jQuery. Uploaded templates still get it.
+- **Whiterail AI loads the review slider only on pages with reviews**, and uses the minified Swiper build. That saves about 300 KB on pages without reviews.
 - **Headlines and call buttons appear immediately** on QuickTow and Whiterail Recruits instead of fading in after scripts load. Visitors whose device is set to reduce motion get no scroll-in animations and no autoplaying sliders. The Whiterail AI review slider pauses on hover and stops on keyboard focus.
 - **Landing pages load only the CSS and JavaScript their template needs.** Unused and duplicate libraries are no longer loaded: a second copy of jQuery, Bootstrap 5 alongside Bootstrap 4, jQuery Migrate 1.x, jQuery UI, payform, Popper and Swiper where unused, and a CDN copy of Swiper. Templates list their files in `lib/assets.php`. Uploaded templates without that file still load every file in their own `css/` and `js/` folders.
 - Landing pages no longer load the reviews script, which requested Google reviews (a billed call) on every view by a logged-in user and wasn't shown by any template. Reviews are requested only by the editor's "Fetch Reviews" button, which asks Google for just the reviews and rating, reuses the result for 12 hours, and explains failures (for example a refused key or an unknown Place ID).
@@ -37,6 +41,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
 
 ### Fixed
+- The Whiterail Recruits mobile menu button now opens a menu of the page's sections. It closes when you tap a link or press Escape. Before, the button did nothing.
 - CI and the release workflow now fail when a PHP file has a syntax error. Before, the lint step always passed.
 - GitHub's source zip no longer includes development files, in case a release ever lacks its zip asset.
 - Landing page list hooks (filters, Export CSV button, dashboard widget) were registered twice.

@@ -114,7 +114,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Correct the 1.0.6 QuickTow line: it has three layout styles, not four variants.
   - The ready-to-use text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(sup, ops, prod, sec, mkt · DR 10-14)_
-- [~] **CI lint gate actually fails on a syntax error.** Fixed on `fix/review-p0-batch` (10-14); lint output now goes to `$RUNNER_TEMP`, so it can't ship in the zip. **To close:** after the branch is pushed, prove it fails with a throwaway PR containing a parse error. _(DR 10-14b)_
+- [x] **CI lint gate actually fails on a syntax error.** Fixed on `fix/review-p0-batch` (10-14); lint output now goes to `$RUNNER_TEMP`, so it can't ship in the zip. **To close:** after the branch is pushed, prove it fails with a throwaway PR containing a parse error. _(DR 10-14b)_ **Closed 10-16:** throwaway PR #4 passed on 7.4/8.1/8.3 with the branch as-is (run 38848604761) and failed on all three with a parse error (run 38848679772). The PR was closed and its branch deleted.
   - **Problem:** `php -l | grep -v` with no `pipefail` exits 0, so a parse error can ship.
   - **Fix:** add `defaults: run: shell: bash` to `ci.yml` and `release.yml`, then prove it with a deliberately broken file.
   - _(ops · DR 10-14)_
@@ -161,7 +161,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - _(sup · DR 10-14)_
 
 - [ ] **Smoke-test the `fix/review-p0-batch` release on staging.** Run the 15-step test in [the 10-14b appendix](meeting-notes/2026-10-14-2245-p0-batch-review.md#smoke-test). It covers updating through the updater, the asset changes per template, reduced motion, the Google keys and the CSV export. It needs a WordPress staging site, and it's the merge gate for this batch. _(DR 10-14b)_ _(ops, prod, fin)_
-- [ ] **Stop loading Maps JS on every page view (whiterail-ai footer).** This is now the biggest per-view Google cost (about $7 per 1,000 loads after the free 10,000), so it moved up from P1. See the P1 entry below for the fix. _(DR 10-14b)_ _(fin)_
+- [x] **Stop loading Maps JS on every page view (whiterail-ai footer).** This is now the biggest per-view Google cost (about $7 per 1,000 loads after the free 10,000), so it moved up from P1. See the P1 entry below for the fix. _(DR 10-14b)_ _(fin)_ **Done 10-16** (`perf/maps-lazy-load-p1-batch`): Maps JS loads when the map is within 300px of the viewport, the map has an accessible region name, and setup messages show to editors only.
 
 ## P1 — deployment and quality
 
@@ -217,7 +217,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - _(sec, ux · DR 10-14)_
 
 **Cost and data**
-- [ ] **Stop loading Maps JS on every page view (whiterail-ai footer).** Moved up to P0; see there.
+- [x] **Stop loading Maps JS on every page view (whiterail-ai footer).** Moved up to P0; see there. Done 10-16.
   - Use the Maps Embed iframe (free) or lazy-load on scroll or click.
   - Add an accessible region name.
   - Never show admin "Map unavailable" messages to visitors.
@@ -299,10 +299,10 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Visible `:focus-visible` outlines.
   - QuickTow FAQ buttons get `aria-expanded` and `aria-controls`.
   - _(ux · DR 10-14)_
-- [ ] **Warn when the server key is empty.** Show an admin notice when a browser key is set but no server key, so operators don't leave an unrestricted key in page HTML. _(DR 10-14b)_ _(fin)_
-- [ ] **Don't load jQuery on QuickTow.** QuickTow's `main.js` doesn't use it. Move `wp_enqueue_script('jquery')` into the fallback branch in `Assets_Manager` after checking that no client tracking code relies on it. _(DR 10-14b)_ _(ux)_
-- [ ] **Load Swiper on Whiterail AI only when `reviews_html` has content,** and use a minified build. _(DR 10-14b)_ _(ux)_
-- [ ] **Fix the Recruits mobile menu button.** It has no handler, so tapping it does nothing. Add a toggle that sets `aria-expanded`, or remove the button. _(DR 10-14b)_ _(ux)_
+- [x] **Warn when the server key is empty.** Show an admin notice when a browser key is set but no server key, so operators don't leave an unrestricted key in page HTML. _(DR 10-14b)_ _(fin)_ **Done 10-16.**
+- [x] **Don't load jQuery on QuickTow.** QuickTow's `main.js` doesn't use it. Move `wp_enqueue_script('jquery')` into the fallback branch in `Assets_Manager` after checking that no client tracking code relies on it. _(DR 10-14b)_ _(ux)_ **Done 10-16.** Still loaded when the client's Header Tracking Code mentions jQuery.
+- [x] **Load Swiper on Whiterail AI only when `reviews_html` has content,** and use a minified build. _(DR 10-14b)_ _(ux)_ **Done 10-16.** `swiper.min.js` is the official 5.3.0 build: the npm integrity hash was verified, and the vendored `swiper.js` is identical to the one in the same package.
+- [x] **Fix the Recruits mobile menu button.** It has no handler, so tapping it does nothing. Add a toggle that sets `aria-expanded`, or remove the button. _(DR 10-14b)_ _(ux)_ **Done 10-16.**
 - [ ] **Accessibility and Core Web Vitals audit** of each template on mobile, with a Lighthouse baseline. Moved from P2 to P1; the 10-14 UX report is the first pass. _(prod, ux · DR 10-14)_
 
 ## P2 — later

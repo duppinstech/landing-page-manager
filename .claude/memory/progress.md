@@ -2,6 +2,7 @@
 
 Newest first. One line per meaningful step; reference PLAN.md items.
 
+- **2026-10-16:** Pushed `chore/template-field-cleanup` and `fix/review-p0-batch`. Proved the CI gate with throwaway PR #4, now closed. On `perf/maps-lazy-load-p1-batch` (stacked on the P0 batch): Maps JS lazy-load (P0), no jQuery on QuickTow, Swiper only with reviews (minified), Recruits mobile menu, and the empty-server-key notice (P1s). Still open: the staging smoke test and Odell's decisions.
 - **2026-10-14 (late):** Implemented the baseline P0 batch on `fix/review-p0-batch`, stacked on `chore/template-field-cleanup`. It includes Odell's GitHub-only updates decision. The second department review gave security and finance ok; the other six said fix-before-merge, and all their routine findings, including a Recruits regression ops caught, were fixed on the branch. Still open: the staging smoke test, the CI proof (needs a push), and 7 questions for Odell. Minutes: `meeting-notes/2026-10-14-2245-p0-batch-review.md`.
 - **2026-10-14:** Ran the first department review: a baseline of v1.0.6 plus the WIP, with all eight departments. Every verdict was fix-before-merge. Added 36 approved items to PLAN.md (10 P0) and forwarded 13 decisions to Odell. Minutes are in `meeting-notes/2026-10-14-1951-baseline-review.md`.
 - **2026-10-14:** Released v1.0.6 through the Release workflow. The asset is `landing-page-manager.zip`, and both the old and new repo API URLs return it. Not yet tested on a live WP site.
