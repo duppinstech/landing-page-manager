@@ -1077,6 +1077,14 @@ jQuery(function($) {
 
 });
 
+// The desktop "Services" item only opens its dropdown; don't jump to the top of the page.
+(function () {
+    var parents = document.querySelectorAll('.lpm-submenu-parent');
+    for (var i = 0; i < parents.length; i++) {
+        parents[i].addEventListener('click', function (e) { e.preventDefault(); });
+    }
+})();
+
 // Mobile menu: the header toggle opens #lpm-mobile-nav. Closes on link tap or Escape.
 (function () {
     var button = document.querySelector('#ast-mobile-header .main-header-menu-toggle');
