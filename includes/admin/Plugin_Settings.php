@@ -152,7 +152,7 @@ class Plugin_Settings {
                     ->set_html(
                         '<div class="lp-settings-pro-locked" style="background: #f0f6fc; border: 1px solid #c3c4c7; border-left: 4px solid #2271b1; padding: 16px 20px; margin: 0 0 16px 0;">' .
                         '<p style="margin: 0 0 12px 0; font-size: 14px;"><strong>' . esc_html__( 'Pro analytics is coming soon', 'landing-page-manager' ) . '</strong></p>' .
-                        '<p style="margin: 0 0 14px 0; color: #50575e;">' . esc_html__( 'Conversion tracking, page views, link clicks, scroll depth, heatmaps and more will be available in Landing Page Manager Pro. Contact Duppins Technology for early access.', 'landing-page-manager' ) . '</p>' .
+                        '<p style="margin: 0 0 14px 0; color: #50575e;">' . esc_html__( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics will be available in Landing Page Manager Pro. Contact Duppins Technology for early access.', 'landing-page-manager' ) . '</p>' .
                         '<a href="' . esc_url( $get_pro_url ) . '" class="button button-primary" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact for early access', 'landing-page-manager' ) . '</a>' .
                         '</div>'
                     ),

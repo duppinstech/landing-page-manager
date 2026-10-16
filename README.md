@@ -7,7 +7,7 @@ Manage multi-client landing pages with subdomain routing, templates, and optiona
 Landing Page Manager is a WordPress plugin for creating and managing landing pages across multiple clients. It provides:
 
 - **Landing Page post type** — Dedicated content type for landing pages
-- **Client taxonomy** — One client per brand, with its logo, colors, address, phone and website. The client's slug becomes its subdomain.
+- **Client taxonomy** — One client per brand, with its logo, colors, address, phone and website. The client's slug becomes its subdomain. A landing page's own "Page phone" overrides the client's phone on that page.
 - **Keyword taxonomy** — Tag pages by keyword/campaign
 - **Templates** — One site-wide template (Whiterail AI, Whiterail Recruits, QuickTow), each with its own fields, chosen in Settings → Templates
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
@@ -21,7 +21,7 @@ API keys are stored in **Settings** and are never hardcoded. Google and Brandfet
 - WordPress 5.9+
 - PHP 7.4+
 - [Composer](https://getcomposer.org/) (for development)
-- Optional: [Landing Page Manager Pro](https://github.com/duppinstech/landing-page-manager-pro) for analytics and conversion tracking
+- Optional: Landing Page Manager Pro (analytics and conversion tracking) is coming soon. Contact [Duppins Technology](https://duppinstech.com/) for early access.
 
 ## Installation
 
@@ -39,7 +39,7 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 - **Keywords** — Add keyword/campaign terms for organizing pages.
 - **Dashboard** — View counts and quick links.
 - **Analytics** (Pro) — View page views, conversions, engagement, heatmaps, rage clicks.
-- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps browser key (restrict it to your site and `https://*.yourdomain/*` for client subdomains), Google Maps server key (restrict it by IP; it needs the original Places API), Brandfetch API key, additional scripts. Conversion Tracking tab (Pro): enable/disable tracking options. **Updates tab**: shows where updates come from (GitHub Releases). Uploaded templates are stored inside the plugin folder and are deleted by plugin updates; keep the .zip and upload it again after each update.
+- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps browser key (restrict it to your site and `https://*.yourdomain/*` for client subdomains), Google Maps server key (restrict it by IP; it needs the original Places API), Brandfetch API key, and Additional Scripts (printed at the bottom of every landing page; only administrators can change them, and they print only after an administrator saves or approves them). Conversion Tracking tab (Pro): enable/disable tracking options. **Updates tab**: shows where updates come from (GitHub Releases). Uploaded templates are stored inside the plugin folder and are deleted by plugin updates; keep the .zip and upload it again after each update.
 
 ## Updates from GitHub
 
