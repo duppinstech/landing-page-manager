@@ -447,7 +447,8 @@ class Plugin_Settings {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Landing Page Manager: Additional Scripts approved. They now print on landing pages (purge your page cache).', 'landing-page-manager' ) . '</p></div>';
         }
 
-        if ( ! current_user_can( 'unfiltered_html' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
+        // Same capabilities as the approve handler, so only users who can approve see the code.
+        if ( ! current_user_can( 'unfiltered_html' ) || ! current_user_can( 'manage_options' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
             return;
         }
         $code = (string) get_option( '_lpmanager_additional_scripts', '' );
