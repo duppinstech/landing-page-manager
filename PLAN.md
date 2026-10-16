@@ -126,6 +126,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 
 ## P0 — before the next release
 
+- [ ] **Post-release checks for v1.0.8:** on a live site, open the Help button on the Dashboard, Landing Pages list and editor, Clients, Keywords, Analytics and each Settings tab. Check that the notes match the selected Settings tab, Escape closes it, the guide link opens the right section, and the panel fits on a phone. Rewrite `marketing/guide/help-button.md`, which still describes the removed Help tab. _(Odell waived review, 10-16)_
 - [ ] **Post-release checks for v1.0.7 on each live site** (the smoke test was waived): Template A colours and phone numbers (run smoke step 26's phone audit), approve Additional Scripts, check Header Tracking Code, purge page caches, and look for 404s and console errors. _(Odell waiver, 10-16)_
 
 - [x] **Department review 10-16c fixes on `fix/owner-decisions-p0`.** **Done 10-16** (commits `384fea9` through the docs commit; see progress.md). The full list is in [the meeting notes](meeting-notes/2026-10-16-1034-owner-decisions-review.md). It covers:

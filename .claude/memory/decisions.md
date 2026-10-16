@@ -93,3 +93,8 @@ Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with ea
 
 All four batches passed department review with no `block`.
 **Consequences:** Live sites receive v1.0.7 through the updater. Check live Template A pages (colours and phone numbers) and Additional Scripts approval right after the update.
+
+## 2026-10-16 — Release v1.0.8 (Help button) without department review (Odell)
+**Context:** v1.0.8 adds only the Help button on the plugin's admin screens. Open P0s in PLAN.md (Template A fallback colours, who can change Header Tracking Code, v1.0.7 post-release checks) concern behaviour already live in v1.0.7 and are not changed by it.
+**Decision:** Odell asked to commit, push and release with no review. Department review was not run, and the open P0s were treated as waived for this release. The contextual Help tab (never committed) was dropped in favour of the button.
+**Consequences:** The Help button has not been checked in a live wp-admin. Check it on a live site after the update. The open P0s still apply to the next release.
