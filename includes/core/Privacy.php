@@ -33,11 +33,12 @@ final class Privacy {
         $tutorial = [
             __( 'Landing Page Manager suggests the text below. Edit it to match the templates and services your landing pages use, and have it reviewed by your own legal adviser.', 'landing-page-manager' ),
             __( 'If you use the Whiterail Recruits template, its default images load from whiterailrecruits.com.', 'landing-page-manager' ),
+            __( 'If scripts you add under Additional Scripts or in a client\'s Header Tracking Code set cookies or track visitors, you may need visitors\' consent before they load.', 'landing-page-manager' ),
         ];
 
         $suggested = [
-            __( 'Landing pages on this site load fonts and icons from Google Fonts (Google LLC) and cdnjs (Cloudflare, Inc.). When a page shows a map, it loads Google Maps (Google LLC) when the map comes into view. Some page designs also load images or videos from other websites, such as YouTube. These providers receive your IP address and browser details when the page loads, and handle that data under their own privacy policies.', 'landing-page-manager' ),
-            __( 'A landing page may also include tracking or call-tracking code added by the site operator for a specific client, such as advertising pixels or tag managers. Those services receive data under their own privacy policies.', 'landing-page-manager' ),
+            __( 'Landing pages on this site load fonts and icons from Google Fonts (Google LLC) and cdnjs (Cloudflare, Inc.). When a page shows a map, it loads Google Maps (Google LLC) when the map comes into view. Some page designs also load images or videos from other websites, such as YouTube or Vimeo videos and Google Maps embeds, which may also set cookies. These providers receive your IP address and browser details when the page loads, and handle that data under their own privacy policies.', 'landing-page-manager' ),
+            __( 'A landing page may also include tracking, advertising, chat or call-tracking code added by the site operator, either for a specific client or on all landing pages. Those services receive your IP address, browser details and how you use the page, under their own privacy policies.', 'landing-page-manager' ),
         ];
 
         // Core records nothing on its own; analytics come from the Pro add-on.

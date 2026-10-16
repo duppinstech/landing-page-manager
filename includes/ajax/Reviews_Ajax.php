@@ -14,8 +14,10 @@ final class Reviews_Ajax {
     /**
      * Seconds to refuse repeat fetches for a place after a successful one.
      *
-     * Only the time of the fetch is stored, never review content: Google's Places terms
-     * don't allow caching Places content. This replaced a 12-hour content cache (Odell, 10-16).
+     * The lock stores only a timestamp; the plugin keeps no copy of Google's response. (The
+     * fetched HTML is inserted into the page's Reviews field by the editor; whether that may be
+     * stored is an open attorney question in PLAN.md.) This replaced a 12-hour content cache
+     * (Odell, 10-16).
      */
     const LOCK_TTL = 10 * MINUTE_IN_SECONDS;
 
@@ -40,7 +42,7 @@ final class Reviews_Ajax {
 
         $client_terms = get_the_terms($current_post_id, 'client');
         if (is_wp_error($client_terms) || empty($client_terms)) {
-            wp_send_json_error('No client assigned to this page.');
+            wp_send_json_error( __( 'No client is assigned to this page.', 'landing-page-manager' ) );
         }
 
         $client_term = $client_terms[0];
@@ -57,7 +59,7 @@ final class Reviews_Ajax {
             wp_send_json_error( $reviews->get_error_message() );
         }
         if (empty($reviews)) {
-            wp_send_json_error('No reviews found.');
+            wp_send_json_error( __( 'Google returned no reviews for this place.', 'landing-page-manager' ) );
         }
 
         // Filter reviews rating >= 4
@@ -69,7 +71,7 @@ final class Reviews_Ajax {
         $filtered_reviews = array_slice($filtered_reviews, 0, 10);
 
         if (empty($filtered_reviews)) {
-            wp_send_json_error('No positive reviews found.');
+            wp_send_json_error( __( 'No 4- or 5-star reviews were found for this place.', 'landing-page-manager' ) );
         }
 
         ob_start();
