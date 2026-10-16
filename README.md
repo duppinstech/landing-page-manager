@@ -59,6 +59,12 @@ To build the zip locally: `bin/build-zip.sh` (uses `zip`, or Python if `zip` is 
 
 Deleting the plugin removes its settings. Landing pages, clients and keywords are kept. To delete those too, add `define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );` to `wp-config.php` before deleting.
 
+## Developer hooks
+
+- `lpmanager_load_jquery` (filter, `bool $load, int $post_id`): return `true` to load jQuery on landing pages whose template doesn't need it, for example for a jQuery-based Custom HTML tag in Google Tag Manager.
+- `lpmanager_unwanted_styles`, `lpmanager_unwanted_style_patterns`, `lpmanager_unwanted_scripts` (filters): styles and scripts removed from landing pages.
+- `lpmanager_landing_page_footer` (action): output in the landing page footer.
+
 ## Development
 
 - Run `composer install` to install dependencies.
