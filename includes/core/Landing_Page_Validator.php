@@ -44,13 +44,18 @@ class Landing_Page_Validator {
         $core_required_fields = [
             'client'     => 'client',
             'keyword'    => 'keyword',
-            'client_tel' => 'client_tel',
         ];
         foreach ( $core_required_fields as $field_key => $field_label ) {
             $value = carbon_get_post_meta( $post_id, $field_key );
             if ( empty( $value ) ) {
                 $missing_fields[] = $field_label;
             }
+        }
+
+        // A phone is required, but the page's own number is optional: the client's default
+        // "Contact Phone" counts (see lpmanager_get_landing_phone()).
+        if ( function_exists( 'lpmanager_get_landing_phone' ) && '' === lpmanager_get_landing_phone( $post_id ) ) {
+            $missing_fields[] = 'client_tel';
         }
 
         // Template-specific required fields.
