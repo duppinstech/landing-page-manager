@@ -191,6 +191,10 @@ class Assets_Manager {
         if ( empty( $terms ) || is_wp_error( $terms ) || ! function_exists( 'carbon_get_term_meta' ) ) {
             return false;
         }
+        // Operator says so explicitly ("Tracking tags need jQuery" on the client screen).
+        if ( carbon_get_term_meta( $terms[0]->term_id, 'lpmanager_client_needs_jquery' ) ) {
+            return true;
+        }
         $code = (string) carbon_get_term_meta( $terms[0]->term_id, 'header_tracking_code' );
         if ( '' === $code ) {
             return false;

@@ -352,6 +352,10 @@ class Client_Taxonomy {
             Field::make('textarea', 'header_tracking_code', 'Header Tracking Code (Nimbata)')
                 ->set_rows(4)
                 ->set_help_text('Paste your tracking script here. It will be injected into the head of all associated landing pages.'),
+
+            Field::make( 'checkbox', 'lpmanager_client_needs_jquery', __( 'Tracking tags need jQuery', 'landing-page-manager' ) )
+                ->set_option_value( 'yes' )
+                ->set_help_text( __( 'Tick this if this client\'s tracking or conversion tags use jQuery, for example a Custom HTML tag in Google Tag Manager. Templates that don\'t need jQuery (such as QuickTow) then load it anyway, so those tags keep working.', 'landing-page-manager' ) ),
         ])
 
         // Social Media Tab
