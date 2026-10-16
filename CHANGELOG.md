@@ -33,6 +33,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
 ### Changed
+- **Incomplete landing pages stay drafts.** Publishing a page that's missing required fields now saves it as a draft and says why. Editing a page that's already live never unpublishes it.
 - **Template A uses the client's colours.** The client's primary colour replaces Template A's navy, and the secondary colour replaces its red, on all three styles. Darker and lighter shades are derived from them, and a colour too light for white text is darkened until the text is readable (WCAG AA). Clients that use the default red and navy look the same as before.
 - Template A's mobile call button shows a phone icon instead of three "menu" bars, because it dials the phone.
 - The "Get Pro" prompts now say Pro analytics is coming soon and link to Duppins Technology for early access, instead of a dead link.
