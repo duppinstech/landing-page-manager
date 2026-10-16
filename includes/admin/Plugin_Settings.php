@@ -181,10 +181,14 @@ class Plugin_Settings {
                 ),
         ];
 
-        Container::make( 'theme_options', __( 'Settings', 'landing-page-manager' ) )
+        $container = Container::make( 'theme_options', __( 'Settings', 'landing-page-manager' ) )
             ->set_page_parent( 'lp_dashboard' )
-            ->add_tab( __( 'Templates', 'landing-page-manager' ), $tab_templates )
-            ->add_tab( $is_premium ? __( 'Conversion Tracking', 'landing-page-manager' ) : __( 'Conversion Tracking (Pro)', 'landing-page-manager' ), $tab_conversion )
+            ->add_tab( __( 'Templates', 'landing-page-manager' ), $tab_templates );
+        // Pro 1.0.4+ shows the tracking toggles on its own Settings screen (same stored options).
+        if ( ! function_exists( 'lpmanager_pro_tracking_options' ) ) {
+            $container->add_tab( $is_premium ? __( 'Conversion Tracking', 'landing-page-manager' ) : __( 'Conversion Tracking (Pro)', 'landing-page-manager' ), $tab_conversion );
+        }
+        $container
             ->add_tab( __( 'API Keys', 'landing-page-manager' ), $tab_api )
             ->add_tab( __( 'Updates', 'landing-page-manager' ), $tab_updates );
     }

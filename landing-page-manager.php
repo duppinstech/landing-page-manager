@@ -78,6 +78,14 @@ function lpmanager_tracking_options() {
     if ( ! function_exists( 'lpmanager_is_premium' ) || ! lpmanager_is_premium() ) {
         return $defaults;
     }
+    // Pro 1.0.4+ owns the tracking toggles (same wp_options rows, its own Settings section).
+    if ( function_exists( 'lpmanager_pro_tracking_options' ) ) {
+        $pro = (array) lpmanager_pro_tracking_options();
+        foreach ( $defaults as $key => $unused ) {
+            $defaults[ $key ] = ! empty( $pro[ $key ] );
+        }
+        return $defaults;
+    }
     if ( ! function_exists( 'carbon_get_theme_option' ) ) {
         return $defaults;
     }
