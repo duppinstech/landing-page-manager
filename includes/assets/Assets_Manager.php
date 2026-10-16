@@ -144,7 +144,7 @@ class Assets_Manager {
          * Return true for tags that need jQuery but aren't in the client's Header Tracking Code,
          * for example a jQuery-based Custom HTML tag in Google Tag Manager.
          *
-         * @param bool $load    Default: whether the client's Header Tracking Code appears to use jQuery or GTM.
+         * @param bool $load    Default: whether the client's Header Tracking Code appears to use jQuery or a GTM container.
          * @param int  $post_id Landing page ID.
          */
         if ( apply_filters( 'lpmanager_load_jquery', self::client_tracking_code_uses_jquery(), get_queried_object_id() ) ) {
@@ -181,7 +181,8 @@ class Assets_Manager {
 
     /**
      * Whether the current page's client "Header Tracking Code" (printed in wp_head) appears to use
-     * jQuery: it mentions jQuery, calls $( or $., or loads Google Tag Manager, whose tags often do.
+     * jQuery: it mentions jQuery, calls $( or $., or loads a Google Tag Manager container (gtm.js / GTM-),
+     * whose Custom HTML tags often do. The gtag.js snippet alone doesn't count: it can't run such tags.
      *
      * @return bool
      */
@@ -194,7 +195,7 @@ class Assets_Manager {
         if ( '' === $code ) {
             return false;
         }
-        foreach ( [ 'jquery', '$(', '$.', 'googletagmanager.com', 'gtm.js' ] as $needle ) {
+        foreach ( [ 'jquery', '$(', '$.', 'gtm.js', 'GTM-' ] as $needle ) {
             if ( false !== stripos( $code, $needle ) ) {
                 return true;
             }
@@ -219,7 +220,14 @@ class Assets_Manager {
             if ( empty( $manifest[ $group ] ) || ! is_array( $manifest[ $group ] ) ) {
                 continue;
             }
-            $enqueued = [];
+            // Entries whose files exist, so dependencies don't depend on the order entries are listed in.
+            $available = [];
+            foreach ( $manifest[ $group ] as $key => $asset ) {
+                $path = isset( $asset[0] ) ? ltrim( (string) $asset[0], '/' ) : '';
+                if ( '' !== $path && false === strpos( $path, '..' ) && file_exists( $template_dir . $path ) ) {
+                    $available[ $key ] = true;
+                }
+            }
             foreach ( $manifest[ $group ] as $key => $asset ) {
                 $path = isset( $asset[0] ) ? ltrim( (string) $asset[0], '/' ) : '';
                 if ( '' === $path || false !== strpos( $path, '..' ) || ! file_exists( $template_dir . $path ) ) {
@@ -229,14 +237,13 @@ class Assets_Manager {
                 foreach ( isset( $asset[1] ) ? (array) $asset[1] : [] as $dep ) {
                     if ( ! isset( $manifest[ $group ][ $dep ] ) ) {
                         $deps[] = $dep; // Core handle such as 'jquery'.
-                    } elseif ( isset( $enqueued[ $dep ] ) ) {
+                    } elseif ( isset( $available[ $dep ] ) ) {
                         // Another entry in this group gets its prefixed handle.
                         $deps[] = $prefix . $dep;
                     }
                     // An entry skipped above (missing file) is dropped: WordPress would otherwise
                     // silently skip this asset for depending on an unregistered handle.
                 }
-                $enqueued[ $key ] = true;
                 $ver = @filemtime( $template_dir . $path ) ?: null;
                 if ( 'styles' === $group ) {
                     wp_enqueue_style( $prefix . $key, $template_url . $path, $deps, $ver );
