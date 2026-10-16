@@ -11,7 +11,9 @@ class Plugin_Settings {
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_styles']);
         add_action( 'admin_notices', [ __CLASS__, 'render_missing_template_notice' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_empty_server_key_notice' ] );
-        add_action( 'carbon_fields_theme_options_container_saved', [ __CLASS__, 'verify_additional_scripts' ] );
+        add_filter( 'carbon_fields_should_delete_field_value_on_save', [ __CLASS__, 'guard_raw_html_delete' ], 10, 2 );
+        add_filter( 'carbon_fields_should_save_field_value', [ __CLASS__, 'guard_raw_html_save' ], 10, 3 );
+        add_action( 'admin_post_lpmanager_approve_additional_scripts', [ __CLASS__, 'handle_approve_additional_scripts' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_additional_scripts_notice' ] );
         add_action( 'lpmanager_landing_page_footer', [ __CLASS__, 'print_additional_scripts' ] );
 		add_action('carbon_fields_theme_options_container_saved', function() {
@@ -272,8 +274,11 @@ class Plugin_Settings {
         );
     }
 
-    /** Option holding a hash of the Additional Scripts value last saved by a user with unfiltered_html. */
+    /** Option holding a keyed hash (HMAC) of the approved Additional Scripts value. */
     const ADDITIONAL_SCRIPTS_HASH = 'lpmanager_additional_scripts_hash';
+
+    /** Fields whose values are printed raw, so only users with unfiltered_html may change them. */
+    const RAW_HTML_FIELDS = [ 'lpmanager_additional_scripts', 'header_tracking_code' ];
 
     /**
      * "Additional Scripts" field. Read-only for users who may not post unfiltered HTML
@@ -291,53 +296,157 @@ class Plugin_Settings {
     }
 
     /**
-     * After Settings are saved: trust the Additional Scripts value only if it is unchanged or the
-     * saving user may post unfiltered HTML. Otherwise clear it, so it is never printed.
+     * Keyed hash of an Additional Scripts value. Keyed with the site's auth salt so it can't be
+     * forged by someone who can write options but doesn't know wp-config secrets.
+     *
+     * @param string $code Script value.
+     * @return string
      */
-    public static function verify_additional_scripts() {
-        $code = (string) carbon_get_theme_option( 'lpmanager_additional_scripts' );
-        if ( '' === trim( $code ) ) {
-            delete_option( self::ADDITIONAL_SCRIPTS_HASH );
-            return;
-        }
-        $hash = hash( 'sha256', $code );
-        if ( hash_equals( (string) get_option( self::ADDITIONAL_SCRIPTS_HASH ), $hash ) ) {
-            return; // Unchanged.
-        }
-        if ( current_user_can( 'unfiltered_html' ) ) {
-            update_option( self::ADDITIONAL_SCRIPTS_HASH, $hash, false );
-            return;
-        }
-        carbon_set_theme_option( 'lpmanager_additional_scripts', '' );
-        delete_option( self::ADDITIONAL_SCRIPTS_HASH );
-        set_transient( 'lpmanager_additional_scripts_rejected_' . get_current_user_id(), 1, MINUTE_IN_SECONDS );
+    private static function additional_scripts_hmac( $code ) {
+        return hash_hmac( 'sha256', (string) $code, wp_salt( 'auth' ) );
     }
 
     /**
-     * Tell the user their Additional Scripts change was discarded.
+     * Whether the stored Additional Scripts value is approved for printing.
+     *
+     * @param string $code Stored value.
+     * @return bool
+     */
+    private static function additional_scripts_approved( $code ) {
+        return '' !== trim( (string) $code )
+            && hash_equals( (string) get_option( self::ADDITIONAL_SCRIPTS_HASH ), self::additional_scripts_hmac( $code ) );
+    }
+
+    /**
+     * Stored raw value of a raw-HTML field, read straight from the database.
+     *
+     * @param \Carbon_Fields\Field\Field $field Field being saved.
+     * @return string
+     */
+    private static function stored_raw_html_value( $field ) {
+        if ( 'lpmanager_additional_scripts' === $field->get_base_name() ) {
+            return (string) get_option( '_lpmanager_additional_scripts', '' );
+        }
+        $datastore = $field->get_datastore();
+        $term_id   = ( $datastore && method_exists( $datastore, 'get_object_id' ) ) ? (int) $datastore->get_object_id() : 0;
+        return $term_id ? (string) get_term_meta( $term_id, '_header_tracking_code', true ) : '';
+    }
+
+    /**
+     * carbon_fields_should_delete_field_value_on_save: never let a user without unfiltered_html
+     * clear a raw-HTML field (Carbon deletes before it saves). Covers the settings form, client
+     * screens and Carbon's REST API, which all go through Field::save().
+     *
+     * @param bool                       $delete Default true.
+     * @param \Carbon_Fields\Field\Field $field  Field being saved.
+     * @return bool
+     */
+    public static function guard_raw_html_delete( $delete, $field ) {
+        if ( in_array( $field->get_base_name(), self::RAW_HTML_FIELDS, true ) && ! current_user_can( 'unfiltered_html' ) ) {
+            return false;
+        }
+        return $delete;
+    }
+
+    /**
+     * carbon_fields_should_save_field_value: only users with unfiltered_html can change a raw-HTML
+     * field. For Additional Scripts, a trusted save of a new value also approves it for printing.
+     *
+     * @param bool                       $save  Default true.
+     * @param mixed                      $value Submitted value.
+     * @param \Carbon_Fields\Field\Field $field Field being saved.
+     * @return bool
+     */
+    public static function guard_raw_html_save( $save, $value, $field ) {
+        $name = $field->get_base_name();
+        if ( ! in_array( $name, self::RAW_HTML_FIELDS, true ) ) {
+            return $save;
+        }
+        $value  = (string) $value;
+        $stored = self::stored_raw_html_value( $field );
+
+        if ( ! current_user_can( 'unfiltered_html' ) ) {
+            if ( $value !== $stored ) {
+                set_transient( 'lpmanager_raw_html_rejected_' . get_current_user_id(), $name, MINUTE_IN_SECONDS );
+            }
+            return false; // Keep whatever is stored.
+        }
+
+        if ( 'lpmanager_additional_scripts' === $name ) {
+            if ( '' === trim( $value ) ) {
+                delete_option( self::ADDITIONAL_SCRIPTS_HASH );
+            } elseif ( $value !== $stored || self::additional_scripts_approved( $stored ) ) {
+                // A new value typed by this trusted user, or the already-approved one.
+                update_option( self::ADDITIONAL_SCRIPTS_HASH, self::additional_scripts_hmac( $value ), false );
+            }
+            // Otherwise the stored value arrived some other way: it stays unapproved until a
+            // trusted user approves it explicitly (render_additional_scripts_notice).
+        }
+        return $save;
+    }
+
+    /**
+     * Notices: a rejected raw-HTML change, and an Additional Scripts value awaiting approval.
      */
     public static function render_additional_scripts_notice() {
-        $key = 'lpmanager_additional_scripts_rejected_' . get_current_user_id();
-        if ( ! get_transient( $key ) ) {
+        $key      = 'lpmanager_raw_html_rejected_' . get_current_user_id();
+        $rejected = get_transient( $key );
+        if ( $rejected ) {
+            delete_transient( $key );
+            $label = ( 'header_tracking_code' === $rejected ) ? __( 'Header Tracking Code', 'landing-page-manager' ) : __( 'Additional Scripts', 'landing-page-manager' );
+            /* translators: %s: field name */
+            echo '<div class="notice notice-error"><p>' . esc_html( sprintf( __( 'Landing Page Manager: your %s change was not saved, because your account isn\'t allowed to post unfiltered HTML. Ask an administrator (a super admin on multisite) to make it.', 'landing-page-manager' ), $label ) ) . '</p></div>';
+        }
+
+        if ( ! current_user_can( 'unfiltered_html' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
             return;
         }
-        delete_transient( $key );
-        echo '<div class="notice notice-error"><p>' . esc_html__( 'Landing Page Manager: your Additional Scripts change was not saved, because your account isn\'t allowed to post unfiltered HTML. Ask an administrator (a super admin on multisite) to add it.', 'landing-page-manager' ) . '</p></div>';
+        $code = (string) get_option( '_lpmanager_additional_scripts', '' );
+        if ( '' === trim( $code ) || self::additional_scripts_approved( $code ) ) {
+            return;
+        }
+        $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+        if ( ! $screen || false === strpos( $screen->id, 'crb_carbon_fields_container_settings' ) ) {
+            return;
+        }
+        $approve_url = wp_nonce_url( admin_url( 'admin-post.php?action=lpmanager_approve_additional_scripts' ), 'lpmanager_approve_additional_scripts' );
+        printf(
+            '<div class="notice notice-warning"><p>%s <a class="button" href="%s">%s</a></p></div>',
+            esc_html__( 'Landing Page Manager: Additional Scripts (API Keys tab) contains code that wasn\'t approved by an administrator, so it is not printed on landing pages. Review it below. If you trust it, approve it.', 'landing-page-manager' ),
+            esc_url( $approve_url ),
+            esc_html__( 'Approve Additional Scripts', 'landing-page-manager' )
+        );
+    }
+
+    /**
+     * admin-post: approve the stored Additional Scripts value (explicit review by a trusted user).
+     */
+    public static function handle_approve_additional_scripts() {
+        check_admin_referer( 'lpmanager_approve_additional_scripts' );
+        if ( ! current_user_can( 'unfiltered_html' ) || ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You are not allowed to approve scripts.', 'landing-page-manager' ), 403 );
+        }
+        $code = (string) get_option( '_lpmanager_additional_scripts', '' );
+        if ( '' !== trim( $code ) ) {
+            update_option( self::ADDITIONAL_SCRIPTS_HASH, self::additional_scripts_hmac( $code ), false );
+        }
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) );
+        exit;
     }
 
     /**
      * Print Additional Scripts at the bottom of landing pages (lpmanager_landing_page_footer),
-     * but only the exact value a user with unfiltered_html saved.
+     * but only the exact value an administrator saved or approved.
      */
     public static function print_additional_scripts() {
         if ( ! is_singular( 'landing_page' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
             return;
         }
         $code = (string) carbon_get_theme_option( 'lpmanager_additional_scripts' );
-        if ( '' === trim( $code ) || ! hash_equals( (string) get_option( self::ADDITIONAL_SCRIPTS_HASH ), hash( 'sha256', $code ) ) ) {
+        if ( ! self::additional_scripts_approved( $code ) ) {
             return;
         }
-        echo "\n" . $code . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput -- raw by design; only a value saved by a user with unfiltered_html is printed.
+        echo "\n" . $code . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput -- raw by design; only an administrator-approved value is printed.
     }
 
     public static function render_template_selector_and_upload() {

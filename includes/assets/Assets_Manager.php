@@ -86,6 +86,8 @@ class Assets_Manager {
          * @param string[] $allowed Callback names. Default empty.
          */
         $allowed = array_map( 'strval', (array) apply_filters( 'lpmanager_allowed_footer_callbacks', [] ) );
+        // These are re-added by the cleanup itself; allowlisting them would print twice.
+        $allowed = array_diff( $allowed, [ 'wp_print_footer_scripts', 'lpmanager_custom_landing_page_footer', 'wp_admin_bar_render' ] );
         if ( ! $allowed || empty( $wp_filter['wp_footer'] ) || ! isset( $wp_filter['wp_footer']->callbacks ) ) {
             return [];
         }

@@ -300,6 +300,23 @@ class Client_Taxonomy {
         register_taxonomy( 'client', [ 'landing_page' ], $args );
     }
 
+    /**
+     * "Header Tracking Code" field. It is printed raw in the head of the client's landing pages,
+     * so only users allowed to post unfiltered HTML can change it (enforced on save by
+     * Plugin_Settings::guard_raw_html_save); for everyone else the field is read-only.
+     *
+     * @return \Carbon_Fields\Field\Field
+     */
+    private static function header_tracking_code_field() {
+        $field = Field::make( 'textarea', 'header_tracking_code', __( 'Header Tracking Code (Nimbata)', 'landing-page-manager' ) )
+            ->set_rows( 4 )
+            ->set_help_text( __( 'Paste your tracking script here. It is added to the head of all of this client\'s landing pages. Only administrators (super admins on multisite) can change it.', 'landing-page-manager' ) );
+        if ( ! current_user_can( 'unfiltered_html' ) ) {
+            $field->set_attribute( 'readOnly', 'readonly' );
+        }
+        return $field;
+    }
+
     public static function register_fields() {
     // Client Taxonomy Meta Fields
     Container::make('term_meta', __('Client Details', 'landing-page-manager'))
@@ -349,9 +366,7 @@ class Client_Taxonomy {
 
         // Tracking & Integration Tab
         ->add_tab(__('Tracking & Integration', 'landing-page-manager'), [
-            Field::make('textarea', 'header_tracking_code', 'Header Tracking Code (Nimbata)')
-                ->set_rows(4)
-                ->set_help_text('Paste your tracking script here. It will be injected into the head of all associated landing pages.'),
+            self::header_tracking_code_field(),
 
             Field::make( 'checkbox', 'lpmanager_client_needs_jquery', __( 'Tracking tags need jQuery', 'landing-page-manager' ) )
                 ->set_option_value( 'yes' )

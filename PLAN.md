@@ -98,6 +98,10 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **P2 — Should the empty-server-key warning be dismissible?** It shows on every plugin screen until a server key is saved. **Recommendation:** keep it, but allow each user to dismiss it for 30 days. _(DR 10-16: prod, sup, ops)_ **Decided (Odell, 10-16): yes, per user for 30 days.**
 - [ ] **P2 — Template C mobile menu colours.** The panel is white with dark text. Should it follow the client's brand colours? This is a design call; contrast is fine as it is. _(DR 10-16: ux)_
 - [x] **P2 — Document a "needs jQuery" marker for the client's Header Tracking Code?** Any mention of "jQuery" in that field already makes Template A load it. **Recommendation:** don't promise it as a feature. Document the `lpmanager_load_jquery` filter instead. _(DR 10-16: sup)_ **Superseded (10-16)** by the per-client jQuery checkbox.
+- [ ] **P1 — Who should be able to manage clients?** _(security · 10-16)_
+  - **Now:** the `client` taxonomy uses default capabilities, so Editors can add and edit clients. Since 10-16 they can no longer change the Header Tracking Code, which prints raw.
+  - **Recommendation:** limit managing clients to administrators (`manage_options`), or keep Editors, since the raw-HTML field is now locked.
+- [ ] **P2 — Who can run Fetch Reviews?** _(security · 10-16)_ The 10-minute lock allows up to 144 billed calls per place per day, and anyone who can edit a page for that client can trigger them. **Recommendation:** require Editor-level access (`edit_others_posts`), and optionally add a daily cap per place.
 - [x] **P2 — Should internal planning docs stay in the public repo?** **Decided (Odell, 10-16): keep them public.**
   - `PLAN.md`, `meeting-notes/` and `.claude/memory/` are excluded from the zip but readable on GitHub, including the legal-risk analysis.
   - **Decide:** move them to a private repo or keep them public. _(DR 10-14b)_ _(legal)_
@@ -197,7 +201,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Hook or remove `filter_landing_pages_query`.
   - **Review:** `security-reviewer`.
   - _(sec, prod · DR 10-14)_
-- [ ] **Lock down "Header Tracking Code" on clients.**
+- [~] **Lock down "Header Tracking Code" on clients.** **10-16:** only users with `unfiltered_html` can change it, by any route including Carbon REST, and the field is read-only for everyone else. Whether to restrict client management itself is now a question for Odell.
   - Set the taxonomy capabilities to `manage_options`.
   - Refuse or clear the field for users without `unfiltered_html`.
   - Relabel it from "(Nimbata)" to "Header tracking code (call tracking, pixels, tags)".
