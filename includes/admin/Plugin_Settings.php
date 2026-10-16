@@ -11,6 +11,7 @@ class Plugin_Settings {
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_styles']);
         add_action( 'admin_notices', [ __CLASS__, 'render_missing_template_notice' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_empty_server_key_notice' ] );
+        add_action( 'admin_post_lpmanager_dismiss_server_key_notice', [ __CLASS__, 'handle_dismiss_server_key_notice' ] );
         add_filter( 'carbon_fields_should_delete_field_value_on_save', [ __CLASS__, 'guard_raw_html_delete' ], 10, 2 );
         add_filter( 'carbon_fields_should_save_field_value', [ __CLASS__, 'guard_raw_html_save' ], 10, 3 );
         add_action( 'admin_post_lpmanager_approve_additional_scripts', [ __CLASS__, 'handle_approve_additional_scripts' ] );
@@ -97,7 +98,7 @@ class Plugin_Settings {
         }
 
         $is_premium = function_exists( 'lpmanager_is_premium' ) && lpmanager_is_premium();
-        $get_pro_url = apply_filters( 'lpmanager_get_pro_url', '#' );
+        $get_pro_url = apply_filters( 'lpmanager_get_pro_url', 'https://duppinstech.com/' );
 
         $tab_templates = [
             Field::make( 'html', 'template_selector_label', __( 'Select Landing Page Template', 'landing-page-manager' ) )
@@ -150,9 +151,9 @@ class Plugin_Settings {
                 Field::make( 'html', 'lpmanager_conversion_pro_locked', __( 'Unlock with Pro', 'landing-page-manager' ) )
                     ->set_html(
                         '<div class="lp-settings-pro-locked" style="background: #f0f6fc; border: 1px solid #c3c4c7; border-left: 4px solid #2271b1; padding: 16px 20px; margin: 0 0 16px 0;">' .
-                        '<p style="margin: 0 0 12px 0; font-size: 14px;"><strong>' . esc_html__( 'Get Pro to unlock this section', 'landing-page-manager' ) . '</strong></p>' .
-                        '<p style="margin: 0 0 14px 0; color: #50575e;">' . esc_html__( 'Conversion tracking, page views, link clicks, scroll depth, heatmaps, and more are available in Landing Page Manager Pro.', 'landing-page-manager' ) . '</p>' .
-                        '<a href="' . esc_url( $get_pro_url ) . '" class="button button-primary">' . esc_html__( 'Get Pro Now', 'landing-page-manager' ) . '</a>' .
+                        '<p style="margin: 0 0 12px 0; font-size: 14px;"><strong>' . esc_html__( 'Pro analytics is coming soon', 'landing-page-manager' ) . '</strong></p>' .
+                        '<p style="margin: 0 0 14px 0; color: #50575e;">' . esc_html__( 'Conversion tracking, page views, link clicks, scroll depth, heatmaps and more will be available in Landing Page Manager Pro. Contact Duppins Technology for early access.', 'landing-page-manager' ) . '</p>' .
+                        '<a href="' . esc_url( $get_pro_url ) . '" class="button button-primary" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact for early access', 'landing-page-manager' ) . '</a>' .
                         '</div>'
                     ),
             ];
@@ -266,12 +267,34 @@ class Plugin_Settings {
         if ( '' === $browser_key || '' !== $server_key ) {
             return;
         }
+        if ( (int) get_user_meta( get_current_user_id(), self::SERVER_KEY_NOTICE_DISMISSED, true ) > time() ) {
+            return; // Dismissed by this user for 30 days.
+        }
+        $dismiss_url = wp_nonce_url( admin_url( 'admin-post.php?action=lpmanager_dismiss_server_key_notice' ), 'lpmanager_dismiss_server_key_notice' );
         printf(
-            '<div class="notice notice-warning"><p>%s <a href="%s">%s</a></p></div>',
+            '<div class="notice notice-warning"><p>%s <a href="%s">%s</a> &middot; <a href="%s">%s</a></p></div>',
             esc_html__( 'Landing Page Manager: add a Google Maps server key on the API Keys tab. Right now address lookups and Fetch Reviews use your browser key, which appears in every landing page\'s HTML and can\'t be restricted to your sites without breaking those lookups.', 'landing-page-manager' ),
             esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
-            esc_html__( 'Go to Settings', 'landing-page-manager' )
+            esc_html__( 'Go to Settings', 'landing-page-manager' ),
+            esc_url( $dismiss_url ),
+            esc_html__( 'Hide for 30 days', 'landing-page-manager' )
         );
+    }
+
+    /** User meta: time until which the empty-server-key notice is hidden for that user. */
+    const SERVER_KEY_NOTICE_DISMISSED = 'lpmanager_server_key_notice_dismissed';
+
+    /**
+     * admin-post: hide the empty-server-key notice for the current user for 30 days (Odell, 10-16).
+     */
+    public static function handle_dismiss_server_key_notice() {
+        check_admin_referer( 'lpmanager_dismiss_server_key_notice' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You are not allowed to do that.', 'landing-page-manager' ), 403 );
+        }
+        update_user_meta( get_current_user_id(), self::SERVER_KEY_NOTICE_DISMISSED, time() + 30 * DAY_IN_SECONDS );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
+        exit;
     }
 
     /** Option holding a keyed hash (HMAC) of the approved Additional Scripts value. */
