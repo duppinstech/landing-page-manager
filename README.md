@@ -64,7 +64,7 @@ Deleting the plugin removes its settings. Landing pages, clients and keywords ar
 - `lpmanager_load_jquery` (filter, `bool $load, int $post_id`): return `true` to load jQuery on landing pages whose template doesn't need it. Operators can do the same per client with the **Tracking tags need jQuery** box.
 - `lpmanager_unwanted_styles`, `lpmanager_unwanted_style_patterns`, `lpmanager_unwanted_scripts` (filters): styles and scripts removed from landing pages.
 - `lpmanager_template_for_post` (filter, `string $slug, int $post_id`): the template a landing page uses. Defaults to the site-wide template; an unknown slug falls back to it.
-- `lpmanager_iframe_hosts` (filter, `string[]`): hosts whose iframes are allowed in rich-text template fields. Default: YouTube, Vimeo and Google Maps.
+- `lpmanager_iframe_src_patterns` (filter, `string[]`): anchored PCRE patterns an iframe `src` must fully match to be kept in rich-text template fields. Defaults cover YouTube `/embed/`, Vimeo `/video/` and Google Maps `/maps/embed` (https only). Kept iframes are rebuilt with a fixed set of attributes.
 - `lpmanager_landing_page_footer` (action): output in the landing page footer. Additional Scripts print here.
 - `lpmanager_allowed_footer_callbacks` (filter, `string[]`): other plugins' `wp_footer` callbacks to keep on landing pages, which otherwise drop them. Use `'function_name'` or `'Class_Name::method'`.
 
