@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.7] - 2026-10-16
 ### Upgrade notes
 - **Before you update: uploaded templates are deleted.** If you uploaded a template under Landing Pages → Settings → Templates, keep its .zip. Updating removes it, so upload it again straight afterwards. Until you do, landing pages show a 404 and an admin notice says so.
 - **Update promptly.** Versions 1.0.6 and earlier also check WordPress.org for updates. Sites set to "WordPress.org only" in 1.0.6 won't be offered this update: download `landing-page-manager.zip` from the GitHub release and upload it under Plugins → Add New → Upload Plugin.
@@ -131,7 +133,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.7...HEAD
+[1.0.7]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.5
 [1.0.2]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.2
