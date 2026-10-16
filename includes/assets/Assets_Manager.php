@@ -236,16 +236,17 @@ class Assets_Manager {
      * @return bool
      */
     private static function client_tracking_code_uses_jquery() {
+        // Site-wide Additional Scripts can also need jQuery (a false positive only loads jQuery).
+        $code = function_exists( 'carbon_get_theme_option' ) ? (string) carbon_get_theme_option( 'lpmanager_additional_scripts' ) : '';
         $terms = get_the_terms( get_queried_object_id(), 'client' );
-        if ( empty( $terms ) || is_wp_error( $terms ) || ! function_exists( 'carbon_get_term_meta' ) ) {
-            return false;
+        if ( ! empty( $terms ) && ! is_wp_error( $terms ) && function_exists( 'carbon_get_term_meta' ) ) {
+            // Operator says so explicitly ("Tracking tags need jQuery" on the client screen).
+            if ( carbon_get_term_meta( $terms[0]->term_id, 'lpmanager_client_needs_jquery' ) ) {
+                return true;
+            }
+            $code .= "\n" . (string) carbon_get_term_meta( $terms[0]->term_id, 'header_tracking_code' );
         }
-        // Operator says so explicitly ("Tracking tags need jQuery" on the client screen).
-        if ( carbon_get_term_meta( $terms[0]->term_id, 'lpmanager_client_needs_jquery' ) ) {
-            return true;
-        }
-        $code = (string) carbon_get_term_meta( $terms[0]->term_id, 'header_tracking_code' );
-        if ( '' === $code ) {
+        if ( '' === trim( $code ) ) {
             return false;
         }
         foreach ( [ 'jquery', '$(', '$.', 'gtm.js', 'GTM-' ] as $needle ) {
