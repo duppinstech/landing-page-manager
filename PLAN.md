@@ -22,86 +22,86 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Bundled with it:** cache the GitHub release response in a transient (6–12 h) and add `_transient_lpmanager_%` / `_site_transient_lpmanager_%` to `uninstall.php`. Fill `requires_php`.
   - **Review:** this is an updater change, so it needs `security-reviewer`.
   - _(sec, ops, fin · DR 10-14)_
-- [~] **P0 — Which phone number wins?** **Odell answered 10-14. The field mapping is being confirmed before any code changes:** the page field is labelled "Client Phone" (`client_tel`) and the client-level field "Contact Phone" (`client_phone`).
+- [x] **P0 — Which phone number wins?** **Odell answered 10-14. The field mapping is being confirmed before any code changes:** the page field is labelled "Client Phone" (`client_tel`) and the client-level field "Contact Phone" (`client_phone`). **Decided (Odell, 10-16): the page number wins.** The per-page "Client Phone" overrides the client's "Contact Phone". The page field becomes optional, and one resolved number is used for display and `tel:` in every template.
   - **Problem:** WhiteRail AI shows the page's "Client Phone" but dials the client's "Contact Phone". QuickTow ignores the page number when the client has one. Call-tracking numbers lose attribution.
   - **Recommendation:** the page number overrides the client number everywhere. Make the page field optional, then use one resolved number for both display and `tel:`, and add help text to both fields.
   - _(prod, ux, sup · DR 10-14)_
-- [ ] **P0 — "Additional Scripts" setting and the footer hook.**
+- [x] **P0 — "Additional Scripts" setting and the footer hook.** **Decided (Odell, 10-16): wire it up for admins only.** Print it only when saved by a user with `unfiltered_html`, re-enable `lpmanager_landing_page_footer`, and add an allowlist filter. Needs `security-reviewer`.
   - **Problem:** Conversion and pixel tags pasted there are saved but never printed. The `lpmanager_landing_page_footer` action never fires, and `remove_all_actions('wp_footer')` strips other plugins' tags.
   - **Recommendation:** wire it up for users with `unfiltered_html` only, re-add the footer action, and add an allowlist filter for tracking hooks. The alternative is to remove the setting.
   - **Review:** `security-reviewer`.
   - _(prod, ux, sec · DR 10-14)_
-- [ ] **P0 — Google reviews: storage and 4–5★ filtering (Attorney review).**
+- [x] **P0 — Google reviews: storage and 4–5★ filtering (Attorney review).** **Interim decided (Odell, 10-16):** replace the 12-hour content cache with a timestamp-only lock. Permanent storage and the 4–5★ filter still wait for the attorney.
   - **Problem:** Reviews are stored permanently in post meta, which the Places terms forbid. They lack Google's required attributions, and are filtered to 4–5★ with no disclosure, which risks the FTC review-suppression rule.
   - **Recommendation:** render reviews live with full attribution and a "selected reviews" notice, or switch to a review-widget embed. An attorney needs to say whether disclosure is enough or the filter must go.
   - **Also put to the attorney (10-14b):** `Reviews_Ajax` now caches the Places Details response for 12 hours to control cost. Legal says Google's terms forbid caching Places content beyond place IDs, so a 12-hour cache is itself a breach. Legal's alternative keeps the cost control without caching content: a short timestamp-only lock that refuses repeat fetches.
   - _(legal, fin · DR 10-14)_ _(legal, sec, prod · DR 10-14b)_
-- [ ] **P0 — One global template, or a template per client?**
+- [x] **P0 — One global template, or a template per client?** **Decided (Odell, 10-16): per-client is a Pro feature.** Core stays global-only and exposes an `lpmanager_template_for_post` filter; Pro adds the per-client UI. Update INTENT.md goal 2 to match.
   - **Problem:** The WIP finishes the move to global-only, but `INTENT.md` goal 2 still says "set on the client term". An agency can't mix QuickTow and WhiteRail clients on one install.
   - **Recommendation:**
     - **If global-only:** log the decision, update `INTENT.md:15`, and add a warning on the Templates tab.
     - **If per-client:** decide whether it's core or a Pro upsell. If Pro, core only exposes an `lpmanager_template_for_post` filter.
   - _(prod, fin, legal · DR 10-14)_
-- [ ] **P1 — Analytics: core or Pro only?**
+- [x] **P1 — Analytics: core or Pro only?** **Decided (Odell, 10-16): Pro-only.** Correct README, INTENT and business-context, and move `tracking.js` and the tracking-toggle definitions into the Pro repo.
   - **Problem:** INTENT, the README and business-context say core counts views and conversions. In the code, core counts nothing without Pro. Pro's tracking JS and settings schema also live in this public repo.
   - **Recommendation:** pick one of these:
     - (a) Add a minimal core view and tel-click counter, which makes a natural upgrade prompt.
     - (b) Declare analytics Pro-only and move `tracking.js` and the toggle definitions into Pro.
   - Either way, the docs get corrected now (see P1).
   - _(mkt, prod, fin, legal · DR 10-14)_
-- [ ] **P1 — Pro offer: URL, price, licensing unit, update channel.**
+- [x] **P1 — Pro offer: URL, price, licensing unit, update channel.** **Interim decided (Odell, 10-16):** buttons say "Pro analytics is coming soon — contact Duppins Technology for early access" and link to duppinstech.com. Price, licensing unit and EULA are still open.
   - **Problem:** Every "Get Pro Now" button links to `#`, and the README links to a private repo. No price or licensing unit is defined.
   - **Recommendation:** set a duppinstech.com Pro or contact page and the licensing model. Until then, hide the button or use "Pro analytics is coming soon — contact Duppins Technology for early access."
   - The Pro EULA should restrict only support, updates and keys, not GPL redistribution (Attorney review).
   - _(mkt, prod, sup, fin, legal · DR 10-14)_
-- [ ] **P1 — Client-named content in the public repo, and how client templates are packaged.**
+- [x] **P1 — Client-named content in the public repo, and how client templates are packaged.** **Decided (Odell, 10-16): templates are reusable Duppins products.** Anonymize client names in labels, CSS and mockups (or move the mockups to a private repo), bill clients only for customization, and ship a neutral default.
   - **Problem:** The QuickTow `.html` mockups carry client names, phone numbers and "© James Towing / Charmeck" lines. A fresh install defaults to a client-branded template.
   - **Decide:** for each template, is it reusable product (anonymize it and bill only the customization) or client-exclusive (move it to a private package and quote it separately)? Also decide whether to ship a neutral "Starter" default template, and whether to anonymize the mockups or move them to a private repo.
   - _(legal, mkt, fin · DR 10-14)_
-- [ ] **P1 — Tracking privacy defaults.**
+- [x] **P1 — Tracking privacy defaults.** **Decided (Odell, 10-16): keep all trackers on by default.** No change to defaults. (Legal had recommended behavioral trackers off plus a consent filter.)
   - **Problem:** With Pro active, every behavioral tracker (heatmap, rage clicks, form interactions) defaults to on, and there's no consent hook.
   - **Recommendation:** default the behavioral trackers to off, keeping views and clicks on. Add an `lpmanager_tracking_consent` filter.
   - _(legal · DR 10-14)_
-- [ ] **P1 — Image and code provenance in WhiteRail Recruits.**
+- [x] **P1 — Image and code provenance in WhiteRail Recruits.** **Decided (Odell, 10-16): image rights are cleared; keep the default images.** Still to do: build the copyright line from the site or client name instead of the hardcoded "© Whiterail Recruits".
   - **Problem:** The default hero images are hotlinked from the client's site and include a Jiffy Lube–named photo, so their rights are unknown. The footer hardcodes "© Whiterail Recruits" on every client's pages. The `pantusa` text domain suggests the code came from another project.
   - **Recommendation:** confirm the rights, use operator-uploaded media only, set the copyright line from the site name, and decide whether "Apply Now" becomes an HTML button.
   - _(legal, ux · DR 10-14)_
-- [ ] **P1 — QuickTow design choices.**
+- [x] **P1 — QuickTow design choices.** **Decided (Odell, 10-16):** swap in a phone icon for the mobile call button, and make QuickTow honor the client's colours.
   - **Mobile button:** the default header's three-bar "menu" icon actually dials the phone. Recommendation: swap in a phone icon.
   - **Client colors:** QuickTow ignores client and Brandfetch colors and uses a fixed red and navy palette. Decide whether it should honor client colors or keep the palette (and document that).
   - _(ux · DR 10-14)_
-- [ ] **P1 — Who pays for API usage on installs Duppins runs?**
+- [x] **P1 — Who pays for API usage on installs Duppins runs?** **Decided (Odell, 10-16): clients supply their own Google and Brandfetch keys and billing.**
   - **Decide:** for each Duppins-operated install, does it use the client's key or Duppins' key? Should Google, Brandfetch and hosting costs be passed through, bundled into a retainer, or covered by requiring the client's own key?
   - **Fill in:** Brandfetch plan, traffic numbers and support hours in `business-context.md` / `CLAUDE.local.md`.
   - _(fin · DR 10-14)_
-- [ ] **P0 — Before the next release: which live sites need hand-holding?**
+- [x] **P0 — Before the next release: which live sites need hand-holding?** **Answered (Odell, 10-16): none.** No live site uses "WordPress.org only" updates or an uploaded template.
   - **Sites set to "WordPress.org only" in 1.0.6:** they will never be offered this release. Update them by uploading the zip by hand.
   - **Sites whose active template was uploaded:** they 404 the moment they update. Pause their auto-updates, or re-upload the template right after updating.
   - **Needed from Odell:** check each site you run. _(DR 10-14b)_ _(ops, sup, prod)_
-- [ ] **P1 — Move to Places API (New)?**
+- [x] **P1 — Move to Places API (New)?** **Decided (Odell, 10-16): yes, migrate.** Do it after the reviews/attorney question is settled.
   - **Problem:** The code calls the legacy Places endpoints (Find Place, Text Search, Details). Google hasn't let new Cloud projects enable those since March 2025, so new operators can't get address lookups or reviews working.
   - **Interim:** the help text now asks for the original "Places API".
   - **Migrating:** needs a field mask. Reviews would cost about $25 per 1,000 with 1,000 free a month. _(DR 10-14b)_ _(fin, sup, prod)_
-- [ ] **P1 — Delete the unused vendored files?**
+- [x] **P1 — Delete the unused vendored files?** **Decided (Odell, 10-16): yes, delete them.** `swiper.js` waits one release after 10-16.
   - **Whiterail AI and Recruits:** `payform.min.js`, `jquery-migrate*.js`, `bootstrap-new.js`, the jQuery UI CSS and `sqpaymentform.css`.
   - **Recruits only:** `popper.min.js`, `bootstrap.js` and the Swiper files.
   - **Also:** the dead `whiterail-recruits/functions.php`.
   - **Added 10-16:** `whiterail-ai/js/plugins/swiper.js`, now unused because `swiper.min.js` replaced it. Delete it no sooner than one release after 10-16, because cached pages may still request it. _(legal, ops · DR 10-16)_
   - **Why:** none of these load any more, but they still ship in the zip and need license credits.
   - **Needed from Odell:** approval to delete files. _(DR 10-14b)_ _(prod, ux, legal)_
-- [ ] **P1 — Allow iframes in rich-text template fields?**
+- [x] **P1 — Allow iframes in rich-text template fields?** **Decided (Odell, 10-16): allow iframes from a filterable host allowlist** (YouTube, Vimeo, Google Maps, plus named review-widget hosts). Needs `security-reviewer`.
   - **Problem:** Escaping now runs Whiterail AI `section_4_text_1`, Recruits `more_content` and Whiterail AI `reviews_html` through `wp_kses_post`, which strips iframes. Video, map or review-widget embeds pasted there no longer show.
   - **Decide:** allow iframes from an allowlist of hosts (product and security call), or keep stripping them. _(DR 10-14b)_ _(ops, sec)_
-- [ ] **P1 — Do any live QuickTow clients use Google Tag Manager or jQuery-based tracking tags?** _(DR 10-16: ops, fin, ux, sup)_
+- [x] **P1 — Do any live QuickTow clients use Google Tag Manager or jQuery-based tracking tags?** _(DR 10-16: ops, fin, ux, sup)_ **Answered (Odell, 10-16): yes, some do.** Add a per-client "Tracking tags need jQuery" checkbox next to Header Tracking Code; operators tick it for those clients.
   - **Why:** QuickTow no longer loads jQuery for logged-out visitors unless the client's Header Tracking Code looks like it needs it. A jQuery tag inside a GTM container can't be detected, and would stop firing without any visible error.
   - **Recommendation:** check before the next release. For an affected site, add the `lpmanager_load_jquery` filter in a mu-plugin, or put a comment mentioning jQuery in that client's Header Tracking Code.
-- [ ] **P2 — Should the empty-server-key warning be dismissible?** It shows on every plugin screen until a server key is saved. **Recommendation:** keep it, but allow each user to dismiss it for 30 days. _(DR 10-16: prod, sup, ops)_
+- [x] **P2 — Should the empty-server-key warning be dismissible?** It shows on every plugin screen until a server key is saved. **Recommendation:** keep it, but allow each user to dismiss it for 30 days. _(DR 10-16: prod, sup, ops)_ **Decided (Odell, 10-16): yes, per user for 30 days.**
 - [ ] **P2 — Recruits mobile menu colours.** The panel is white with dark text. Should it follow the client's brand colours? This is a design call; contrast is fine as it is. _(DR 10-16: ux)_
-- [ ] **P2 — Document a "needs jQuery" marker for the client's Header Tracking Code?** Any mention of "jQuery" in that field already makes QuickTow load it. **Recommendation:** don't promise it as a feature. Document the `lpmanager_load_jquery` filter instead. _(DR 10-16: sup)_
-- [ ] **P2 — Should internal planning docs stay in the public repo?**
+- [x] **P2 — Document a "needs jQuery" marker for the client's Header Tracking Code?** Any mention of "jQuery" in that field already makes QuickTow load it. **Recommendation:** don't promise it as a feature. Document the `lpmanager_load_jquery` filter instead. _(DR 10-16: sup)_ **Superseded (10-16)** by the per-client jQuery checkbox.
+- [x] **P2 — Should internal planning docs stay in the public repo?** **Decided (Odell, 10-16): keep them public.**
   - `PLAN.md`, `meeting-notes/` and `.claude/memory/` are excluded from the zip but readable on GitHub, including the legal-risk analysis.
   - **Decide:** move them to a private repo or keep them public. _(DR 10-14b)_ _(legal)_
-- [ ] **P2 — Smaller calls.**
+- [x] **P2 — Smaller calls.** **Decided (Odell, 10-16): yes to all four** — (a) incomplete pages stay drafts, (b) landing pages get their own capability type, (c) uninstall deletes the orphaned `_lpmanager_client_template` meta, (d) correct the v1.0.6 release notes.
   - (a) Should the validator keep incomplete pages as drafts instead of publishing them? _(prod)_
   - (b) Should landing pages get their own capability type instead of `post`? _(sec)_
   - (c) Should uninstall always delete the orphaned `_lpmanager_client_template` meta? _(ops)_

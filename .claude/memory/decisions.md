@@ -48,3 +48,25 @@ Append-only log. Format: `## YYYY-MM-DD — Title`, then Context / Decision / Co
 **Decision:** Templates with a manifest declare `jquery` as a script dependency when they need it. Core loads jQuery itself only for templates without a manifest (uploaded templates), when the client's Header Tracking Code looks like it uses jQuery or GTM, or when the `lpmanager_load_jquery` filter returns true.
 **Consequences:** QuickTow pages ship without jQuery for logged-out visitors. A jQuery tag inside GTM that detection can't see needs the filter. Logged-in users always get jQuery through heartbeat and wp-auth-check, so test this logged out.
 
+
+## 2026-10-16 — Owner Q&A on outstanding decisions (Odell)
+Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with each answer.
+- **Phone:** the per-page "Client Phone" overrides the client's "Contact Phone" everywhere. One resolved number is used for display and `tel:`.
+- **Additional Scripts:** print them only when saved by a user with `unfiltered_html`, re-enable `lpmanager_landing_page_footer`, and add an allowlist filter.
+- **Templates:** core stays global-only. Per-client template choice is a Pro feature, through an `lpmanager_template_for_post` filter.
+- **Reviews (interim):** a timestamp-only lock replaces the 12-hour content cache. Storage and the 4–5★ filter wait for the attorney.
+- **Analytics:** Pro-only. Fix the docs and move `tracking.js` and the toggles to Pro.
+- **Pro button (interim):** "coming soon — contact Duppins Technology for early access", linking to duppinstech.com. Price and licensing are still open.
+- **Client templates:** reusable Duppins products. Anonymize client names, bill only for customization, and ship a neutral default.
+- **Tracking defaults:** all trackers stay on by default. Legal's recommendation (behavioral trackers off, plus a consent hook) was declined.
+- **Recruits images:** rights confirmed, so they stay. The copyright line will come from the site or client name.
+- **QuickTow:** a phone icon on the mobile call button, and honor client colours.
+- **API costs:** clients supply their own Google and Brandfetch keys.
+- **Live sites:** none use WordPress.org-only updates or uploaded templates. Some QuickTow clients use GTM or jQuery tags, so a per-client "Tracking tags need jQuery" checkbox will be added.
+- **Places API (New):** migrate, after the attorney question.
+- **Vendored files:** delete the unused ones. `swiper.js` goes one release later.
+- **Iframes:** allow them in rich-text fields from a filterable host allowlist.
+- **Server-key warning:** dismissible per user for 30 days.
+- **Internal docs:** stay public.
+- **Smaller calls:** all yes. Incomplete pages stay drafts, landing pages get their own capability type, uninstall removes the orphaned template meta, and the v1.0.6 release notes get corrected.
+- **Still open:** Recruits mobile menu colours, the Pro price and licensing, and the attorney questions.
