@@ -275,7 +275,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Animate.css: the bundled 2015 MIT build. Do not upgrade to 4.x, which is under the Hippocratic License 2.1 and isn't GPL-compatible. _(DR 10-14b)_
   - Before anyone adds the American Captain font files that Template C' `fonts.css` references, confirm the font's web-embedding license. _(DR 10-14b)_
   - _(legal · DR 10-14)_
-- [ ] **Remove client names from Template A admin labels, rendered HTML and CSS.**
+- [x] **Remove client names from Template A admin labels, rendered HTML and CSS.** **Done 10-16** on `fix/owner-decisions-p0`: tokens renamed one-for-one (`layout1`, `layout2`, `layout-3`/`layout_3`) and files renamed. The only remaining client names are legacy stored-value aliases in `single-landing_page.php`, plus the `.html` mockups, which are not in the zip. Moving the mockups to a private repo is still to do (needs a destination).
   - **Labels:** "Standard (service area or services + contact column)", and "Use Heavy-duty for heavy-duty / equipment-transport footers". Add help text for the variant field.
   - **Rename** the `layout1`, `client_d` and `layout_3` slugs, classes and CSS files to neutral names, mapping the stored values.
   - _(mkt, sup, legal, prod · DR 10-14)_
