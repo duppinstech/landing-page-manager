@@ -7,7 +7,7 @@
                 <div id="copyright">
                     <div class="container">
                         <div class="container_inner">
-                            <div class="copyright">&copy; <?php _e('Copyright','pantusa'); ?> <?php _e(' - Whiterail Recruits - All Rights Reserved','pantusa'); ?></div>
+                            <div class="copyright">&copy; <?php echo esc_html( date_i18n( 'Y' ) . ' ' . ( ! empty( $client_name ) && 'Unknown Client' !== $client_name ? $client_name : get_bloginfo( 'name' ) ) ); ?>. <?php esc_html_e( 'All rights reserved.', 'landing-page-manager' ); ?></div>
 
                             <div class="developed">
                                 

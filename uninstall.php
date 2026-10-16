@@ -54,7 +54,16 @@ function lpmanager_uninstall_site() {
         }
     }
 
-    // Transients (validation notices, cached Google reviews).
+    // Orphaned client meta from the removed per-client "Landing Page Template" field (Odell, 10-16).
+    // Carbon Fields stores it as `_lpmanager_client_template` (plus `|`-suffixed rows).
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE %s",
+            $wpdb->esc_like( '_lpmanager_client_template' ) . '%'
+        )
+    );
+
+    // Transients (validation notices, Google reviews locks).
     $wpdb->query(
         $wpdb->prepare(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
