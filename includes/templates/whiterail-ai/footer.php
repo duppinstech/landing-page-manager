@@ -12,7 +12,7 @@
         $client_place_id = '';
         $client_google_search_url = '';
         $gmb_url = '';
-        $client_tel = carbon_get_the_post_meta( 'client_tel' );
+        $client_tel = lpmanager_get_landing_phone( get_the_ID() ); // page number wins, then the client's default
         $client_primary_color = '#007BFF';
         $client_secondary_color = '#FF4136';
         $client_logo_id = 0;
@@ -32,8 +32,8 @@
             $client_place_id = carbon_get_term_meta( $client_term_id, 'client_place_id' ) ?: '';
             $client_google_search_url = carbon_get_term_meta( $client_term_id, 'client_google_search_url' ) ?: '';
             $gmb_url = $client_place_id ? Google_Maps_Helper::get_gmb_url( $client_place_id ) : $client_google_search_url;
-            $client_primary_color = carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ?: '#007BFF';
-            $client_secondary_color = carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ?: '#FF4136';
+            $client_primary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ) ?: '#007BFF';
+            $client_secondary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ) ?: '#FF4136';
             $client_logo_id = carbon_get_term_meta( $client_term_id, 'client_logo' );
             $client_logo_url = $client_logo_id ? wp_get_attachment_image_url( $client_logo_id, 'full' ) : '';
             $social_links = carbon_get_term_meta( $client_term_id, 'social_links' ) ?: [];
@@ -41,7 +41,6 @@
             if ( $client_domain && strpos( $client_domain, '://' ) === false ) {
                 $client_domain = 'https://' . $client_domain;
             }
-            $client_phone = carbon_get_term_meta( $client_term_id, 'client_phone' ) ?: $client_tel;
             $footer_text_color = Assets_Manager::get_contrast_text_color( $client_primary_color );
             $copyright_text_color = Assets_Manager::get_contrast_text_color( $client_secondary_color );
         }
@@ -64,8 +63,11 @@
             $api_key = carbon_get_theme_option('lpmanager_google_maps_api_key');
 
             if ($lat && $lng && $api_key) :
+                $maps_src = 'https://maps.googleapis.com/maps/api/js?key=' . rawurlencode( $api_key ) . '&libraries=marker&loading=async&callback=initFooterMap';
+                /* translators: %s: business name */
+                $map_label = $client_name ? sprintf( __( 'Map showing the location of %s', 'landing-page-manager' ), $client_name ) : __( 'Location map', 'landing-page-manager' );
             ?>
-                <div id="footer-map" style="width: 100%; height: 400px;"></div>
+                <div id="footer-map" role="region" aria-label="<?php echo esc_attr( $map_label ); ?>" style="width: 100%; height: 400px; background-color: #f2e5d4;"></div>
                 <script>
                     function initFooterMap() {
                         var mapOptions = {
@@ -96,11 +98,12 @@
                             });
                         }
 
+                        // Values are interpolated as JSON string literals: esc_html alone does not stop ` or ${ breaking out of a template literal.
                         var infoWindowContent = `
                             <div style="max-width:200px;">
-                                <h3 style="margin-top:0;"><?php echo esc_html($client_name); ?></h3>
-                                <p><?php echo esc_html($client_address); ?></p>
-                                <p><a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $client_phone ) ); ?>"><?php echo esc_html( $client_phone ); ?></a></p>
+                                <h3 style="margin-top:0;">${<?php echo wp_json_encode( esc_html( $client_name ) ); ?>}</h3>
+                                <p>${<?php echo wp_json_encode( esc_html( $client_address ) ); ?>}</p>
+                                <p><a href="tel:${<?php echo wp_json_encode( esc_attr( preg_replace( '/[^0-9+]/', '', $client_phone ) ) ); ?>}">${<?php echo wp_json_encode( esc_html( $client_phone ) ); ?>}</a></p>
                             </div>
                         `;
 
@@ -119,19 +122,50 @@
                             });
                         }
 
-                        // Optionally auto-open on load
-                        infoWindow.open(map, marker);
+                        // Auto-open without moving keyboard focus: the map now loads while the visitor
+                        // is scrolling or tabbing nearby, and a focus jump would be disorienting.
+                        infoWindow.open({ anchor: marker, map: map, shouldFocus: false });
                     }
+
+                    // Maps JS is billed per load, and the map sits at the bottom of the page: only load it
+                    // when the visitor scrolls near it. The container's fixed height prevents layout shift.
+                    (function () {
+                        var el = document.getElementById("footer-map");
+                        var src = <?php echo wp_json_encode( $maps_src ); ?>;
+                        var loaded = false;
+                        function loadMaps() {
+                            if (loaded) return;
+                            loaded = true;
+                            var s = document.createElement("script");
+                            s.src = src;
+                            s.async = true;
+                            document.head.appendChild(s);
+                        }
+                        if (el && "IntersectionObserver" in window) {
+                            var io = new IntersectionObserver(function (entries) {
+                                for (var i = 0; i < entries.length; i++) {
+                                    if (entries[i].isIntersecting) {
+                                        io.disconnect();
+                                        loadMaps();
+                                        break;
+                                    }
+                                }
+                            }, { rootMargin: "300px 0px" });
+                            io.observe(el);
+                        } else {
+                            loadMaps();
+                        }
+                    })();
                 </script>
-                <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr($api_key); ?>&libraries=marker&loading=async&callback=initFooterMap" async defer></script>
             <?php
-            else :
+            elseif ( current_user_can( 'edit_posts' ) ) :
+                // Setup hints are for editors only; visitors just don't see a map.
             ?>
-                <p style="text-align:center; color:#fff;">Map unavailable — missing latitude, longitude, or API key.</p>
+                <p style="text-align:center; color:#fff;"><?php esc_html_e( 'Map unavailable. Add the client\'s Contact Address and save the client, which looks up its latitude and longitude, and set a Google Maps browser key under Landing Pages → Settings → API Keys. Only logged-in editors see this message.', 'landing-page-manager' ); ?></p>
             <?php
             endif;
-        } else {
-            echo '<p style="text-align:center; color:#fff;">No client assigned to this landing page.</p>';
+        } elseif ( current_user_can( 'edit_posts' ) ) {
+            echo '<p style="text-align:center; color:#fff;">' . esc_html__( 'No client is assigned to this landing page. Choose one in the Client Name field under Landing Page Details on the edit screen. Only logged-in editors see this message.', 'landing-page-manager' ) . '</p>';
         }
         ?>
 
@@ -181,7 +215,7 @@
         <div class="footer-bottom" style="background-color:<?php echo esc_attr($client_secondary_color); ?>;">
             <div class="footer-container">
                 <div class="copyright" style="color:<?php echo esc_attr($copyright_text_color); ?>;">
-                    &copy; <?php echo date('Y'); ?> <?php echo esc_html(get_bloginfo('name')); ?>. All rights reserved.
+                    &copy; <?php echo esc_html( date('Y') ); ?> <?php echo esc_html(get_bloginfo('name')); ?>. All rights reserved.
                 </div>
 
                 <?php if ( ! empty( $social_links ) && is_array( $social_links ) ) : ?>

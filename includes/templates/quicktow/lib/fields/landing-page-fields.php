@@ -12,6 +12,22 @@ use LPManager\core\Required_Fields_Registry;
 Container::make( 'post_meta', __( 'QuickTow', 'landing-page-manager' ) )
 	->show_on_post_type( 'landing_page' )
 	->add_tab(
+		__( 'Layout', 'landing-page-manager' ),
+		array(
+			// Key kept as wra_style_variant so existing pages keep their saved style.
+			Field::make( 'select', 'wra_style_variant', __( 'Style variant', 'landing-page-manager' ) )
+				->set_options(
+					array(
+						'style_1' => __( 'Style 1 — Full-width hero with side image, standard header/footer', 'landing-page-manager' ),
+						'style_2' => __( 'Style 2 — Text header, stacked hero, alternate section layout', 'landing-page-manager' ),
+						'style_3' => __( 'Style 3 — Heavy-duty: split hero, checkmark trust bar; footer emphasizes services & service area', 'landing-page-manager' ),
+					)
+				)
+				->set_default_value( 'style_1' )
+				->set_required( true ),
+		)
+	)
+	->add_tab(
 		__( 'Header & branding', 'landing-page-manager' ),
 		array(
 			Field::make( 'html', 'wra_hdr_info', '' )->set_html(
@@ -233,12 +249,12 @@ Container::make( 'post_meta', __( 'QuickTow', 'landing-page-manager' ) )
 			Field::make( 'select', 'wra_ft_layout', __( 'Footer layout', 'landing-page-manager' ) )
 				->set_options(
 					array(
-						'standard' => __( 'Standard (CharMeck: service area or services + contact column)', 'landing-page-manager' ),
+						'standard' => __( 'Standard (Style 2: service area or services + contact column)', 'landing-page-manager' ),
 						'heavy'    => __( 'Heavy-duty (brand + services + service area links + “Also serving” line)', 'landing-page-manager' ),
 					)
 				)
 				->set_default_value( 'standard' )
-				->set_help_text( __( 'Use Heavy-duty for James heavy / equipment style footers. Style 1 pages can keep Standard.', 'landing-page-manager' ) ),
+				->set_help_text( __( 'Use Heavy-duty for heavy-duty / equipment style footers. Style 1 pages can keep Standard.', 'landing-page-manager' ) ),
 			Field::make( 'complex', 'wra_ft_area_links', __( 'Footer — service area links (Heavy-duty layout)', 'landing-page-manager' ) )
 				->add_fields(
 					array(
@@ -283,7 +299,7 @@ Container::make( 'post_meta', __( 'QuickTow', 'landing-page-manager' ) )
 		__( 'Advanced', 'landing-page-manager' ),
 		array(
 			Field::make( 'textarea', 'wra_schema_json_ld', __( 'JSON-LD (optional)', 'landing-page-manager' ) )
-				->set_help_text( __( 'Paste a full JSON-LD script body (without script tags). Outputs in the head.', 'landing-page-manager' ) )
+				->set_help_text( __( 'Paste the JSON-LD only, without <script> tags. It must be valid JSON; if it isn\'t, nothing is output. Check it with Google\'s Rich Results Test before saving.', 'landing-page-manager' ) )
 				->set_rows( 12 ),
 			Field::make( 'text', 'wra_mobile_call_text', __( 'Mobile bar prefix', 'landing-page-manager' ) )
 				->set_default_value( 'TAP TO CALL:' ),

@@ -10,7 +10,8 @@ use LPManager\core\Google_Maps_Helper;
 <?php include \LPManager\templates\Template_Manager::get_template_path('header.php'); ?>
 
 <?php
-$client_tel = carbon_get_the_post_meta('client_tel');
+// The page's own number wins, then the client's default (one number for display and tel: links).
+$client_tel = lpmanager_get_landing_phone( get_the_ID() );
 // Ensure client/keyword/phone available for body (header may have set them from term)
 if ( empty( $client_term_id ) ) {
     $client_terms = get_the_terms( get_the_ID(), 'client' );
@@ -19,10 +20,7 @@ if ( empty( $client_term_id ) ) {
 $client_name_for_alt = $client_term_id ? get_term_field( 'name', $client_term_id, 'client' ) : '';
 $keyword_terms = get_the_terms( get_the_ID(), 'keyword' );
 $keyword_name_for_alt = ( $keyword_terms && ! is_wp_error( $keyword_terms ) && ! empty( $keyword_terms ) ) ? $keyword_terms[0]->name : '';
-$client_phone = $client_term_id ? carbon_get_term_meta( $client_term_id, 'client_phone' ) : '';
-if ( empty( $client_phone ) ) {
-    $client_phone = $client_tel;
-}
+$client_phone = $client_tel;
 $client_place_id = $client_term_id ? carbon_get_term_meta( $client_term_id, 'client_place_id' ) : '';
 $client_google_search_url = $client_term_id ? carbon_get_term_meta($client_term_id, 'client_google_search_url') : '';
 if ($client_place_id) {
@@ -33,8 +31,9 @@ if ($client_place_id) {
     $gmb_reviews_url = $client_google_search_url;
 }
 
-$client_primary_color = $client_term_id ? carbon_get_term_meta($client_term_id, 'client_primary_color') : '#007BFF'; // fallback color: web-safe blue
-$client_secondary_color = $client_term_id ? carbon_get_term_meta($client_term_id, 'client_secondary_color') : '#FF4136'; // fallback color: web-safe red
+// Colours land in style attributes, so only accept a real hex value; anything else uses the fallback.
+$client_primary_color = sanitize_hex_color( $client_term_id ? (string) carbon_get_term_meta($client_term_id, 'client_primary_color') : '' ) ?: '#007BFF'; // fallback color: web-safe blue
+$client_secondary_color = sanitize_hex_color( $client_term_id ? (string) carbon_get_term_meta($client_term_id, 'client_secondary_color') : '' ) ?: '#FF4136'; // fallback color: web-safe red
 $contrast_text_color = Assets_Manager::get_contrast_text_color($client_primary_color);
 $contrast_text_color_alt = Assets_Manager::get_contrast_text_color($client_secondary_color);
 
@@ -128,20 +127,23 @@ if ($section_8_img_id) {
     </div>
   </div>
 </section>
-<!-- Section 3: Reviews -->
+<!-- Section 3: Reviews (only when the page has reviews; lib/assets.php skips Swiper otherwise) -->
+<?php $reviews_html_safe = lpmanager_kses_rich_text( (string) $reviews_html ); ?>
+<?php if ( '' !== trim( $reviews_html_safe ) ) : ?>
 <section id="reviews" class="reviews-section" style="background-color: #F3F3F3;">
   <div class="reviews-wrapper">
     <h2><?php echo esc_html( $reviews_h2 ); ?></h2>
     <div class="reviews-html">
-      <?php echo wp_kses_post( $reviews_html ); ?>
+      <?php echo $reviews_html_safe; // phpcs:ignore WordPress.Security.EscapeOutput -- filtered by lpmanager_kses_rich_text() above. ?>
     </div>
   </div>
 </section>
+<?php endif; ?>
 <!-- Section 4 -->
 <section id="services" class="icon-boxes-section">
   <div class="container">
     <h2><?php echo esc_html( $section_4_h2 ); ?></h2>
-    <p class="section-intro"><?php echo $section_4_text_1; ?></p>
+    <p class="section-intro"><?php echo lpmanager_kses_rich_text( $section_4_text_1 ); // phpcs:ignore WordPress.Security.EscapeOutput -- kses with an iframe host allowlist. ?></p>
 
     <?php 
     $icon_boxes = carbon_get_the_post_meta('icon_boxes');

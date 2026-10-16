@@ -1,14 +1,14 @@
 /**
- * Style 2 (CharMeck) — scoped under body.quicktow--charmeck or an inner .quicktow--charmeck wrapper (Style 3 sections).
- * Color tokens for Style 2 / 3 are set in header.php (qt-charmeck-palette).
+ * Style 2 (Style 2) — scoped under body.quicktow--layout2 or an inner .quicktow--layout2 wrapper (Style 3 sections).
+ * Color tokens for Style 2 / 3 are set in header.php (qt-layout2-palette).
  */
-.quicktow--charmeck {
+.quicktow--layout2 {
 	--cm-font-head: "Bebas Neue", cursive;
 	--cm-font-body: "Open Sans", sans-serif;
 }
 
 /* ----- Header (site-header) ----- */
-.quicktow--charmeck .site-header {
+.quicktow--layout2 .site-header {
 	position: sticky;
 	top: 0;
 	z-index: 1000;
@@ -22,7 +22,7 @@
 	align-items: center;
 	justify-content: space-between;
 }
-.quicktow--charmeck .header-logo {
+.quicktow--layout2 .header-logo {
 	font-family: var(--cm-font-head);
 	font-size: 1.5rem;
 	color: var(--white);
@@ -30,10 +30,10 @@
 	text-decoration: none;
 	line-height: 1;
 }
-.quicktow--charmeck .header-logo span {
+.quicktow--layout2 .header-logo span {
 	color: var(--red);
 }
-.quicktow--charmeck .header-phone {
+.quicktow--layout2 .header-phone {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -43,10 +43,10 @@
 	font-weight: 700;
 	font-size: 1.1rem;
 }
-.quicktow--charmeck .header-phone svg {
+.quicktow--layout2 .header-phone svg {
 	flex-shrink: 0;
 }
-.quicktow--charmeck .hamburger {
+.quicktow--layout2 .hamburger {
 	display: none;
 	align-items: center;
 	justify-content: center;
@@ -56,16 +56,16 @@
 	background: var(--red);
 }
 @media (max-width: 768px) {
-	.quicktow--charmeck .header-phone {
+	.quicktow--layout2 .header-phone {
 		display: none;
 	}
-	.quicktow--charmeck .hamburger {
+	.quicktow--layout2 .hamburger {
 		display: flex;
 	}
 }
 
 /* ----- Hero ----- */
-.quicktow--charmeck .hero {
+.quicktow--layout2 .hero {
 	position: relative;
 	min-height: 100vh;
 	background: linear-gradient(150deg, var(--navy-deep) 0%, var(--navy) 55%, #0d3170 100%);
@@ -77,7 +77,7 @@
 	overflow: hidden;
 }
 /* Dot grid — very faint */
-.quicktow--charmeck .hero::before {
+.quicktow--layout2 .hero::before {
 	content: "";
 	position: absolute;
 	inset: 0;
@@ -86,8 +86,8 @@
 		repeat;
 	pointer-events: none;
 }
-/* CharMeck reference: gradient base + dot grid only (no diagonal band) */
-.quicktow--charmeck .hero .hero-img-slot {
+/* Style 2 reference: gradient base + dot grid only (no diagonal band) */
+.quicktow--layout2 .hero .hero-img-slot {
 	position: absolute;
 	right: 0;
 	top: 0;
@@ -96,7 +96,7 @@
 	z-index: 1;
 	overflow: hidden;
 }
-.quicktow--charmeck .hero .hero-bg-image {
+.quicktow--layout2 .hero .hero-bg-image {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
@@ -104,7 +104,7 @@
 	display: block;
 }
 /* Fade image into hero background on the left — no hard edge */
-.quicktow--charmeck .hero .hero-img-fade {
+.quicktow--layout2 .hero .hero-img-fade {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -119,7 +119,7 @@
 	);
 	pointer-events: none;
 }
-.quicktow--charmeck .hero-inner {
+.quicktow--layout2 .hero-inner {
 	position: relative;
 	z-index: 4;
 	max-width: min(760px, 48vw);
@@ -130,11 +130,11 @@
 }
 /* Mobile: hero image full-bleed behind copy (same asset as desktop right column); fade = readable overlay */
 @media (max-width: 900px) {
-	.quicktow--charmeck .hero {
+	.quicktow--layout2 .hero {
 		justify-content: flex-start;
 		padding: 40px 20px 0;
 	}
-	.quicktow--charmeck .hero .hero-img-slot {
+	.quicktow--layout2 .hero .hero-img-slot {
 		display: block;
 		left: 0;
 		right: 0;
@@ -142,7 +142,7 @@
 		height: 100%;
 		top: 0;
 	}
-	.quicktow--charmeck .hero .hero-img-fade {
+	.quicktow--layout2 .hero .hero-img-fade {
 		left: 0;
 		right: 0;
 		width: 100%;
@@ -153,13 +153,13 @@
 			rgba(10, 12, 30, 0.9) 100%
 		);
 	}
-	.quicktow--charmeck .hero-inner {
+	.quicktow--layout2 .hero-inner {
 		max-width: 760px;
 		flex: 1 1 auto;
 		padding-bottom: 24px;
 	}
 }
-.quicktow--charmeck .hero .hero-eyebrow {
+.quicktow--layout2 .hero .hero-eyebrow {
 	display: inline-block;
 	font-family: var(--cm-font-body);
 	font-size: 0.8rem;
@@ -173,10 +173,10 @@
 	border-radius: 2px;
 	margin-bottom: 20px;
 }
-.quicktow--charmeck .hero .hero-eyebrow::before {
+.quicktow--layout2 .hero .hero-eyebrow::before {
 	display: none;
 }
-.quicktow--charmeck .hero h1 {
+.quicktow--layout2 .hero h1 {
 	font-family: var(--cm-font-head);
 	font-size: clamp(3rem, 7vw, 5.5rem);
 	color: var(--white);
@@ -184,10 +184,10 @@
 	letter-spacing: 0.02em;
 	margin-bottom: 16px;
 }
-.quicktow--charmeck .hero h1 span {
+.quicktow--layout2 .hero h1 span {
 	color: var(--red);
 }
-.quicktow--charmeck .hero .hero-sub {
+.quicktow--layout2 .hero .hero-sub {
 	font-size: clamp(1rem, 2vw, 1.2rem);
 	color: var(--text-light);
 	line-height: 1.6;
@@ -195,24 +195,24 @@
 	margin-bottom: 12px;
 	font-weight: 400;
 }
-.quicktow--charmeck .hero .hero-support {
+.quicktow--layout2 .hero .hero-support {
 	font-size: 0.9rem;
 	color: rgba(255, 255, 255, 0.5);
 	margin-bottom: 36px;
 }
-.quicktow--charmeck .hero .hero-ctas {
+.quicktow--layout2 .hero .hero-ctas {
 	display: flex;
 	gap: 16px;
 	flex-wrap: wrap;
 }
 
 /* Skewed CTAs */
-.quicktow--charmeck .btn-skew-wrap {
+.quicktow--layout2 .btn-skew-wrap {
 	display: inline-block;
 	transform: skew(-20deg);
 	overflow: hidden;
 }
-.quicktow--charmeck .btn-skew-wrap a {
+.quicktow--layout2 .btn-skew-wrap a {
 	display: block;
 	transform: skew(20deg);
 	padding: 14px 32px;
@@ -224,12 +224,12 @@
 	transition: background 0.2s, color 0.2s;
 }
 @media (max-width: 768px) {
-	.quicktow--charmeck .btn-primary,
-	.quicktow--charmeck .btn-secondary,
-	.quicktow--charmeck .btn-skew-wrap {
+	.quicktow--layout2 .btn-primary,
+	.quicktow--layout2 .btn-secondary,
+	.quicktow--layout2 .btn-skew-wrap {
 		max-width: 100%;
 	}
-	.quicktow--charmeck .btn-skew-wrap a {
+	.quicktow--layout2 .btn-skew-wrap a {
 		white-space: normal;
 		word-break: break-word;
 		text-align: center;
@@ -237,46 +237,46 @@
 		padding: 12px 16px;
 		font-size: 1.05rem;
 	}
-	.quicktow--charmeck .hero .hero-ctas {
+	.quicktow--layout2 .hero .hero-ctas {
 		flex-direction: column;
 		align-items: stretch;
 		width: 100%;
 		max-width: 100%;
 	}
-	.quicktow--charmeck .cm-inline-cta .btn-skew-wrap {
+	.quicktow--layout2 .cm-inline-cta .btn-skew-wrap {
 		width: 100%;
 		box-sizing: border-box;
 	}
 }
-.quicktow--charmeck .btn-primary .btn-skew-wrap {
+.quicktow--layout2 .btn-primary .btn-skew-wrap {
 	background: var(--red);
 }
-.quicktow--charmeck .btn-primary .btn-skew-wrap a {
+.quicktow--layout2 .btn-primary .btn-skew-wrap a {
 	color: var(--white);
 }
-.quicktow--charmeck .btn-primary:hover .btn-skew-wrap {
+.quicktow--layout2 .btn-primary:hover .btn-skew-wrap {
 	background: var(--red-dark);
 }
-.quicktow--charmeck .btn-secondary .btn-skew-wrap {
+.quicktow--layout2 .btn-secondary .btn-skew-wrap {
 	background: transparent;
 	border: 2px solid rgba(255, 255, 255, 0.45);
 }
-.quicktow--charmeck .btn-secondary .btn-skew-wrap a {
+.quicktow--layout2 .btn-secondary .btn-skew-wrap a {
 	color: var(--white);
 }
-.quicktow--charmeck .btn-secondary:hover .btn-skew-wrap {
+.quicktow--layout2 .btn-secondary:hover .btn-skew-wrap {
 	border-color: var(--white);
 }
-.quicktow--charmeck .btn-primary,
-.quicktow--charmeck .btn-secondary {
+.quicktow--layout2 .btn-primary,
+.quicktow--layout2 .btn-secondary {
 	display: inline-block;
 }
-.quicktow--charmeck .cm-inline-cta {
+.quicktow--layout2 .cm-inline-cta {
 	margin-top: 20px;
 }
 
 /* Price badge (reference names) */
-.quicktow--charmeck .price-badge {
+.quicktow--layout2 .price-badge {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -287,18 +287,18 @@
 	margin-bottom: 28px;
 	backdrop-filter: blur(4px);
 }
-.quicktow--charmeck .price-badge .badge-price {
+.quicktow--layout2 .price-badge .badge-price {
 	font-family: var(--cm-font-head);
 	font-size: 1.5rem;
 	color: #fff;
 	letter-spacing: 0.04em;
 	line-height: 1;
 }
-.quicktow--charmeck .price-badge .badge-price em {
+.quicktow--layout2 .price-badge .badge-price em {
 	color: #ffd166;
 	font-style: normal;
 }
-.quicktow--charmeck .price-badge .badge-text {
+.quicktow--layout2 .price-badge .badge-text {
 	font-size: 0.78rem;
 	font-weight: 700;
 	letter-spacing: 0.1em;
@@ -306,7 +306,7 @@
 	color: rgba(255, 255, 255, 0.75);
 	line-height: 1.3;
 }
-.quicktow--charmeck .price-badge .badge-dot {
+.quicktow--layout2 .price-badge .badge-dot {
 	width: 6px;
 	height: 6px;
 	border-radius: 50%;
@@ -315,7 +315,7 @@
 }
 
 /* Trust bar */
-.quicktow--charmeck .hero .trust-bar {
+.quicktow--layout2 .hero .trust-bar {
 	align-self: stretch;
 	width: 100%;
 	box-sizing: border-box;
@@ -329,7 +329,7 @@
 	border-top: 2px solid var(--red);
 	padding: 16px 0;
 }
-.quicktow--charmeck .hero .trust-inner {
+.quicktow--layout2 .hero .trust-inner {
 	display: flex;
 	align-items: flex-start;
 	justify-content: center;
@@ -344,18 +344,18 @@
 }
 /* Tablet + mobile: trust row uses full width (desktop keeps 80% inner above) */
 @media (max-width: 991px) {
-	.quicktow--charmeck .hero .trust-bar {
+	.quicktow--layout2 .hero .trust-bar {
 		width: 100%;
 		max-width: 100%;
 	}
-	.quicktow--charmeck .hero .trust-inner {
+	.quicktow--layout2 .hero .trust-inner {
 		width: 100%;
 		max-width: 100%;
 	}
 }
-/* Mobile hero: must come after .trust-bar / .trust-inner base rules so it wins the cascade (same as Style 1 James) */
+/* Mobile hero: must come after .trust-bar / .trust-inner base rules so it wins the cascade (same as Style 1 Style 1) */
 @media (max-width: 900px) {
-	.quicktow--charmeck .hero .trust-bar {
+	.quicktow--layout2 .hero .trust-bar {
 		position: relative;
 		bottom: auto;
 		left: auto;
@@ -365,16 +365,16 @@
 		width: 100%;
 		max-width: 100%;
 	}
-	.quicktow--charmeck .hero-inner {
+	.quicktow--layout2 .hero-inner {
 		position: relative;
 		z-index: 8;
 	}
-	.quicktow--charmeck .hero .trust-inner {
+	.quicktow--layout2 .hero .trust-inner {
 		width: 100%;
 		max-width: 100%;
 	}
 }
-.quicktow--charmeck .hero .trust-item {
+.quicktow--layout2 .hero .trust-item {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -389,11 +389,11 @@
 	max-width: 100%;
 	text-align: center;
 }
-.quicktow--charmeck .hero .trust-item svg {
+.quicktow--layout2 .hero .trust-item svg {
 	color: var(--red);
 	flex-shrink: 0;
 }
-.quicktow--charmeck .trust-sep {
+.quicktow--layout2 .trust-sep {
 	width: 5px;
 	height: 5px;
 	border-radius: 50%;
@@ -402,18 +402,18 @@
 }
 
 /* Urgency — darker strip (reference uses deep red, not primary button red) */
-.quicktow--charmeck .urgency-strip {
+.quicktow--layout2 .urgency-strip {
 	background: var(--red-dark);
 	padding: 14px 24px;
 	text-align: center;
 }
-.quicktow--charmeck .urgency-strip p {
+.quicktow--layout2 .urgency-strip p {
 	font-size: 0.95rem;
 	font-weight: 700;
 	color: var(--white);
 	letter-spacing: 0.03em;
 }
-.quicktow--charmeck .urgency-strip a {
+.quicktow--layout2 .urgency-strip a {
 	color: var(--white);
 	font-weight: 700;
 	text-decoration: underline;
@@ -421,42 +421,42 @@
 }
 
 /* Pricing strip — dual class with wra-* */
-.quicktow--charmeck .pricing-strip.wra-pricing-strip {
+.quicktow--layout2 .pricing-strip.wra-pricing-strip {
 	border-top-width: 3px;
 	border-bottom-width: 3px;
 }
-.quicktow--charmeck .pricing-strip-inner.wra-pricing-strip-inner {
+.quicktow--layout2 .pricing-strip-inner.wra-pricing-strip-inner {
 	max-width: 1100px;
 }
-.quicktow--charmeck .pricing-pill.wra-pricing-pill {
+.quicktow--layout2 .pricing-pill.wra-pricing-pill {
 	align-items: center;
 }
-.quicktow--charmeck .pill-price.wra-pill-price,
-.quicktow--charmeck .wra-pill-price {
+.quicktow--layout2 .pill-price.wra-pill-price,
+.quicktow--layout2 .wra-pill-price {
 	color: #ffd166;
 }
 
 /* Section typography */
-.quicktow--charmeck .near-me,
-.quicktow--charmeck .services-section,
-.quicktow--charmeck .complex-section,
-.quicktow--charmeck .service-area,
-.quicktow--charmeck .faq-section {
+.quicktow--layout2 .near-me,
+.quicktow--layout2 .services-section,
+.quicktow--layout2 .complex-section,
+.quicktow--layout2 .service-area,
+.quicktow--layout2 .faq-section {
 	padding: 72px 24px;
 }
-.quicktow--charmeck .near-me .container,
-.quicktow--charmeck .services-section .container,
-.quicktow--charmeck .stats-section .container,
-.quicktow--charmeck .complex-section .container,
-.quicktow--charmeck .service-area .container,
-.quicktow--charmeck .faq-section .container {
+.quicktow--layout2 .near-me .container,
+.quicktow--layout2 .services-section .container,
+.quicktow--layout2 .stats-section .container,
+.quicktow--layout2 .complex-section .container,
+.quicktow--layout2 .service-area .container,
+.quicktow--layout2 .faq-section .container {
 	max-width: 1100px;
 }
-.quicktow--charmeck .near-me .section-label,
-.quicktow--charmeck .services-section .section-label,
-.quicktow--charmeck .complex-section .section-label,
-.quicktow--charmeck .service-area .section-label,
-.quicktow--charmeck .faq-section .section-label {
+.quicktow--layout2 .near-me .section-label,
+.quicktow--layout2 .services-section .section-label,
+.quicktow--layout2 .complex-section .section-label,
+.quicktow--layout2 .service-area .section-label,
+.quicktow--layout2 .faq-section .section-label {
 	font-family: var(--cm-font-body);
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -466,11 +466,11 @@
 	margin-bottom: 10px;
 	text-align: left;
 }
-.quicktow--charmeck .near-me .section-title,
-.quicktow--charmeck .services-section .section-title,
-.quicktow--charmeck .complex-section .section-title,
-.quicktow--charmeck .service-area .section-title,
-.quicktow--charmeck .faq-section .section-title {
+.quicktow--layout2 .near-me .section-title,
+.quicktow--layout2 .services-section .section-title,
+.quicktow--layout2 .complex-section .section-title,
+.quicktow--layout2 .service-area .section-title,
+.quicktow--layout2 .faq-section .section-title {
 	font-family: var(--cm-font-head);
 	font-size: clamp(2rem, 4vw, 3rem);
 	color: var(--navy);
@@ -479,7 +479,7 @@
 	letter-spacing: 0.02em;
 	text-align: left;
 }
-.quicktow--charmeck .section-title-light {
+.quicktow--layout2 .section-title-light {
 	font-family: var(--cm-font-head);
 	font-size: clamp(2rem, 4vw, 3rem);
 	color: var(--white);
@@ -487,30 +487,30 @@
 	margin-bottom: 20px;
 	letter-spacing: 0.02em;
 }
-.quicktow--charmeck .cm-on-dark {
+.quicktow--layout2 .cm-on-dark {
 	color: rgba(255, 255, 255, 0.5) !important;
 }
-.quicktow--charmeck .cm-sec-head {
+.quicktow--layout2 .cm-sec-head {
 	text-align: left;
 }
-.quicktow--charmeck .cm-sec-sub {
+.quicktow--layout2 .cm-sec-sub {
 	max-width: 640px;
 	margin-top: 12px;
 	line-height: 1.7;
 	color: var(--body-dark);
 }
-.quicktow--charmeck .near-me .near-me-body {
+.quicktow--layout2 .near-me .near-me-body {
 	text-align: left;
 }
-.quicktow--charmeck .cm-area-intro {
+.quicktow--layout2 .cm-area-intro {
 	max-width: 640px;
 	line-height: 1.7;
 	margin-bottom: 36px;
 }
 
 /* Near me + complex / feature — mobile-first (see complex-grid below; do not re-declare 2-col after mobile queries) */
-.quicktow--charmeck .near-me-grid,
-.quicktow--charmeck .complex-grid {
+.quicktow--layout2 .near-me-grid,
+.quicktow--layout2 .complex-grid {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 32px;
@@ -518,51 +518,51 @@
 }
 /* Mobile: copy/title first, image + quick facts second */
 @media (max-width: 900px) {
-	.quicktow--charmeck .near-me-grid .near-me-body {
+	.quicktow--layout2 .near-me-grid .near-me-body {
 		order: 1;
 	}
-	.quicktow--charmeck .near-me-grid > .wra-fi:last-child {
+	.quicktow--layout2 .near-me-grid > .wra-fi:last-child {
 		order: 2;
 	}
 }
 @media (min-width: 901px) {
-	.quicktow--charmeck .near-me-grid,
-	.quicktow--charmeck .complex-grid {
+	.quicktow--layout2 .near-me-grid,
+	.quicktow--layout2 .complex-grid {
 		grid-template-columns: 1fr 1fr;
 		gap: 48px;
 	}
 }
-.quicktow--charmeck .near-me-body-copy p {
+.quicktow--layout2 .near-me-body-copy p {
 	font-size: 1rem;
 	line-height: 1.75;
 	color: var(--body-dark);
 	margin-bottom: 16px;
 }
-.quicktow--charmeck .cm-near-img {
+.quicktow--layout2 .cm-near-img {
 	border-radius: 4px;
 	overflow: hidden;
 	margin-bottom: 24px;
 }
-.quicktow--charmeck .cm-near-img img {
+.quicktow--layout2 .cm-near-img img {
 	width: 100%;
 	height: auto;
 	display: block;
 	object-fit: cover;
 }
-.quicktow--charmeck .facts-card {
+.quicktow--layout2 .facts-card {
 	background: var(--navy);
 	border-radius: 4px;
 	padding: 32px;
 	border-left: 5px solid var(--red);
 }
-.quicktow--charmeck .facts-card h3 {
+.quicktow--layout2 .facts-card h3 {
 	font-family: var(--cm-font-head);
 	font-size: 1.4rem;
 	color: #ffffff;
 	margin-bottom: 20px;
 	letter-spacing: 0.04em;
 }
-.quicktow--charmeck .fact-row {
+.quicktow--layout2 .fact-row {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -572,32 +572,32 @@
 	font-size: 0.9rem;
 	line-height: 1.4;
 }
-.quicktow--charmeck .fact-row:last-child {
+.quicktow--layout2 .fact-row:last-child {
 	border-bottom: none;
 }
-.quicktow--charmeck .fact-row svg {
+.quicktow--layout2 .fact-row svg {
 	color: var(--red);
 	flex-shrink: 0;
 }
 
 /* Services */
-.quicktow--charmeck .services-section {
+.quicktow--layout2 .services-section {
 	background: var(--gray-light);
 }
-.quicktow--charmeck .services-grid {
+.quicktow--layout2 .services-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 20px;
 	margin-top: 40px;
 }
-.quicktow--charmeck .service-card {
+.quicktow--layout2 .service-card {
 	background: var(--white);
 	border-radius: 4px;
 	padding: 28px 24px;
 	border-top: 3px solid var(--red);
 	border-bottom: 1px solid var(--border);
 }
-.quicktow--charmeck .service-card .icon {
+.quicktow--layout2 .service-card .icon {
 	width: 44px;
 	height: 44px;
 	background: var(--red-light);
@@ -609,87 +609,87 @@
 	color: var(--red);
 	font-size: 1.4rem;
 }
-.quicktow--charmeck .service-card .icon svg {
+.quicktow--layout2 .service-card .icon svg {
 	width: 22px;
 	height: 22px;
 	flex-shrink: 0;
 	display: block;
 }
-.quicktow--charmeck .service-card h3 {
+.quicktow--layout2 .service-card h3 {
 	font-family: var(--cm-font-head);
 	font-size: 1.15rem;
 	color: var(--navy);
 	margin-bottom: 8px;
 	letter-spacing: 0.03em;
 }
-.quicktow--charmeck .service-card p {
+.quicktow--layout2 .service-card p {
 	font-size: 0.88rem;
 	line-height: 1.65;
 	color: var(--body-dark);
 }
 @media (max-width: 1024px) {
-	.quicktow--charmeck .services-grid {
+	.quicktow--layout2 .services-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
 @media (max-width: 768px) {
-	.quicktow--charmeck .services-grid {
+	.quicktow--layout2 .services-grid {
 		grid-template-columns: 1fr;
 	}
-	.quicktow--charmeck .trust-inner .trust-sep {
+	.quicktow--layout2 .trust-inner .trust-sep {
 		display: none;
 	}
 	/* Full-width trust strip on phone / narrow mobile (roadside view) */
-	.quicktow--charmeck .hero .trust-bar {
+	.quicktow--layout2 .hero .trust-bar {
 		width: 100%;
 		max-width: 100%;
 	}
-	.quicktow--charmeck .hero .trust-inner {
+	.quicktow--layout2 .hero .trust-inner {
 		width: 100%;
 		max-width: 100%;
 		box-sizing: border-box;
 	}
-	.quicktow--charmeck .hero .trust-item {
+	.quicktow--layout2 .hero .trust-item {
 		padding: 4px 10px;
 		font-size: 0.75rem;
 	}
-	.quicktow--charmeck .hero {
+	.quicktow--layout2 .hero {
 		padding: 32px 20px 0;
 	}
 }
 
 /* Stats */
-.quicktow--charmeck .stats-section {
+.quicktow--layout2 .stats-section {
 	background: var(--navy);
 	padding: 64px 24px;
 }
-.quicktow--charmeck .cm-stats-head {
+.quicktow--layout2 .cm-stats-head {
 	text-align: center;
 	margin-bottom: 8px;
 }
-.quicktow--charmeck .stats-grid {
+.quicktow--layout2 .stats-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	gap: 2px;
 	margin-top: 40px;
 }
-.quicktow--charmeck .stats-section .stat-box {
+.quicktow--layout2 .stats-section .stat-box {
 	background: var(--navy-dark);
 	padding: 36px 24px;
 	text-align: center;
 	border-bottom: 3px solid var(--red);
 }
-.quicktow--charmeck .stat-number {
+.quicktow--layout2 .stat-number {
 	font-family: var(--cm-font-head);
 	font-size: 3.2rem;
 	color: var(--white);
 	line-height: 1;
 	letter-spacing: 0.02em;
 }
-.quicktow--charmeck .stat-number span {
+.quicktow--layout2 .stat-number span {
 	color: var(--red);
 }
-.quicktow--charmeck .stat-label {
+.quicktow--layout2 .stat-label {
 	font-size: 0.8rem;
 	font-weight: 600;
 	letter-spacing: 0.1em;
@@ -698,50 +698,50 @@
 	margin-top: 8px;
 }
 @media (max-width: 1024px) {
-	.quicktow--charmeck .stats-grid {
+	.quicktow--layout2 .stats-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
 @media (max-width: 600px) {
-	.quicktow--charmeck .stats-grid {
+	.quicktow--layout2 .stats-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
 /* Complex / feature */
-.quicktow--charmeck .complex-section {
+.quicktow--layout2 .complex-section {
 	background: var(--white);
 }
-.quicktow--charmeck .complex-body p {
+.quicktow--layout2 .complex-body p {
 	font-size: 1rem;
 	line-height: 1.75;
 	color: var(--body-dark);
 	margin-bottom: 16px;
 }
-.quicktow--charmeck .cm-feat-img {
+.quicktow--layout2 .cm-feat-img {
 	margin-top: 28px;
 	border-radius: 4px;
 	overflow: hidden;
 }
-.quicktow--charmeck .cm-feat-img img {
+.quicktow--layout2 .cm-feat-img img {
 	width: 100%;
 	height: auto;
 	display: block;
 }
-.quicktow--charmeck .checklist-card {
+.quicktow--layout2 .checklist-card {
 	background: var(--red-light);
 	border-radius: 4px;
 	padding: 32px;
 	border-left: 5px solid var(--red);
 }
-.quicktow--charmeck .checklist-card h3 {
+.quicktow--layout2 .checklist-card h3 {
 	font-family: var(--cm-font-head);
 	font-size: 1.4rem;
 	color: var(--navy);
 	margin-bottom: 20px;
 	letter-spacing: 0.04em;
 }
-.quicktow--charmeck .check-item {
+.quicktow--layout2 .check-item {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
@@ -750,22 +750,22 @@
 	font-size: 0.9rem;
 	line-height: 1.5;
 }
-.quicktow--charmeck .check-item svg {
+.quicktow--layout2 .check-item svg {
 	color: var(--red);
 	flex-shrink: 0;
 	margin-top: 2px;
 }
-.quicktow--charmeck .cm-feat-cta {
+.quicktow--layout2 .cm-feat-cta {
 	margin-top: 20px;
 }
 
 /* CTA banner */
-.quicktow--charmeck .cta-banner {
+.quicktow--layout2 .cta-banner {
 	background: var(--red);
 	padding: 64px 24px;
 	text-align: center;
 }
-.quicktow--charmeck .cm-cta-label {
+.quicktow--layout2 .cm-cta-label {
 	font-size: 0.75rem;
 	font-weight: 700;
 	letter-spacing: 0.16em;
@@ -773,21 +773,21 @@
 	color: rgba(255, 255, 255, 0.75);
 	margin-bottom: 8px;
 }
-.quicktow--charmeck .cm-cta-sub {
+.quicktow--layout2 .cm-cta-sub {
 	color: rgba(255, 255, 255, 0.85);
 	font-size: 15px;
 	max-width: 560px;
 	margin: 0 auto 20px;
 	line-height: 1.6;
 }
-.quicktow--charmeck .cta-banner h2 {
+.quicktow--layout2 .cta-banner h2 {
 	font-family: var(--cm-font-head);
 	font-size: clamp(1.8rem, 4vw, 2.8rem);
 	color: var(--white);
 	letter-spacing: 0.04em;
 	margin-bottom: 8px;
 }
-.quicktow--charmeck .cta-phone-display {
+.quicktow--layout2 .cta-phone-display {
 	font-family: var(--cm-font-head);
 	font-size: clamp(3rem, 7vw, 5rem);
 	color: var(--white);
@@ -797,45 +797,45 @@
 	text-decoration: none;
 	line-height: 1;
 }
-.quicktow--charmeck .cta-banner .btn-skew-wrap {
+.quicktow--layout2 .cta-banner .btn-skew-wrap {
 	background: var(--white);
 }
-.quicktow--charmeck .cta-banner .btn-skew-wrap a {
+.quicktow--layout2 .cta-banner .btn-skew-wrap a {
 	color: var(--red);
 	font-size: 1.1rem;
 }
-.quicktow--charmeck .cta-banner .btn-primary:hover .btn-skew-wrap {
+.quicktow--layout2 .cta-banner .btn-primary:hover .btn-skew-wrap {
 	background: var(--navy);
 }
-.quicktow--charmeck .cta-banner .btn-primary:hover .btn-skew-wrap a {
+.quicktow--layout2 .cta-banner .btn-primary:hover .btn-skew-wrap a {
 	color: var(--white);
 }
 
 /* Service area */
-.quicktow--charmeck .service-area {
+.quicktow--layout2 .service-area {
 	background: var(--gray-light);
 }
-.quicktow--charmeck .service-area .area-grid {
+.quicktow--layout2 .service-area .area-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 16px;
 	margin-top: 36px;
 	margin-bottom: 32px;
 }
-.quicktow--charmeck .service-area .area-card {
+.quicktow--layout2 .service-area .area-card {
 	background: var(--white);
 	border-radius: 4px;
 	padding: 22px 20px;
 	border-left: 4px solid var(--red);
 }
-.quicktow--charmeck .service-area .area-card h4 {
+.quicktow--layout2 .service-area .area-card h4 {
 	font-family: var(--cm-font-head);
 	font-size: 1.1rem;
 	color: var(--navy);
 	margin-bottom: 12px;
 	letter-spacing: 0.03em;
 }
-.quicktow--charmeck .service-area .cm-area-callout {
+.quicktow--layout2 .service-area .cm-area-callout {
 	background: var(--navy);
 	color: var(--white);
 	display: flex;
@@ -843,23 +843,23 @@
 	align-items: flex-start;
 	gap: 10px;
 }
-.quicktow--charmeck .service-area .cm-area-callout h4 {
+.quicktow--layout2 .service-area .cm-area-callout h4 {
 	color: var(--white);
 	font-size: 1rem;
 }
-.quicktow--charmeck .service-area .cm-area-callout p {
+.quicktow--layout2 .service-area .cm-area-callout p {
 	color: rgba(255, 255, 255, 0.72);
 	font-size: 14px;
 }
-.quicktow--charmeck .cm-area-cta {
+.quicktow--layout2 .cm-area-cta {
 	margin-top: 8px;
 }
-.quicktow--charmeck .pill-group {
+.quicktow--layout2 .pill-group {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 }
-.quicktow--charmeck .service-area .pill {
+.quicktow--layout2 .service-area .pill {
 	background: var(--gray-light);
 	border: 1px solid var(--border);
 	border-radius: 20px;
@@ -868,7 +868,7 @@
 	color: var(--body-dark);
 	white-space: nowrap;
 }
-.quicktow--charmeck .highway-strip {
+.quicktow--layout2 .highway-strip {
 	background: var(--navy);
 	border-radius: 4px;
 	padding: 20px 24px;
@@ -878,13 +878,13 @@
 	flex-wrap: wrap;
 	margin-bottom: 24px;
 }
-.quicktow--charmeck .highway-strip span {
+.quicktow--layout2 .highway-strip span {
 	font-family: var(--cm-font-head);
 	font-size: 1rem;
 	color: var(--text-light);
 	letter-spacing: 0.06em;
 }
-.quicktow--charmeck .highway-badge {
+.quicktow--layout2 .highway-badge {
 	background: var(--red);
 	color: var(--white);
 	font-family: var(--cm-font-head);
@@ -893,33 +893,33 @@
 	padding: 4px 14px;
 	border-radius: 3px;
 }
-.quicktow--charmeck .area-closing {
+.quicktow--layout2 .area-closing {
 	font-size: 0.92rem;
 	color: var(--body-dark);
 	text-align: center;
 	line-height: 1.7;
 }
-.quicktow--charmeck .area-closing a {
+.quicktow--layout2 .area-closing a {
 	color: var(--red);
 	font-weight: 700;
 	text-decoration: none;
 }
 @media (max-width: 900px) {
-	.quicktow--charmeck .service-area .area-grid {
+	.quicktow--layout2 .service-area .area-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
 @media (max-width: 600px) {
-	.quicktow--charmeck .service-area .area-grid {
+	.quicktow--layout2 .service-area .area-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
 /* FAQ */
-.quicktow--charmeck .cm-faq-head {
+.quicktow--layout2 .cm-faq-head {
 	text-align: left;
 }
-.quicktow--charmeck .faq-section .faq-list {
+.quicktow--layout2 .faq-section .faq-list {
 	margin-top: 36px;
 	border-top: 1px solid var(--border);
 	max-width: none;
@@ -927,10 +927,10 @@
 	margin-left: 0;
 	margin-right: 0;
 }
-.quicktow--charmeck .faq-item {
+.quicktow--layout2 .faq-item {
 	border-bottom: 1px solid var(--border);
 }
-.quicktow--charmeck .faq-q {
+.quicktow--layout2 .faq-q {
 	width: 100%;
 	background: none;
 	border: none;
@@ -947,10 +947,10 @@
 	line-height: 1.4;
 	text-align: left;
 }
-.quicktow--charmeck .faq-q .faq-qt {
+.quicktow--layout2 .faq-q .faq-qt {
 	text-align: left;
 }
-.quicktow--charmeck .faq-icon {
+.quicktow--layout2 .faq-icon {
 	flex-shrink: 0;
 	width: 24px;
 	height: 24px;
@@ -964,63 +964,63 @@
 	font-weight: 400;
 	transition: transform 0.25s;
 }
-.quicktow--charmeck .wra-faq-item.wra-faq-open .faq-icon {
+.quicktow--layout2 .wra-faq-item.wra-faq-open .faq-icon {
 	transform: rotate(45deg);
 }
-.quicktow--charmeck .faq-ans {
+.quicktow--layout2 .faq-ans {
 	max-height: 0;
 	overflow: hidden;
 	transition: max-height 0.35s ease, padding 0.3s ease;
 }
-.quicktow--charmeck .wra-faq-item.wra-faq-open .faq-ans {
+.quicktow--layout2 .wra-faq-item.wra-faq-open .faq-ans {
 	max-height: 600px;
 	padding: 0 4px 20px;
 }
-.quicktow--charmeck .faq-a {
+.quicktow--layout2 .faq-a {
 	font-size: 0.95rem;
 	color: var(--body-dark);
 	line-height: 1.75;
 }
-.quicktow--charmeck .faq-a p {
+.quicktow--layout2 .faq-a p {
 	margin-bottom: 12px;
 }
 
 /* Footer */
-.quicktow--charmeck .qt-charmeck-ft {
+.quicktow--layout2 .qt-layout2-ft {
 	background: var(--navy-deep);
 	padding: 56px 24px 32px;
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-grid {
+.quicktow--layout2 .qt-layout2-ft .footer-grid {
 	display: grid;
 	grid-template-columns: 2fr 1fr 1fr;
 	gap: 40px;
 	max-width: 1100px;
 	margin: 0 auto 40px;
 }
-.quicktow--charmeck .qt-charmeck-ft .logo-text {
+.quicktow--layout2 .qt-layout2-ft .logo-text {
 	font-family: var(--cm-font-head);
 	font-size: 1.6rem;
 	color: var(--white);
 	letter-spacing: 0.04em;
 	margin-bottom: 14px;
 }
-.quicktow--charmeck .qt-charmeck-ft .logo-text span {
+.quicktow--layout2 .qt-layout2-ft .logo-text span {
 	color: var(--red);
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-brand p {
+.quicktow--layout2 .qt-layout2-ft .footer-brand p {
 	font-size: 0.85rem;
 	color: var(--text-light);
 	line-height: 1.7;
 	max-width: 320px;
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-col h4 {
+.quicktow--layout2 .qt-layout2-ft .footer-col h4 {
 	font-family: var(--cm-font-head);
 	font-size: 1rem;
 	color: var(--white);
 	letter-spacing: 0.08em;
 	margin-bottom: 16px;
 }
-.quicktow--charmeck .qt-charmeck-ft .city-list {
+.quicktow--layout2 .qt-layout2-ft .city-list {
 	list-style: none;
 	display: flex;
 	flex-wrap: wrap;
@@ -1028,21 +1028,21 @@
 	margin: 0;
 	padding: 0;
 }
-.quicktow--charmeck .qt-charmeck-ft .city-list,
-.quicktow--charmeck .qt-charmeck-ft .city-list p {
+.quicktow--layout2 .qt-layout2-ft .city-list,
+.quicktow--layout2 .qt-layout2-ft .city-list p {
 	font-size: 0.72rem;
 	line-height: 1.65;
 	color: rgba(255, 255, 255, 0.38);
 }
-.quicktow--charmeck .qt-charmeck-ft .city-list li,
-.quicktow--charmeck .qt-charmeck-ft .city-list a {
+.quicktow--layout2 .qt-layout2-ft .city-list li,
+.quicktow--layout2 .qt-layout2-ft .city-list a {
 	font-size: 0.72rem;
 	color: rgba(255, 255, 255, 0.38);
 }
-.quicktow--charmeck .qt-charmeck-ft .city-list a:hover {
+.quicktow--layout2 .qt-layout2-ft .city-list a:hover {
 	color: rgba(255, 255, 255, 0.55);
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-contact a {
+.quicktow--layout2 .qt-layout2-ft .footer-contact a {
 	display: block;
 	font-size: 0.85rem;
 	color: rgba(255, 255, 255, 0.55);
@@ -1050,25 +1050,25 @@
 	margin-bottom: 8px;
 	line-height: 1.6;
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-contact a:hover {
+.quicktow--layout2 .qt-layout2-ft .footer-contact a:hover {
 	color: rgba(255, 255, 255, 0.78);
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-hours-row {
+.quicktow--layout2 .qt-layout2-ft .footer-hours-row {
 	display: block;
 	font-size: 0.85rem;
 	color: rgba(255, 255, 255, 0.55);
 	margin-bottom: 4px;
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-contact p {
+.quicktow--layout2 .qt-layout2-ft .footer-contact p {
 	font-size: 0.85rem;
 	color: rgba(255, 255, 255, 0.55);
 	line-height: 1.6;
 	margin: 0 0 8px;
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-contact p:last-child {
+.quicktow--layout2 .qt-layout2-ft .footer-contact p:last-child {
 	margin-bottom: 0;
 }
-.quicktow--charmeck .qt-charmeck-ft .footer-bottom {
+.quicktow--layout2 .qt-layout2-ft .footer-bottom {
 	border-top: 1px solid rgba(255, 255, 255, 0.08);
 	padding-top: 24px;
 	text-align: center;
@@ -1078,20 +1078,20 @@
 	margin: 0 auto;
 }
 @media (max-width: 768px) {
-	.quicktow--charmeck .qt-charmeck-ft .footer-grid {
+	.quicktow--layout2 .qt-layout2-ft .footer-grid {
 		grid-template-columns: 1fr;
 		gap: 32px;
 	}
 }
 
-/* CharMeck “heavy” footer layout (admin Footer layout = heavy) */
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-grid--heavy {
+/* Style 2 “heavy” footer layout (admin Footer layout = heavy) */
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-grid--heavy {
 	display: grid;
 	grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
 	gap: 40px;
 	align-items: start;
 }
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-brand .footer-phone-link {
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-brand .footer-phone-link {
 	display: inline-block;
 	font-family: var(--cm-font-head, "Bebas Neue", cursive);
 	font-size: 1.35rem;
@@ -1099,25 +1099,25 @@
 	letter-spacing: 0.06em;
 	margin: 12px 0;
 }
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-brand .footer-phone-link:hover {
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-brand .footer-phone-link:hover {
 	color: var(--red);
 }
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-brand address {
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-brand address {
 	margin-top: 12px;
 	font-size: 14px;
 	line-height: 1.7;
 	color: rgba(255, 255, 255, 0.55);
 	font-style: normal;
 }
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-brand address a {
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-brand address a {
 	color: rgba(255, 255, 255, 0.75);
 }
 @media (max-width: 900px) {
-	.quicktow--charmeck .qt-charmeck-ft--heavy .footer-grid--heavy {
+	.quicktow--layout2 .qt-layout2-ft--heavy .footer-grid--heavy {
 		grid-template-columns: 1fr;
 	}
 }
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-cities {
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-cities {
 	margin-top: 8px;
 	padding: 20px 0;
 	border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -1126,17 +1126,17 @@
 	color: rgba(255, 255, 255, 0.38);
 	letter-spacing: 0.04em;
 }
-.quicktow--charmeck .qt-charmeck-ft--heavy .footer-cities strong {
+.quicktow--layout2 .qt-layout2-ft--heavy .footer-cities strong {
 	color: rgba(255, 255, 255, 0.55);
 	font-weight: 700;
 }
 
 /* Mobile call bar closer to reference */
-.quicktow--charmeck #mcall {
+.quicktow--layout2 #mcall {
 	border-top: 2px solid var(--red-dark);
 	height: 56px;
 }
-.quicktow--charmeck #mcall span {
+.quicktow--layout2 #mcall span {
 	letter-spacing: 0.06em;
 	font-size: 1.25rem;
 }

@@ -14,6 +14,17 @@
 		});
 	});
 
+	// Turns off the CSS fallback that reveals .wra-fi content if this script never runs.
+	document.documentElement.classList.add('qt-fi-ready');
+
+	// Without IntersectionObserver, show everything rather than leave it hidden.
+	if (!('IntersectionObserver' in window)) {
+		document.querySelectorAll('.wra-fi').forEach(function (el) {
+			el.classList.add('wra-fi-on');
+		});
+		return;
+	}
+
 	var obs = new IntersectionObserver(
 		function (entries) {
 			entries.forEach(function (e) {

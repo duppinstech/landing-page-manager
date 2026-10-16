@@ -16,5 +16,19 @@
 - [ ] `CHANGELOG.md` updated under [Unreleased]
 - [ ] Security review done (required for handlers, uploads, rewrites, updater)
 - [ ] Tested on a WP site: admin screens + a published landing page
+- [ ] `/department-review` run, with no `block` verdicts
+
+## Department review
+<!-- Paste the sign-off table from /department-review -->
+| Department | Verdict | Notes |
+|---|---|---|
+| Security | | |
+| Legal | | |
+| Finance | | |
+| Product | | |
+| Marketing | | |
+| Support / docs | | |
+| Ops / release | | |
+| UX | | |
 
 ## Screenshots / test notes

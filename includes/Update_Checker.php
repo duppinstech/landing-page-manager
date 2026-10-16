@@ -1,7 +1,12 @@
 <?php
 /**
- * Plugin update checker: optional updates from GitHub and/or WordPress.org.
- * Controlled by Settings → Updates → "Plugin update source".
+ * Plugin update checker: updates come only from GitHub Releases.
+ *
+ * The plugin header sets `Update URI`, so WordPress core (5.8+) never asks
+ * WordPress.org about this plugin. The `landing-page-manager` slug is not ours on
+ * WordPress.org yet, and whoever publishes it there must not be able to push code
+ * to these sites. Revisit when the free core is listed on WordPress.org
+ * (see .claude/memory/decisions.md, 2026-10-14).
  */
 namespace LPManager;
 
@@ -14,6 +19,10 @@ class Update_Checker {
     const GITHUB_API_URL = 'https://api.github.com/repos/duppinstech/landing-page-manager/releases/latest';
     const REPO_URL        = 'https://github.com/duppinstech/landing-page-manager';
     const PLUGIN_SLUG     = 'landing-page-manager';
+    const CACHE_KEY       = 'lpmanager_github_release';
+    // Keep in step with "Requires at least" / "Requires PHP" in landing-page-manager.php.
+    const REQUIRES_WP     = '5.9';
+    const REQUIRES_PHP    = '7.4';
 
     public static function init() {
         add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'inject_update' ], 10, 2 );
@@ -21,17 +30,6 @@ class Update_Checker {
         add_filter( 'upgrader_source_selection', [ __CLASS__, 'normalize_install_source_dir' ], 10, 4 );
         add_action( 'admin_init', [ __CLASS__, 'handle_manual_update_check' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_manual_update_notice' ] );
-    }
-
-    /**
-     * Get the chosen update source: 'wp_org' | 'github' | 'both'.
-     */
-    private static function get_update_source() {
-        if ( ! function_exists( 'carbon_get_theme_option' ) ) {
-            return 'both';
-        }
-        $source = carbon_get_theme_option( 'lpmanager_update_source' );
-        return in_array( $source, [ 'wp_org', 'github', 'both' ], true ) ? $source : 'both';
     }
 
     /**
@@ -55,6 +53,22 @@ class Update_Checker {
         $data = get_plugin_data( LP_MANAGER_PLUGIN_PATH . 'landing-page-manager.php', false, false );
         $version = isset( $data['Version'] ) ? $data['Version'] : '0';
         return $version;
+    }
+
+    /**
+     * Latest GitHub release, cached in a site transient: 6 hours after a successful
+     * fetch and 30 minutes after a failure. Unauthenticated GitHub API calls are
+     * limited to 60 an hour per IP, and WordPress builds the update transient several
+     * times per check. Returns [ 'version' => string, 'package' => zip URL ] or null.
+     */
+    private static function get_github_release() {
+        $cached = get_site_transient( self::CACHE_KEY );
+        if ( is_array( $cached ) && array_key_exists( 'release', $cached ) ) {
+            return $cached['release'];
+        }
+        $release = self::fetch_github_release();
+        set_site_transient( self::CACHE_KEY, [ 'release' => $release ], $release ? 6 * HOUR_IN_SECONDS : 30 * MINUTE_IN_SECONDS );
+        return $release;
     }
 
     /**
@@ -125,7 +139,8 @@ class Update_Checker {
         $obj->banners     = [];
         $obj->banners_rtl = [];
         $obj->tested      = '';
-        $obj->requires_php = '';
+        $obj->requires    = self::REQUIRES_WP;
+        $obj->requires_php = self::REQUIRES_PHP;
         return $obj;
     }
 
@@ -138,50 +153,32 @@ class Update_Checker {
     }
 
     /**
-     * Inject our plugin update into the transient when source is GitHub or Both.
+     * Put the GitHub release (if newer) into the update transient, and drop any
+     * entry for this plugin that came from somewhere else. `Update URI` already
+     * stops core from asking WordPress.org; this is the second line of defense.
      */
     public static function inject_update( $transient, $action ) {
         if ( $action !== 'update_plugins' || ! is_object( $transient ) ) {
             return $transient;
         }
-        $source = self::get_update_source();
-        if ( $source === 'wp_org' ) {
-            return $transient;
-        }
 
-        $current = self::get_current_version();
         $basename = self::get_plugin_basename();
+        if ( isset( $transient->response[ $basename ] ) ) {
+            unset( $transient->response[ $basename ] );
+        }
+        if ( isset( $transient->no_update[ $basename ] ) ) {
+            unset( $transient->no_update[ $basename ] );
+        }
 
-        $github = self::fetch_github_release();
-        if ( ! $github || self::version_compare( $github['version'], $current ) <= 0 ) {
+        $github = self::get_github_release();
+        if ( ! $github || self::version_compare( $github['version'], self::get_current_version() ) <= 0 ) {
             return $transient;
         }
 
-        if ( $source === 'github' ) {
-            if ( ! isset( $transient->response ) ) {
-                $transient->response = [];
-            }
-            $transient->response[ $basename ] = self::build_update_object( $github['version'], $github['package'] );
-            return $transient;
+        if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
+            $transient->response = [];
         }
-
-        if ( $source === 'both' ) {
-            $wp_org_version = null;
-            if ( isset( $transient->response[ $basename ] ) && is_object( $transient->response[ $basename ] ) ) {
-                $wp_org_version = isset( $transient->response[ $basename ]->new_version )
-                    ? $transient->response[ $basename ]->new_version
-                    : null;
-            }
-            $use_github = ! $wp_org_version || self::version_compare( $github['version'], $wp_org_version ) >= 0;
-            if ( $use_github ) {
-                if ( ! isset( $transient->response ) ) {
-                    $transient->response = [];
-                }
-                $transient->response[ $basename ] = self::build_update_object( $github['version'], $github['package'] );
-            }
-            return $transient;
-        }
-
+        $transient->response[ $basename ] = self::build_update_object( $github['version'], $github['package'] );
         return $transient;
     }
 
@@ -222,6 +219,7 @@ class Update_Checker {
             require_once ABSPATH . 'wp-includes/update.php';
         }
 
+        delete_site_transient( self::CACHE_KEY );
         delete_site_transient( 'update_plugins' );
         wp_update_plugins();
 

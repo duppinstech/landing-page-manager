@@ -128,7 +128,7 @@
 		display: none;
 	}
 }
-@media (max-width: 921px) {
+@media (max-width: 920px) {
 	#ast-desktop-header {
 		display: none;
 	}
@@ -870,8 +870,19 @@ header.header.stiky{
 .navbar-collapse-inner .buttons_wrapper{
     display: none;
 }
-.wow {
-    opacity: 0;
+/* Scroll-in animations: hidden only when JS runs (html.rec-js, set in <head>) and the visitor
+   allows motion. WOW adds .animation_end when an animation finishes. If WOW never runs (blocked
+   or delayed JS), the fallback animation shows the element after 3s; WOW's inline
+   animation-name overrides it on elements it handles. */
+@media (prefers-reduced-motion: no-preference) {
+    .rec-js .wow {
+        opacity: 0;
+        animation: rec-wow-fallback 0s 3s forwards;
+    }
+}
+
+@keyframes rec-wow-fallback {
+    to { opacity: 1; }
 }
 
 .wow.animation_end {
@@ -945,4 +956,64 @@ header.header.stiky{
     .modal{
         background: rgba(13, 13, 13, 0.8);
     }
+}
+
+/* Mobile menu (toggled by .main-header-menu-toggle in js/main.js). */
+.lpm-mobile-nav {
+	background: #fff;
+	border-top: 1px solid #e5e5e5;
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+.lpm-mobile-nav[hidden] {
+	display: none;
+}
+.lpm-mobile-nav ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.lpm-mobile-nav a {
+	display: block;
+	padding: 14px 20px;
+	color: #222;
+	font-weight: 600;
+	text-decoration: none;
+	border-bottom: 1px solid #f0f0f0;
+}
+.lpm-mobile-nav a:hover,
+.lpm-mobile-nav a:focus-visible {
+	background: #f5f5f5;
+}
+.lpm-mobile-nav a:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: -2px;
+}
+.lpm-mobile-nav__label {
+	display: block;
+	padding: 14px 20px 6px;
+	color: #555;
+	font-size: 0.85em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+.lpm-mobile-nav a[aria-current="page"] {
+	font-weight: 700;
+	box-shadow: inset 3px 0 0 currentColor;
+}
+.lpm-mobile-nav__group ul a {
+	padding-left: 32px;
+	font-weight: 400;
+}
+/* The panel is mobile-only, even if it was left open before the window was widened. */
+@media (min-width: 921px) {
+	.lpm-mobile-nav {
+		display: none;
+	}
+}
+.menu-toggle.toggled .ast-menu-svg {
+	display: none;
+}
+.menu-toggle.toggled .ast-close-svg {
+	display: block;
 }

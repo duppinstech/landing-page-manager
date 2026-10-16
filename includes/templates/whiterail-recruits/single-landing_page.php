@@ -10,19 +10,22 @@ Description: A simple landing page template for Whiterail Recruits.
 <?php
     $hero_section_heading = carbon_get_the_post_meta('hero_section_heading');
     $hero_section_bg = carbon_get_the_post_meta('hero_section_bg');
-	$company_color_main = carbon_get_the_post_meta('company_color_main');
-	$company_color_secondary = carbon_get_the_post_meta('company_color_secondary');
+	// Invalid colours sanitize to empty, so the existing "else" branches below supply the fallback.
+	$company_color_main = sanitize_hex_color( (string) carbon_get_the_post_meta('company_color_main') );
+	$company_color_secondary = sanitize_hex_color( (string) carbon_get_the_post_meta('company_color_secondary') );
+	// Headings and short text fields were printed raw before 1.0.7; keep the inline tags editors use.
+	$lpm_inline_tags = array( 'br' => array(), 'strong' => array(), 'b' => array(), 'em' => array(), 'i' => array(), 'span' => array( 'class' => array() ) );
 ?>
 
-<section class="hero section blur_sides" style="background:url(' <?php echo $hero_section_bg; ?> ')">
+<section class="hero section blur_sides" style="background:url(' <?php echo esc_url( $hero_section_bg ); ?> ')">
 	<div class="container">
 		<div class="hero_content_wrapper">
 			<div class="row">
 				<div class="col-lg-8 col-sm-12">
 					<?php if ( !empty( $hero_section_heading ) ) : ?>
-					<div class="title_wrapper wow slideInUp" data-wow-duration="1s" >
+					<div class="title_wrapper">
 						<h1>
-							<?php echo $hero_section_heading; ?>
+							<?php echo wp_kses( $hero_section_heading, $lpm_inline_tags ); ?>
 						</h1>
 					</div>
 					<?php endif; ?>
@@ -33,7 +36,7 @@ Description: A simple landing page template for Whiterail Recruits.
 </section>
 <section class="section blur_sides">
 	<?php if ( !empty( $company_color_main ) ) : ?>
-		<div class="no-resume" style="background-color:<?php echo $company_color_main ?>;padding:10px;">
+		<div class="no-resume" style="background-color:<?php echo esc_attr( $company_color_main ); ?>;padding:10px;">
 	<?php else : ?>
 		<div class="no-resume" style="background-color:#2196F3;padding:10px;">
 	<?php endif; ?>
@@ -69,7 +72,7 @@ Description: A simple landing page template for Whiterail Recruits.
 			<div class="title_wrapper_color wow slideInUp" data-wow-duration="1s" >
 		<?php endif; ?>
 			<h2 style="color:#fff;text-transform:uppercase;font-size:3em;">
-				<?php echo $company_content_title; ?>
+				<?php echo wp_kses( $company_content_title, $lpm_inline_tags ); ?>
 			</h2>
 		</div>
 		<div class="content">
@@ -90,19 +93,19 @@ Description: A simple landing page template for Whiterail Recruits.
 			<?php else : ?>
 				<div class="col-lg-4 col-md-12 col-sm-12 reviews_title wow slideInUp">
 			<?php endif; ?>
-				<div class="review" id="review_<?php echo $review_key ?>">
+				<div class="review" id="review_<?php echo esc_attr( $review_key ); ?>">
 					<div class="content_wrapper">
 						<div class="content_inner_wrapper">
 							<?php if( !empty( $review['review_img'] ) ): ?>
-							<img class="review-img" src="<?php echo $review['review_img']; ?>" />
+							<img class="review-img" src="<?php echo esc_url( $review['review_img'] ); ?>" />
 							<?php endif; ?>
 
 							<?php if( !empty( $review['review_title'] ) ): ?>
-							<h3 class="review-heading" ><?php echo $review['review_title']; ?></h3>
+							<h3 class="review-heading" ><?php echo wp_kses( $review['review_title'], $lpm_inline_tags ); ?></h3>
 							<?php endif; ?>
 
 							<?php if( !empty( $review['review_desc'] ) ): ?>
-							<p class="review-text" ><?php echo $review['review_desc']; ?></p>
+							<p class="review-text" ><?php echo wp_kses( $review['review_desc'], $lpm_inline_tags ); ?></p>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -122,12 +125,12 @@ Description: A simple landing page template for Whiterail Recruits.
 	?>
 	<?php if ( !empty( $benefits_content_title ) ) : ?>
 		<?php if ( !empty( $company_color_main ) ) : ?>
-			<div class="title_wrapper wow slideInUp" style="background-image: linear-gradient(270deg, <?php echo $company_color_secondary ?> 0%, <?php echo $company_color_main ?> 90%);" data-wow-duration="1s" >
+			<div class="title_wrapper wow slideInUp" style="background-image: linear-gradient(270deg, <?php echo esc_attr( $company_color_secondary ? $company_color_secondary : '#2196F3' ); ?> 0%, <?php echo esc_attr( $company_color_main ); ?> 90%);" data-wow-duration="1s" >
 		<?php else : ?>
 			<div class="title_wrapper_color wow slideInUp" data-wow-duration="1s" >
 		<?php endif; ?>
 			<h2 style="color:#fff;text-transform:uppercase;font-size:3em;">
-				<?php echo $benefits_content_title; ?>
+				<?php echo wp_kses( $benefits_content_title, $lpm_inline_tags ); ?>
 			</h2>
 		</div>
 		<div>
@@ -145,19 +148,19 @@ Description: A simple landing page template for Whiterail Recruits.
 			<?php else : ?>
 				<div class="col-lg-4 col-md-12 col-sm-12 reviews_title wow slideInUp">
 			<?php endif; ?>
-				<div class="benefit" id="benefit_<?php echo $benefit_key ?>">
+				<div class="benefit" id="benefit_<?php echo esc_attr( $benefit_key ); ?>">
 					<div class="content_wrapper">
 						<div class="content_inner_wrapper">
 							<?php if( !empty( $benefit['benefits_icon'] ) ): ?>
-							<img class="benefit-img" src="<?php echo $benefit['benefits_icon']; ?>" />
+							<img class="benefit-img" src="<?php echo esc_url( $benefit['benefits_icon'] ); ?>" />
 							<?php endif; ?>
 
 							<?php if( !empty( $benefit['benefits_title'] ) ): ?>
-							<h3 class="benefit-heading" ><?php echo $benefit['benefits_title']; ?></h3>
+							<h3 class="benefit-heading" ><?php echo wp_kses( $benefit['benefits_title'], $lpm_inline_tags ); ?></h3>
 							<?php endif; ?>
 
 							<?php if( !empty( $benefit['benefits_desc'] ) ): ?>
-							<p class="benefit-text" ><?php echo $benefit['benefits_desc']; ?></p>
+							<p class="benefit-text" ><?php echo wp_kses( $benefit['benefits_desc'], $lpm_inline_tags ); ?></p>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -176,14 +179,14 @@ Description: A simple landing page template for Whiterail Recruits.
 ?>
 <?php if ( !empty( $benefits_content_img ) ) : ?>
 <section class="benefits section blur_sides">
-	<div class="container bg_img_500" style="background:url(' <?php echo $benefits_content_img; ?> ')">
+	<div class="container bg_img_500" style="background:url(' <?php echo esc_url( $benefits_content_img ); ?> ')">
 	</div>
 </section>
 <?php endif; ?>
 		
 <section class="section blur_sides">
 	<?php if ( !empty( $company_color_main ) ) : ?>
-		<div class="no-resume" style="background-color:<?php echo $company_color_main ?>;padding:10px;">
+		<div class="no-resume" style="background-color:<?php echo esc_attr( $company_color_main ); ?>;padding:10px;">
 	<?php else : ?>
 		<div class="no-resume" style="background-color:#2196F3;padding:10px;">
 	<?php endif; ?>
@@ -199,7 +202,7 @@ Description: A simple landing page template for Whiterail Recruits.
 <section class="apply section blur_sides">
 	<div class="apply-now" style="padding:40px;">
 		<div style="text-align:center;">
-			<a href=" <?php echo $recruits_url; ?> ">
+			<a href=" <?php echo esc_url( $recruits_url ); ?> ">
 				<img decoding="async" width="500" height="518" src="https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png" class="attachment-full size-full wp-image-31" alt="" srcset="https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 1170w, https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 300w, https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 1024w, https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 768w" sizes="(max-width: 1170px) 100vw, 1170px">
 			</a>
 		</div>
@@ -218,16 +221,16 @@ Description: A simple landing page template for Whiterail Recruits.
 	?>
 	<?php if ( !empty( $more_content_title ) ) : ?>
 		<?php if ( !empty( $company_color_main ) ) : ?>
-			<div class="title_wrapper wow slideInUp" style="background-image: linear-gradient(270deg, <?php echo $company_color_secondary ?> 0%, <?php echo $company_color_main ?> 90%);" data-wow-duration="1s" >
+			<div class="title_wrapper wow slideInUp" style="background-image: linear-gradient(270deg, <?php echo esc_attr( $company_color_secondary ? $company_color_secondary : '#2196F3' ); ?> 0%, <?php echo esc_attr( $company_color_main ); ?> 90%);" data-wow-duration="1s" >
 		<?php else : ?>
 			<div class="title_wrapper_color wow slideInUp" data-wow-duration="1s" >
 		<?php endif; ?>
 			<h2 style="color:#fff;text-transform:uppercase;font-size:3em;">
-				<?php echo $more_content_title; ?>
+				<?php echo wp_kses( $more_content_title, $lpm_inline_tags ); ?>
 			</h2>
 		</div>
 		<div class="content">
-			<?php echo $more_content; ?>
+			<?php echo lpmanager_kses_rich_text( $more_content ); // phpcs:ignore WordPress.Security.EscapeOutput -- kses with an iframe host allowlist. ?>
 		</div>
 	<?php endif; ?>
 </section>
@@ -240,14 +243,14 @@ Description: A simple landing page template for Whiterail Recruits.
 ?>
 <?php if ( !empty( $more_content_img ) ) : ?>
 <section class="more section blur_sides">
-	<div class="container bg_img_500" style="background:url(' <?php echo $more_content_img; ?> ')">
+	<div class="container bg_img_500" style="background:url(' <?php echo esc_url( $more_content_img ); ?> ')">
 	</div>
 </section>
 <?php endif; ?>
 
 <section class="section blur_sides">
 	<?php if ( !empty( $company_color_main ) ) : ?>
-		<div class="no-resume" style="background-color:<?php echo $company_color_main ?>;padding:10px;">
+		<div class="no-resume" style="background-color:<?php echo esc_attr( $company_color_main ); ?>;padding:10px;">
 	<?php else : ?>
 		<div class="no-resume" style="background-color:#2196F3;padding:10px;">
 	<?php endif; ?>
@@ -263,7 +266,7 @@ Description: A simple landing page template for Whiterail Recruits.
 <section class="apply section blur_sides">
 	<div class="apply-now" style="padding:40px;">
 		<div style="text-align:center;">
-			<a href=" <?php echo $recruits_url; ?> ">
+			<a href=" <?php echo esc_url( $recruits_url ); ?> ">
 				<img decoding="async" width="500" height="518" src="https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png" class="attachment-full size-full wp-image-31" alt="" srcset="https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 1170w, https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 300w, https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 1024w, https://whiterailrecruits.com/wp-content/uploads/2021/10/button_with_text.png 768w" sizes="(max-width: 1170px) 100vw, 1170px">
 			</a>
 		</div>

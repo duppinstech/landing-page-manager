@@ -2671,3 +2671,28 @@ input[type=color]::-webkit-color-swatch {
 .ast-flex-grow-1 {
     flex-grow: 1
 }
+
+/* "Services" dropdown: opened by its button (click/keyboard) as well as on hover. */
+.main-header-menu .menu-item.lpm-open > .sub-menu {
+    right: auto;
+    left: 0;
+    visibility: visible;
+}
+/* Make the disclosure button look like the neighbouring menu links. */
+.main-header-menu button.lpm-submenu-parent {
+    background: none;
+    border: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    line-height: inherit;
+}
+.main-header-menu button.lpm-submenu-parent:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+.main-header-menu .sub-menu a[aria-current="page"] {
+    font-weight: 700;
+    box-shadow: inset 3px 0 0 currentColor;
+}

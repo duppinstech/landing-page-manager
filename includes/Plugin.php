@@ -13,6 +13,7 @@ use LPManager\templates\Template_Loader;
 use LPManager\ajax\Reviews_Ajax;
 use LPManager\assets\Assets_Manager;
 use LPManager\core\Landing_Page_Validator;
+use LPManager\core\Privacy;
 use LPManager\Update_Checker;
 
 final class Plugin {
@@ -30,6 +31,7 @@ final class Plugin {
         // Assets early if needed for admin screens (order can vary)
         Assets_Manager::init();
         Landing_Page_Validator::init();
+        Privacy::init();
         
         // Template management needs to initialize before anything loads template functions or fields
         Template_Manager::init();

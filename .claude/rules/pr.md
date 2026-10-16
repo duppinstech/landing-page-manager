@@ -1,7 +1,7 @@
 # Commits & pull requests
 
 ## Branches
-`feature/<name>`, `fix/<name>`, `chore/<name>`, `template/<name>`, `security/<name>`, all branched from `main`.
+`feature/<name>`, `fix/<name>`, `chore/<name>`, `template/<name>`, `security/<name>`, `perf/<name>`, all branched from `main`.
 
 ## Commits
 - Use the imperative mood and keep the subject to 72 characters or less, matching history: "Fix subdomain AJAX and normalize GitHub update installs."
@@ -16,4 +16,5 @@ Use `.github/pull_request_template.md`: summary, type, checklist, test notes. Li
 - Lint is clean.
 - The security review is done for handler, upload, rewrite, and updater changes.
 - `CHANGELOG.md` has an [Unreleased] entry.
+- `/department-review` has been run and no department returned `block`. The sign-off table is in the PR body.
 - The version bump and tag happen only in a dedicated release PR or commit (see `/deploy`).

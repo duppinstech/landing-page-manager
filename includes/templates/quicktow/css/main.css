@@ -39,8 +39,10 @@ section{padding:72px 0}
 .ph{background:var(--gray-light);border:2px dashed var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#999;font-size:13px;font-weight:600;letter-spacing:.05em;text-align:center;padding:24px}
 .ph-icon{font-size:40px;opacity:.4;display:block}
 .r43{aspect-ratio:4/3}
-.wra-fi{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
-.wra-fi.wra-fi-on{opacity:1;transform:none}
+/* Scroll reveal: only when JS runs (html.qt-js, set in <head>) and the visitor allows motion. Never on the hero. */
+@media (prefers-reduced-motion:no-preference){.qt-js .wra-fi{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}.qt-js .wra-fi.wra-fi-on{opacity:1;transform:none}.qt-js:not(.qt-fi-ready) .wra-fi{animation:qt-fi-fallback 0s 3s forwards}}
+/* If main.js never runs (blocked or delayed JS), show revealed content after 3s. */
+@keyframes qt-fi-fallback{to{opacity:1;transform:none}}
 #hdr{position:sticky;top:0;z-index:1000;background:rgba(10,12,30,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:3px solid var(--red)}
 .hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:0 24px;max-width:1180px;margin:0 auto;height:70px;gap:16px}
 .logo-wrap{display:flex;align-items:center;gap:12px;flex-shrink:0;text-decoration:none;color:inherit}
@@ -69,9 +71,9 @@ section{padding:72px 0}
 .hero-img-slot .hero-bg-image{width:100%;height:100%;object-fit:cover;display:block}
 .hero-fade{position:absolute;right:46%;top:0;width:200px;height:100%;background:linear-gradient(to right,#06091a,transparent);z-index:2;pointer-events:none}
 .hero-content{position:relative;z-index:3;padding:100px 24px 160px;max-width:620px;margin-left:max(24px,calc((100vw - 1180px)/2 + 24px))}
-/* Style 1 (James): section top 32px + hero content top 36px (evens out with heavy hero rhythm) */
-.quicktow--james #hero.hero--james{padding-top:32px}
-.quicktow--james #hero.hero--james .hero-content{padding:36px 24px 160px}
+/* Style 1 (Style 1): section top 32px + hero content top 36px (evens out with heavy hero rhythm) */
+.quicktow--layout1 #hero.hero--layout1{padding-top:32px}
+.quicktow--layout1 #hero.hero--layout1 .hero-content{padding:36px 24px 160px}
 .hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:10px}
 .hero-eyebrow::before{content:'';display:inline-block;width:30px;height:2px;background:var(--red)}
 .hero-sub{font-size:clamp(16px,2vw,21px);color:rgba(255,255,255,.75);margin:18px 0 10px;font-weight:600}
@@ -91,7 +93,7 @@ section{padding:72px 0}
 .trust-bar-inner{justify-content:center;text-align:center}
 .ti:not(:last-child)::after{display:none}
 .ti{padding-right:10px;padding-left:10px;text-align:center}
-.quicktow--james .hero-fade--james{background:linear-gradient(180deg,rgba(6,9,26,.9) 0%,rgba(6,9,26,.55) 45%,rgba(6,9,26,.88) 100%)}
+.quicktow--layout1 .hero-fade--layout1{background:linear-gradient(180deg,rgba(6,9,26,.9) 0%,rgba(6,9,26,.55) 45%,rgba(6,9,26,.88) 100%)}
 }
 @media(max-width:768px){
 .hero-ctas{flex-direction:column;align-items:stretch;gap:12px;width:100%;max-width:100%}
@@ -137,7 +139,7 @@ section{padding:72px 0}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:44px}
 .stat-box{text-align:center;padding:32px 20px;border-bottom:4px solid var(--red);background:rgba(255,255,255,.04)}
 .stat-num{font-family:'Bebas Neue',cursive;font-size:clamp(48px,6vw,80px);color:#fff;letter-spacing:.02em;line-height:1;display:block}
-.stat-lbl{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:8px;display:block}
+.stat-lbl{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.78);margin-top:8px;display:block}
 @media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.stats-grid{grid-template-columns:1fr}}
 #roadside{background:#fff}
@@ -203,4 +205,7 @@ address a:hover{color:var(--red)}
 @media(max-width:768px){#mcall{display:flex}}
 
 /* QuickTow style variants (Style 1 / #hdr + #hero layout only) */
-.quicktow--james .hero-fade--james{background:linear-gradient(to right,#06091a,transparent)}
+.quicktow--layout1 .hero-fade--layout1{background:linear-gradient(to right,#06091a,transparent)}
+/* Mobile call button (dials the phone, so it shows a phone icon, not menu bars). */
+.ham.ham--call{align-items:center;justify-content:center;color:#fff;padding:11px;min-width:44px;min-height:44px;box-sizing:border-box}
+.ham.ham--call svg{width:22px;height:22px;display:block}

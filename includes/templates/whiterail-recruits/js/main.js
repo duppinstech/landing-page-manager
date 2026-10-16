@@ -15,19 +15,26 @@ jQuery(function($) {
     /** open contact form on link START **/
     if( $('.js-contact-form').length ){
         $('.js-contact-form').on('click', function () {
-            $('#contact_form').modal('show');
+            if ($.fn.modal) { $('#contact_form').modal('show'); } // Bootstrap JS isn't loaded by default (lib/assets.php)
         });
     }
     /** open contact form on link END **/
 
-    $.browser.safari = ($.browser.webkit && !(/chrome/.test(navigator.userAgent.toLowerCase())));
-
-    if ($.browser.safari) {
+    // $.browser only existed through jQuery Migrate 1.x, which is no longer loaded.
+    var ua = navigator.userAgent.toLowerCase();
+    if (/webkit/.test(ua) && !/chrome/.test(ua)) {
         $('body').addClass('is_safari');
     }
 
-    window.wow = new WOW();
-    wow.init();
+    // Visitors who ask for reduced motion get no scroll-in animations or autoplaying sliders.
+    var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (!reduceMotion && typeof WOW === 'function') {
+        window.wow = new WOW();
+        wow.init();
+    } else {
+        // header.css hides .wow until WOW marks it finished; show everything now.
+        $('.wow').addClass('animation_end');
+    }
 
     $('.hero.section .section__layer').each(function () {
         var attr = $(this).data('bg-videos');
@@ -94,7 +101,7 @@ jQuery(function($) {
             slidesPerView: 1,
             slidesPerGroup: 1,
             followFinger: false,
-            autoplay: {
+            autoplay: reduceMotion ? false : {
                 delay: 10000,
             },
             speed: 1500,
@@ -139,7 +146,7 @@ jQuery(function($) {
             slidesPerGroup: 1,
             loop: true,
             followFinger: false,
-            autoplay: {
+            autoplay: reduceMotion ? false : {
                 delay: 10000,
             },
             speed: 1500,
@@ -994,7 +1001,7 @@ jQuery(function($) {
         if( !$(this).is(':empty')){
             $("#form_response .nf-form-wrap").empty();
             $(this).clone().appendTo($("#form_response .nf-form-wrap"));
-            $('#form_response').modal('show');
+            if ($.fn.modal) { $('#form_response').modal('show'); }
         }
     });
 
@@ -1069,3 +1076,57 @@ jQuery(function($) {
     }
 
 });
+
+// Desktop "Services" dropdown (disclosure button). Hover still opens it via CSS; the button toggles
+// it for click/keyboard, and Escape, focus leaving, or a click elsewhere closes it.
+(function () {
+    var buttons = document.querySelectorAll('.lpm-submenu-parent');
+    Array.prototype.forEach.call(buttons, function (button) {
+        var item = button.parentNode;
+        function setOpen(open) {
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+            item.classList.toggle('lpm-open', open);
+        }
+        button.addEventListener('click', function () {
+            setOpen(button.getAttribute('aria-expanded') !== 'true');
+        });
+        item.addEventListener('keydown', function (e) {
+            if ((e.key === 'Escape' || e.key === 'Esc') && button.getAttribute('aria-expanded') === 'true') {
+                setOpen(false);
+                button.focus();
+            }
+        });
+        item.addEventListener('focusout', function (e) {
+            if (!e.relatedTarget || !item.contains(e.relatedTarget)) setOpen(false);
+        });
+        document.addEventListener('click', function (e) {
+            if (!item.contains(e.target)) setOpen(false);
+        });
+    });
+})();
+
+// Mobile menu: the header toggle opens #lpm-mobile-nav. Closes on link tap or Escape.
+(function () {
+    var button = document.querySelector('#ast-mobile-header .main-header-menu-toggle');
+    var nav = document.getElementById('lpm-mobile-nav');
+    if (!button || !nav) return;
+
+    function setOpen(open) {
+        nav.hidden = !open;
+        button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        button.classList.toggle('toggled', open);
+    }
+
+    button.addEventListener('click', function () {
+        setOpen(nav.hidden);
+    });
+    nav.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+        if ((e.key === 'Escape' || e.key === 'Esc') && !nav.hidden) {
+            setOpen(false);
+            button.focus();
+        }
+    });
+})();

@@ -2,6 +2,7 @@
 <html <?php language_attributes() ?>>
     <head>
         <meta charset="<?php bloginfo('charset') ?>" />
+        <script>document.documentElement.className += ' rec-js';</script>
 
         <meta name="format-detection" content="telephone=no">
 
@@ -9,8 +10,8 @@
         <meta name="HandheldFriendly" content="true" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         
-        <link rel="icon" type="image/png" href="<?php echo plugins_url('css/images/favicons/favicon-32x32.png', __FILE__); ?>" sizes="32x32" />
-		<link rel="icon" type="image/png" href="<?php echo plugins_url('css/images/favicons/favicon-16x16.png', __FILE__); ?>" sizes="16x16" />
+        <link rel="icon" type="image/png" href="<?php echo esc_url( plugins_url('css/images/favicons/favicon-32x32.png', __FILE__) ); ?>" sizes="32x32" />
+		<link rel="icon" type="image/png" href="<?php echo esc_url( plugins_url('css/images/favicons/favicon-16x16.png', __FILE__) ); ?>" sizes="16x16" />
         
         <?php do_action( 'wp_head' ); ?>
     </head>
@@ -26,13 +27,10 @@
 
         // Now get the term meta for 'client_logo'
         $client_logo_id = carbon_get_term_meta($client_term_id, 'client_logo'); // Use carbon_get_term_meta for term meta
-        error_log('Client Logo ID: ' . $client_logo_id);
 
         $client_logo_url = !empty($client_logo_id) ? wp_get_attachment_url($client_logo_id) : '';
-        error_log('Client Logo URL: ' . $client_logo_url);
 
     } else {
-        error_log('No client term found for this post');
         $client_logo_url = '';
     }
     
@@ -46,6 +44,42 @@
     } else {
         $client_name = 'Unknown Client';
     }
+
+    // The client's published landing pages, for the "Services" menu (desktop dropdown and mobile panel).
+    // Same client as the logo and name above (the term), falling back to the Client Name field.
+    $lpm_client_pages = array();
+    $lpm_client_id    = ! empty( $client_term_id ) ? (int) $client_term_id : ( $current_post_id ? (int) carbon_get_post_meta( $current_post_id, 'client' ) : 0 );
+    if ( $lpm_client_id ) {
+        // Full post objects (not 'fields' => 'ids') so WordPress primes the post and term caches in
+        // one pass; get_the_title()/get_permalink() then don't query once per page.
+        $lpm_pages = get_posts(
+            array(
+                'post_type'              => 'landing_page',
+                'post_status'            => 'publish',
+                'posts_per_page'         => -1,
+                'orderby'                => 'title',
+                'order'                  => 'ASC',
+                'no_found_rows'          => true,
+                'update_post_meta_cache' => false,
+                'tax_query'              => array(
+                    array(
+                        'taxonomy' => 'client',
+                        'field'    => 'term_id',
+                        'terms'    => $lpm_client_id,
+                    ),
+                ),
+            )
+        );
+        foreach ( $lpm_pages as $lpm_page_post ) {
+            $lpm_client_pages[] = array(
+                'id'    => (int) $lpm_page_post->ID,
+                'title' => get_the_title( $lpm_page_post ),
+                'url'   => get_permalink( $lpm_page_post ),
+            );
+        }
+    }
+    // A menu whose only entry is the page you're on isn't useful.
+    $lpm_show_services = count( $lpm_client_pages ) > 1;
 ?>
 	
     <body <?php body_class() ?>>
@@ -61,7 +95,7 @@
 									<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
 										<div class="site-branding ast-site-identity" itemtype="https://schema.org/Organization" itemscope="itemscope">
 											<span class="site-logo-img">
-												<a href="<?php echo esc_url( get_permalink() ); ?>" class="custom-logo-link" rel="home" aria-current="page" aria-expanded="false"><img width="180" height="113" src="<?php echo $client_logo_url; ?>" class="custom-logo" alt="<?php echo $client_name; ?> Jobs">
+												<a href="<?php echo esc_url( get_permalink() ); ?>" class="custom-logo-link" rel="home" aria-current="page" aria-expanded="false"><img width="180" height="113" src="<?php echo esc_url( $client_logo_url ); ?>" class="custom-logo" alt="<?php echo esc_attr( $client_name ); ?> Jobs">
 												</a>
 											</span>				
 										</div>
@@ -74,72 +108,20 @@
 										<div class="main-header-bar-navigation">
 											<nav class="site-navigation ast-flex-grow-1 navigation-accessibility site-header-focus-item" id="primary-site-navigation-desktop" aria-label="Site Navigation" itemtype="https://schema.org/SiteNavigationElement" itemscope="itemscope">
 												<div class="main-navigation ast-inline-flex">
-													<ul id="ast-hf-menu-1" class="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border stack-on-mobile" aria-expanded="false">
-														<li id="menu-item-57" class="menu-item">
-															<a href="#services" class="menu-link">Services</a>
-                                                            <ul class="sub-menu">
-                                                                <?php
-                                                                    $current_post_id = get_the_ID();
-
-                                                                    error_log('Landing Pages Debug: Current Post ID: ' . $current_post_id);
-
-                                                                    if (!$current_post_id) {
-                                                                        error_log('Landing Pages Debug: Invalid post context, no current post ID.');
-                                                                        echo '<p>Invalid post context.</p>';
-                                                                        return;
-                                                                    }
-
-                                                                    $current_client_id = carbon_get_post_meta($current_post_id, 'client');
-
-                                                                    error_log('Landing Pages Debug: Current client ID: ' . $current_client_id);
-
-                                                                    if (!$current_client_id) {
-                                                                        error_log('Landing Pages Debug: No client assigned to this page.');
-                                                                        echo '<p>No client assigned to this page.</p>';
-                                                                        return;
-                                                                    }
-
-                                                                    $args = [
-                                                                        'post_type'      => 'landing_page',
-                                                                        'posts_per_page' => -1,
-                                                                        'post_status'    => 'publish',
-                                                                        'tax_query'      => [
-                                                                            [
-                                                                                'taxonomy' => 'client',
-                                                                                'field'    => 'term_id',
-                                                                                'terms'    => intval($current_client_id),
-                                                                            ],
-                                                                        ],
-                                                                        'orderby'        => 'title',
-                                                                        'order'          => 'ASC',
-                                                                    ];
-
-                                                                    $query = new WP_Query($args);
-
-                                                                    error_log('Landing Pages Debug: Number of landing pages found: ' . $query->found_posts);
-
-                                                                    if ($query->have_posts()) {
-                                                                        echo '<ul class="client-landing-pages">';
-                                                                        while ($query->have_posts()) {
-                                                                            $query->the_post();
-                                                                            echo '<li class="menu-item page-item-' . get_the_ID() . '">';
-                                                                            echo '<a href="' . get_permalink() . '">' . get_the_title() . '</a>';
-                                                                            echo '</li>';
-
-                                                                            error_log('Landing Pages Debug: Outputting page: ' . get_the_title() . ' (ID: ' . get_the_ID() . ')');
-                                                                        }
-                                                                        echo '</ul>';
-                                                                        wp_reset_postdata();
-                                                                    } else {
-                                                                        error_log('Landing Pages Debug: No landing pages found for this client.');
-                                                                        echo '<p>No landing pages found for this client.</p>';
-                                                                    }
-                                                                    ?>
-                                                            </ul>
+													<ul id="ast-hf-menu-1" class="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border stack-on-mobile">
+														<?php if ( $lpm_show_services ) : ?>
+														<li id="menu-item-57" class="menu-item menu-item-has-children">
+															<button type="button" class="menu-link lpm-submenu-parent" aria-expanded="false" aria-controls="lpm-services-sub"><?php esc_html_e( 'Services', 'landing-page-manager' ); ?></button>
+															<ul id="lpm-services-sub" class="sub-menu client-landing-pages">
+																<?php foreach ( $lpm_client_pages as $lpm_page ) : ?>
+																<li class="menu-item page-item-<?php echo esc_attr( $lpm_page['id'] ); ?>"><a href="<?php echo esc_url( $lpm_page['url'] ); ?>" class="menu-link"<?php echo ( $lpm_page['id'] === (int) $current_post_id ) ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $lpm_page['title'] ); ?></a></li>
+																<?php endforeach; ?>
+															</ul>
 														</li>
+														<?php endif; ?>
 														<li id="menu-item-58" class="menu-item"><a href="#about" class="menu-link">About Us</a></li>
 														<li id="menu-item-59" class="menu-item"><a href="#benefits" class="menu-link">Benefits</a></li>
-														<li id="menu-item-60" class="menu-item"><a href="#more" class="menu-link">More About <?php echo $client_name; ?></a></li>
+														<li id="menu-item-60" class="menu-item"><a href="#more" class="menu-link">More About <?php echo esc_html( $client_name ); ?></a></li>
 													</ul>
 												</div>
 											</nav>
@@ -160,7 +142,7 @@
 						<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
 							<div class="site-branding ast-site-identity" itemtype="https://schema.org/Organization" itemscope="itemscope">
 								<span class="site-logo-img">
-									<a href="<?php echo site_url(); ?>" class="custom-logo-link" rel="home" aria-current="page"><img width="180" height="113" src="<?php echo $client_logo_url; ?>" class="custom-logo" alt="<?php echo $client_name; ?> Jobs" ></a>
+									<a href="<?php echo esc_url( site_url() ); ?>" class="custom-logo-link" rel="home" aria-current="page"><img width="180" height="113" src="<?php echo esc_url( $client_logo_url ); ?>" class="custom-logo" alt="<?php echo esc_attr( $client_name ); ?> Jobs" ></a>
 								</span>				
 							</div><!-- .site-branding -->
 						</div>
@@ -168,7 +150,7 @@
 					<div class="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section">
 						<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="section-header-mobile-trigger">
 							<div class="ast-button-wrap">
-								<button type="button" class="menu-toggle main-header-menu-toggle ast-mobile-menu-trigger-minimal" aria-expanded="false" data-index="0" style="display: flex;">
+								<button type="button" class="menu-toggle main-header-menu-toggle ast-mobile-menu-trigger-minimal" aria-expanded="false" aria-controls="lpm-mobile-nav" data-index="0" style="display: flex;">
 									<span class="screen-reader-text">Main Menu</span>
 										<span class="mobile-menu-toggle-icon">
 											<span class="ahfb-svg-iconset ast-inline-flex svg-baseline">
@@ -189,6 +171,28 @@
 				</div>
 			</div>
 		</div>
+		<nav id="lpm-mobile-nav" class="lpm-mobile-nav" aria-label="<?php esc_attr_e( 'Main menu', 'landing-page-manager' ); ?>" hidden>
+			<ul>
+				<?php if ( $lpm_show_services ) : ?>
+				<li class="lpm-mobile-nav__group">
+					<span class="lpm-mobile-nav__label" id="lpm-mobile-nav-services"><?php esc_html_e( 'Services', 'landing-page-manager' ); ?></span>
+					<ul aria-labelledby="lpm-mobile-nav-services">
+						<?php foreach ( $lpm_client_pages as $lpm_page ) : ?>
+						<li><a href="<?php echo esc_url( $lpm_page['url'] ); ?>"<?php echo ( $lpm_page['id'] === (int) $current_post_id ) ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $lpm_page['title'] ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				</li>
+				<?php endif; ?>
+				<li><a href="#about"><?php esc_html_e( 'About Us', 'landing-page-manager' ); ?></a></li>
+				<li><a href="#benefits"><?php esc_html_e( 'Benefits', 'landing-page-manager' ); ?></a></li>
+				<li><a href="#more">
+					<?php
+					/* translators: %s: client name */
+					echo esc_html( sprintf( __( 'More About %s', 'landing-page-manager' ), $client_name ) );
+					?>
+				</a></li>
+			</ul>
+		</nav>
 	</div>
 	</header>
     <main class="main-content" id="main-content">

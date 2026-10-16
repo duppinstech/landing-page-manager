@@ -33,7 +33,8 @@
 	$client_place_id = '';
 	$gmb_url = '';
 	$client_domain = '';
-	$client_phone = '';
+	// The page's own number wins, then the client's default.
+	$client_phone = lpmanager_get_landing_phone( get_the_ID() );
 	$social_links = [];
 	$contrast_text_color = '#FFFFFF';
 
@@ -44,13 +45,12 @@
 		$client_term_id = $client_term->term_id;
 		$client_logo_id = carbon_get_term_meta( $client_term_id, 'client_logo' );
 		$client_logo_url = $client_logo_id ? wp_get_attachment_image_url( $client_logo_id, 'full' ) : '';
-		$client_primary_color = carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ?: '#007BFF';
-		$client_secondary_color = carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ?: '#FF4136';
+		$client_primary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_primary_color' ) ) ?: '#007BFF';
+		$client_secondary_color = sanitize_hex_color( (string) carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) ) ?: '#FF4136';
 		$client_address = carbon_get_term_meta( $client_term_id, 'client_address' ) ?: '';
 		$client_place_id = carbon_get_term_meta( $client_term_id, 'client_place_id' ) ?: '';
 		$gmb_url = $client_place_id ? Google_Maps_Helper::get_gmb_url( $client_place_id ) : '';
 		$client_domain = carbon_get_term_meta( $client_term_id, 'client_domain' ) ?: '';
-		$client_phone = carbon_get_term_meta( $client_term_id, 'client_phone' ) ?: '';
 		$social_links = carbon_get_term_meta( $client_term_id, 'social_links' ) ?: [];
 		$contrast_text_color = \LPManager\assets\Assets_Manager::get_contrast_text_color( $client_primary_color );
 	}
@@ -85,7 +85,7 @@
         <?php if (!empty($client_phone)) : ?>
             <span class="header-bar__text">
                 Need Help Now? 
-                <a href="tel:<?php echo preg_replace('/[^0-9+]/', '', $client_phone); ?>" style="color: <?php echo esc_attr($contrast_text_color); ?>">
+                <a href="tel:<?php echo esc_attr( preg_replace('/[^0-9+]/', '', $client_phone) ); ?>" style="color: <?php echo esc_attr($contrast_text_color); ?>">
                     <i class="fas fa-phone-alt" aria-hidden="true"></i> <span style="color: inherit!important;">Call <?php echo esc_html($client_phone);?></span>
                 </a>
             </span>

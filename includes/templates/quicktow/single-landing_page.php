@@ -14,14 +14,9 @@ $post_id = get_the_ID();
 $client_terms = get_the_terms( $post_id, 'client' );
 $client_term_id = ( $client_terms && ! is_wp_error( $client_terms ) && ! empty( $client_terms ) ) ? (int) $client_terms[0]->term_id : 0;
 
-$client_tel = function_exists( 'carbon_get_the_post_meta' ) ? carbon_get_the_post_meta( 'client_tel' ) : '';
-$client_phone = '';
-if ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) {
-	$client_phone = carbon_get_term_meta( $client_term_id, 'client_phone' );
-}
-if ( empty( $client_phone ) ) {
-	$client_phone = $client_tel;
-}
+// The page's own number wins, then the client's default (one number for display and tel: links).
+$client_phone = lpmanager_get_landing_phone( $post_id );
+$client_tel   = $client_phone;
 
 $client_name = $client_term_id ? get_term_field( 'name', $client_term_id, 'client' ) : '';
 if ( is_wp_error( $client_name ) ) {
@@ -37,6 +32,9 @@ if ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) {
 
 $client_primary = ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) ? carbon_get_term_meta( $client_term_id, 'client_primary_color' ) : '';
 $client_secondary = ( $client_term_id && function_exists( 'carbon_get_term_meta' ) ) ? carbon_get_term_meta( $client_term_id, 'client_secondary_color' ) : '';
+// Printed into a <style> block, so only a real hex colour is allowed through.
+$client_primary = sanitize_hex_color( (string) $client_primary );
+$client_secondary = sanitize_hex_color( (string) $client_secondary );
 $client_primary = $client_primary ? $client_primary : '#002868';
 $client_secondary = $client_secondary ? $client_secondary : '#B22234';
 
@@ -55,12 +53,14 @@ if ( '' === $wra_style_variant_raw && $post_id ) {
 	$wra_style_variant_raw = (string) get_post_meta( $post_id, '_wra_style_variant', true );
 }
 $wra_style_variant_raw = strtolower( trim( $wra_style_variant_raw ) );
+// Stored values: style_1/2/3, plus legacy aliases from early versions (kept so old pages keep their style).
+// Internal names (layout1, layout2, layout_3) drive CSS classes; they carry no client names.
 if ( in_array( $wra_style_variant_raw, array( 'style_3', 'style3', 'james_heavy', 'james_hd', '3' ), true ) ) {
-	$wra_style_variant = 'james_heavy';
+	$wra_style_variant = 'layout_3';
 } elseif ( in_array( $wra_style_variant_raw, array( 'style_2', 'style2', 'charmeck', '2' ), true ) ) {
-	$wra_style_variant = 'charmeck';
+	$wra_style_variant = 'layout2';
 } else {
-	$wra_style_variant = 'james';
+	$wra_style_variant = 'layout1';
 }
 $wra_header_layout = carbon_get_the_post_meta( 'wra_header_layout' ) ?: 'standard';
 $wra_header_logo_emoji = carbon_get_the_post_meta( 'wra_header_logo_emoji' );

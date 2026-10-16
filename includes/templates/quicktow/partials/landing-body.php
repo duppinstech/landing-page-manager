@@ -10,17 +10,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Style 2 / 3 use alternate markup; not achievable with CSS-only on Style 1 DOM.
-if ( isset( $wra_style_variant ) && 'charmeck' === $wra_style_variant ) {
-	require __DIR__ . '/landing-body-charmeck.php';
+if ( isset( $wra_style_variant ) && 'layout2' === $wra_style_variant ) {
+	require __DIR__ . '/landing-body-style-2.php';
 	return;
 }
-if ( isset( $wra_style_variant ) && 'james_heavy' === $wra_style_variant ) {
-	require __DIR__ . '/landing-body-james-heavy.php';
+if ( isset( $wra_style_variant ) && 'layout_3' === $wra_style_variant ) {
+	require __DIR__ . '/landing-body-style-3.php';
 	return;
 }
 ?>
 
-<section id="hero" class="hero--<?php echo esc_attr( isset( $wra_style_variant ) ? $wra_style_variant : 'james' ); ?>">
+<section id="hero" class="hero--<?php echo esc_attr( isset( $wra_style_variant ) ? $wra_style_variant : 'layout1' ); ?>">
 	<div class="stripe" aria-hidden="true"></div>
 	<div class="hero-img-slot">
 		<?php if ( ! empty( $wra_hero_bg_url ) ) : ?>
@@ -32,7 +32,7 @@ if ( isset( $wra_style_variant ) && 'james_heavy' === $wra_style_variant ) {
 			</div>
 		<?php endif; ?>
 	</div>
-	<div class="hero-fade hero-fade--<?php echo esc_attr( isset( $wra_style_variant ) ? $wra_style_variant : 'james' ); ?>" aria-hidden="true"></div>
+	<div class="hero-fade hero-fade--<?php echo esc_attr( isset( $wra_style_variant ) ? $wra_style_variant : 'layout1' ); ?>" aria-hidden="true"></div>
 	<div class="hero-content">
 		<?php if ( ! empty( $wra_hero_eyebrow ) ) : ?>
 			<div class="hero-eyebrow"><?php echo esc_html( $wra_hero_eyebrow ); ?></div>

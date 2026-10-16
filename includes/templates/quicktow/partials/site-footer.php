@@ -10,16 +10,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $wra_ft_bottom_right = isset( $wra_ft_bottom_right ) ? (string) $wra_ft_bottom_right : '';
-$qt_ft_split_bottom  = isset( $wra_style_variant ) && in_array( $wra_style_variant, array( 'james', 'james_heavy' ), true ) && '' !== trim( wp_strip_all_tags( $wra_ft_bottom_right ) );
+$qt_ft_split_bottom  = isset( $wra_style_variant ) && in_array( $wra_style_variant, array( 'layout1', 'layout_3' ), true ) && '' !== trim( wp_strip_all_tags( $wra_ft_bottom_right ) );
 
-$qt_charmeck_ft  = isset( $wra_style_variant ) && 'charmeck' === $wra_style_variant;
-$qt_heavy_footer = $qt_charmeck_ft && isset( $wra_ft_layout ) && 'heavy' === $wra_ft_layout;
+$qt_layout2_ft  = isset( $wra_style_variant ) && 'layout2' === $wra_style_variant;
+$qt_heavy_footer = $qt_layout2_ft && isset( $wra_ft_layout ) && 'heavy' === $wra_ft_layout;
 
-if ( $qt_charmeck_ft ) {
+if ( $qt_layout2_ft ) {
 	$ft_logo = isset( $wra_header_logo_text ) ? $wra_header_logo_text : '';
-	$ft_mod  = $qt_heavy_footer ? ' qt-charmeck-ft--heavy' : '';
+	$ft_mod  = $qt_heavy_footer ? ' qt-layout2-ft--heavy' : '';
 	?>
-<footer class="qt-charmeck-ft<?php echo esc_attr( $ft_mod ); ?>">
+<footer class="qt-layout2-ft<?php echo esc_attr( $ft_mod ); ?>">
 	<?php if ( $qt_heavy_footer ) : ?>
 	<div class="footer-grid footer-grid--heavy">
 		<div class="footer-brand wra-fi">
@@ -161,10 +161,10 @@ if ( $qt_charmeck_ft ) {
 	return;
 }
 
-if ( isset( $wra_style_variant ) && 'james_heavy' === $wra_style_variant ) {
+if ( isset( $wra_style_variant ) && 'layout_3' === $wra_style_variant ) {
 	$ft_logo = isset( $wra_header_logo_text ) ? $wra_header_logo_text : '';
 	?>
-<footer class="qt-james-heavy-ft">
+<footer class="qt-layout-3-ft">
 	<div class="footer-grid footer-grid--heavy">
 		<div class="footer-brand wra-fi">
 			<div class="logo-text">
@@ -254,7 +254,7 @@ if ( isset( $wra_style_variant ) && 'james_heavy' === $wra_style_variant ) {
 	return;
 }
 ?>
-<footer id="footer" class="footer--<?php echo esc_attr( isset( $wra_style_variant ) ? $wra_style_variant : 'james' ); ?>">
+<footer id="footer" class="footer--<?php echo esc_attr( isset( $wra_style_variant ) ? $wra_style_variant : 'layout1' ); ?>">
 	<div class="container">
 		<div class="ft-grid">
 			<div>

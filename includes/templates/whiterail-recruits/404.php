@@ -9,23 +9,23 @@
 
         $section_background = '';
         if(!empty($inside_hero_background)){
-            $section_background = 'background-image: url('.get_attachment_src( $inside_hero_background ).')';
+            $section_background = 'background-image: url('.esc_url( get_attachment_src( $inside_hero_background ) ).')';
         }
         ?>
 
-        <div class="section__layer section__layer_base" style="<?php echo $section_background; ?>"   data-bg-videos="<?php echo (!empty($inside_hero_section_modal_youtube_link) ? esc_attr( json_encode( $bg_videos_for_js ) ) : '') ?>">
+        <div class="section__layer section__layer_base" style="<?php echo esc_attr( $section_background ); ?>"   data-bg-videos="<?php echo (!empty($inside_hero_section_modal_youtube_link) ? esc_attr( json_encode( $bg_videos_for_js ) ) : '') ?>">
             <div class="container">
                 <div class="hero_content_wrapper">
                     <div class="hero_content_inner_wrapper">
                         <?php if ( !empty( $inside_hero_heading ) ) : ?>
                             <h1>
-                                <?php echo $inside_hero_heading; ?>
+                                <?php echo esc_html( $inside_hero_heading ); ?>
                             </h1>
                         <?php endif; ?>
 
                         <?php if ( !empty( $sub_title_404 ) ) : ?>
                             <h2>
-                                <?php echo $sub_title_404; ?>
+                                <?php echo esc_html( $sub_title_404 ); ?>
                             </h2>
                         <?php endif; ?>
 
