@@ -71,9 +71,9 @@ section{padding:72px 0}
 .hero-img-slot .hero-bg-image{width:100%;height:100%;object-fit:cover;display:block}
 .hero-fade{position:absolute;right:46%;top:0;width:200px;height:100%;background:linear-gradient(to right,#06091a,transparent);z-index:2;pointer-events:none}
 .hero-content{position:relative;z-index:3;padding:100px 24px 160px;max-width:620px;margin-left:max(24px,calc((100vw - 1180px)/2 + 24px))}
-/* Style 1 (James): section top 32px + hero content top 36px (evens out with heavy hero rhythm) */
-.quicktow--james #hero.hero--james{padding-top:32px}
-.quicktow--james #hero.hero--james .hero-content{padding:36px 24px 160px}
+/* Style 1 (Style 1): section top 32px + hero content top 36px (evens out with heavy hero rhythm) */
+.quicktow--layout1 #hero.hero--layout1{padding-top:32px}
+.quicktow--layout1 #hero.hero--layout1 .hero-content{padding:36px 24px 160px}
 .hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;align-items:center;gap:10px}
 .hero-eyebrow::before{content:'';display:inline-block;width:30px;height:2px;background:var(--red)}
 .hero-sub{font-size:clamp(16px,2vw,21px);color:rgba(255,255,255,.75);margin:18px 0 10px;font-weight:600}
@@ -93,7 +93,7 @@ section{padding:72px 0}
 .trust-bar-inner{justify-content:center;text-align:center}
 .ti:not(:last-child)::after{display:none}
 .ti{padding-right:10px;padding-left:10px;text-align:center}
-.quicktow--james .hero-fade--james{background:linear-gradient(180deg,rgba(6,9,26,.9) 0%,rgba(6,9,26,.55) 45%,rgba(6,9,26,.88) 100%)}
+.quicktow--layout1 .hero-fade--layout1{background:linear-gradient(180deg,rgba(6,9,26,.9) 0%,rgba(6,9,26,.55) 45%,rgba(6,9,26,.88) 100%)}
 }
 @media(max-width:768px){
 .hero-ctas{flex-direction:column;align-items:stretch;gap:12px;width:100%;max-width:100%}
@@ -205,7 +205,7 @@ address a:hover{color:var(--red)}
 @media(max-width:768px){#mcall{display:flex}}
 
 /* QuickTow style variants (Style 1 / #hdr + #hero layout only) */
-.quicktow--james .hero-fade--james{background:linear-gradient(to right,#06091a,transparent)}
+.quicktow--layout1 .hero-fade--layout1{background:linear-gradient(to right,#06091a,transparent)}
 /* Mobile call button (dials the phone, so it shows a phone icon, not menu bars). */
 .ham.ham--call{align-items:center;justify-content:center;color:#fff}
 .ham.ham--call svg{width:22px;height:22px;display:block}

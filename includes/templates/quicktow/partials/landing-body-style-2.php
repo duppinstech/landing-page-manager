@@ -1,6 +1,6 @@
 <?php
 /**
- * QuickTow — Style 2 body markup (alternate layout; pairs with charmeck-layout.css).
+ * QuickTow — Style 2 body markup (alternate layout; pairs with style-2-layout.css).
  *
  * @package Landing_Page_Manager
  */
@@ -83,4 +83,4 @@ $cm_chk  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="
 	<?php endif; ?>
 </section>
 
-<?php require __DIR__ . '/landing-body-charmeck-main.php'; ?>
+<?php require __DIR__ . '/landing-body-style-2-main.php'; ?>

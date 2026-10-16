@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 return array(
 	'styles'  => array(
 		'main'       => array( 'css/main.css' ),
-		'style-2'    => array( 'css/charmeck-layout.css', array( 'main' ) ),
+		'style-2'    => array( 'css/style-2-layout.css', array( 'main' ) ),
 		'style-3'    => array( 'css/heavy-duty-layout.css', array( 'main' ) ),
 	),
 	'scripts' => array(

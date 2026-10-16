@@ -249,12 +249,12 @@ Container::make( 'post_meta', __( 'QuickTow', 'landing-page-manager' ) )
 			Field::make( 'select', 'wra_ft_layout', __( 'Footer layout', 'landing-page-manager' ) )
 				->set_options(
 					array(
-						'standard' => __( 'Standard (CharMeck: service area or services + contact column)', 'landing-page-manager' ),
+						'standard' => __( 'Standard (Style 2: service area or services + contact column)', 'landing-page-manager' ),
 						'heavy'    => __( 'Heavy-duty (brand + services + service area links + “Also serving” line)', 'landing-page-manager' ),
 					)
 				)
 				->set_default_value( 'standard' )
-				->set_help_text( __( 'Use Heavy-duty for James heavy / equipment style footers. Style 1 pages can keep Standard.', 'landing-page-manager' ) ),
+				->set_help_text( __( 'Use Heavy-duty for heavy-duty / equipment style footers. Style 1 pages can keep Standard.', 'landing-page-manager' ) ),
 			Field::make( 'complex', 'wra_ft_area_links', __( 'Footer — service area links (Heavy-duty layout)', 'landing-page-manager' ) )
 				->add_fields(
 					array(

@@ -1,6 +1,6 @@
 <?php
 /**
- * QuickTow — CharMeck-style sections from urgency strip through FAQ (shared by Style 2 and Style 3 inner wrapper).
+ * QuickTow — Style 2 sections from urgency strip through FAQ (shared by Style 2 and Style 3 inner wrapper).
  *
  * Expects $cm_chk (SVG string), all $wra_* and $client_* from single-landing_page.php.
  *
@@ -147,8 +147,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php if ( $wra_show_feature ) : ?>
 <section class="complex-section" id="roadside">
-	<div class="container complex-grid<?php echo ( isset( $wra_style_variant ) && 'james_heavy' === $wra_style_variant ) ? ' complex-grid--james-heavy' : ''; ?>">
-		<?php if ( isset( $wra_style_variant ) && 'james_heavy' === $wra_style_variant ) : ?>
+	<div class="container complex-grid<?php echo ( isset( $wra_style_variant ) && 'layout_3' === $wra_style_variant ) ? ' complex-grid--layout-3' : ''; ?>">
+		<?php if ( isset( $wra_style_variant ) && 'layout_3' === $wra_style_variant ) : ?>
 		<div class="complex-visual-col wra-fi">
 			<?php if ( ! empty( $wra_feat_image_url ) ) : ?>
 				<div class="cm-feat-img cm-feat-img--lead">

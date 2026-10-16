@@ -1,7 +1,7 @@
 <?php
 /**
- * QuickTow — Style 3 (James Towing heavy-duty reference): split hero (solid left, image right),
- * checkmark trust bar, then CharMeck-style sections inside .quicktow--charmeck wrapper.
+ * QuickTow — Style 3 (heavy-duty reference): split hero (solid left, image right),
+ * checkmark trust bar, then Style 2 sections inside .quicktow--layout2 wrapper.
  *
  * @package Landing_Page_Manager
  */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $cm_chk = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
 ?>
 
-<section class="hero hero--james-heavy on-dark" id="qt-hero">
+<section class="hero hero--layout-3 on-dark" id="qt-hero">
 	<div class="hero-bg" aria-hidden="true"></div>
 	<div class="hero-bg-pattern" aria-hidden="true"></div>
 	<div class="hero-img-slot">
@@ -27,7 +27,7 @@ $cm_chk = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="c
 		<?php endif; ?>
 	</div>
 	<div class="hero-gradient" aria-hidden="true"></div>
-	<div class="hero-inner hero-inner--james-heavy">
+	<div class="hero-inner hero-inner--layout-3">
 		<?php if ( ! empty( $wra_hero_eyebrow ) ) : ?>
 			<div class="hero-eyebrow"><?php echo esc_html( $wra_hero_eyebrow ); ?></div>
 		<?php endif; ?>
@@ -66,7 +66,7 @@ $cm_chk = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="c
 	</div>
 
 	<?php if ( ! empty( $wra_trust_items ) ) : ?>
-	<div class="trust-bar trust-bar--james-heavy">
+	<div class="trust-bar trust-bar--layout-3">
 		<div class="trust-bar-inner">
 			<?php foreach ( $wra_trust_items as $row ) : ?>
 				<?php if ( empty( $row['text'] ) ) { continue; } ?>
@@ -80,6 +80,6 @@ $cm_chk = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="c
 	<?php endif; ?>
 </section>
 
-<div class="quicktow--charmeck qt-charmeck-sections">
-<?php require __DIR__ . '/landing-body-charmeck-main.php'; ?>
+<div class="quicktow--layout2 qt-layout2-sections">
+<?php require __DIR__ . '/landing-body-style-2-main.php'; ?>
 </div>

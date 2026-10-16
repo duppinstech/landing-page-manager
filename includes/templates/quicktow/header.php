@@ -22,11 +22,11 @@ if ( is_string( $wra_schema_json_ld ) && '' !== trim( $wra_schema_json_ld ) ) {
 	}
 }
 
-$style_variant = isset( $wra_style_variant ) ? $wra_style_variant : 'james';
-$qt_fixed_palette = in_array( $style_variant, array( 'james', 'charmeck', 'james_heavy' ), true );
+$style_variant = isset( $wra_style_variant ) ? $wra_style_variant : 'layout1';
+$qt_fixed_palette = in_array( $style_variant, array( 'layout1', 'layout2', 'layout_3' ), true );
 $qt_body_classes  = array( 'quicktow' );
-if ( 'james_heavy' === $style_variant ) {
-	$qt_body_classes[] = 'quicktow--james-heavy';
+if ( 'layout_3' === $style_variant ) {
+	$qt_body_classes[] = 'quicktow--layout-3';
 } else {
 	$qt_body_classes[] = 'quicktow--' . sanitize_html_class( $style_variant );
 }
@@ -45,11 +45,11 @@ if ( 'james_heavy' === $style_variant ) {
 	</script>
 	<?php endif; ?>
 	<?php if ( $qt_fixed_palette ) : ?>
-	<style id="qt-charmeck-palette">
-		/* James / CharMeck canonical tokens (matches static HTML samples; overrides client brand on Style 1–3). */
-		:root .quicktow.quicktow--james,
-		:root .quicktow.quicktow--charmeck,
-		:root .quicktow.quicktow--james-heavy {
+	<style id="qt-layout2-palette">
+		/* Style 1 / Style 2 canonical tokens (matches static HTML samples; overrides client brand on Style 1–3). */
+		:root .quicktow.quicktow--layout1,
+		:root .quicktow.quicktow--layout2,
+		:root .quicktow.quicktow--layout-3 {
 			--red: #B22234;
 			--red-dark: #8B1A28;
 			--red-light: #f9eaec;
@@ -80,9 +80,9 @@ if ( 'james_heavy' === $style_variant ) {
 		?>
 	<style id="qt-brand-vars">
 		:root .quicktow,
-		:root .quicktow.quicktow--james,
-		:root .quicktow.quicktow--charmeck,
-		:root .quicktow.quicktow--james-heavy {
+		:root .quicktow.quicktow--layout1,
+		:root .quicktow.quicktow--layout2,
+		:root .quicktow.quicktow--layout-3 {
 			<?php foreach ( $qt_brand_palette as $qt_var => $qt_colour ) : ?>
 			<?php echo esc_html( $qt_var ); ?>: <?php echo esc_html( $qt_colour ); ?>;
 			<?php endforeach; ?>
@@ -103,7 +103,7 @@ $phone_label = isset( $wra_header_phone_label ) ? $wra_header_phone_label : '';
 $phone_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.45 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 5.5 5.5l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
 ?>
 
-<?php if ( 'james_heavy' === $style_variant ) : ?>
+<?php if ( 'layout_3' === $style_variant ) : ?>
 	<?php
 	$heavy_badge = $use_logo_badge && '' !== $logo_badge ? $logo_badge : '';
 	if ( '' === $heavy_badge && is_string( $logo_text ) && '' !== trim( $logo_text ) ) {
@@ -157,7 +157,7 @@ $phone_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke
 		<?php endif; ?>
 	</div>
 </header>
-<?php elseif ( 'charmeck' === $style_variant ) : ?>
+<?php elseif ( 'layout2' === $style_variant ) : ?>
 <header class="site-header" role="banner" aria-label="<?php esc_attr_e( 'Primary', 'landing-page-manager' ); ?>">
 	<a class="header-logo" href="<?php echo esc_url( get_permalink() ); ?>">
 		<?php

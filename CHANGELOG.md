@@ -33,6 +33,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
 ### Changed
+- **QuickTow no longer exposes client names** in its CSS classes, stylesheet and file names or admin labels. Styles are now named by number (for example the `quicktow--layout2` body class and `style-2-layout.css`). Pages keep their saved style. If you wrote custom CSS against the old QuickTow class names, update it.
 - **Video and map embeds are allowed again** in Whiterail AI's services intro and Reviews fields and in Whiterail Recruits' "More" content, from YouTube, Vimeo and Google Maps (https only). Iframes from other sites are still removed. Developers can extend the list with the `lpmanager_iframe_hosts` filter.
 - **Incomplete landing pages stay drafts.** Publishing a page that's missing required fields now saves it as a draft and says why. Editing a page that's already live never unpublishes it.
 - **QuickTow uses the client's colours.** The client's primary colour replaces QuickTow's navy, and the secondary colour replaces its red, on all three styles. Darker and lighter shades are derived from them, and a colour too light for white text is darkened until the text is readable (WCAG AA). Clients that use the default red and navy look the same as before.

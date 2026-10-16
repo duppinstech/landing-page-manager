@@ -53,12 +53,14 @@ if ( '' === $wra_style_variant_raw && $post_id ) {
 	$wra_style_variant_raw = (string) get_post_meta( $post_id, '_wra_style_variant', true );
 }
 $wra_style_variant_raw = strtolower( trim( $wra_style_variant_raw ) );
+// Stored values: style_1/2/3, plus legacy aliases from early versions (kept so old pages keep their style).
+// Internal names (layout1, layout2, layout_3) drive CSS classes; they carry no client names.
 if ( in_array( $wra_style_variant_raw, array( 'style_3', 'style3', 'james_heavy', 'james_hd', '3' ), true ) ) {
-	$wra_style_variant = 'james_heavy';
+	$wra_style_variant = 'layout_3';
 } elseif ( in_array( $wra_style_variant_raw, array( 'style_2', 'style2', 'charmeck', '2' ), true ) ) {
-	$wra_style_variant = 'charmeck';
+	$wra_style_variant = 'layout2';
 } else {
-	$wra_style_variant = 'james';
+	$wra_style_variant = 'layout1';
 }
 $wra_header_layout = carbon_get_the_post_meta( 'wra_header_layout' ) ?: 'standard';
 $wra_header_logo_emoji = carbon_get_the_post_meta( 'wra_header_logo_emoji' );
