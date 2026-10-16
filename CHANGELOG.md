@@ -33,6 +33,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
 ### Changed
+- **Ready for Pro 1.0.4:** when Pro 1.0.4 or later is active, the tracking toggles live on Pro's Settings screen, and the free plugin's Conversion Tracking tab is hidden. The stored settings are unchanged, so nothing needs re-saving.
 - **Template A no longer exposes client names** in its CSS classes, stylesheet and file names or admin labels. Styles are now named by number (for example the `template_a--layout2` body class and `style-2-layout.css`). Pages keep their saved style. If you wrote custom CSS against the old Template A class names, update it.
 - **Video and map embeds are allowed again** in Template B's services intro and Reviews fields and in Template C' "More" content, from YouTube, Vimeo and Google Maps (https only). Iframes from other sites are still removed. Developers can extend the list with the `lpmanager_iframe_hosts` filter.
 - **Incomplete landing pages stay drafts.** Publishing a page that's missing required fields now saves it as a draft and says why. Editing a page that's already live never unpublishes it.
@@ -53,6 +54,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Template A's Style 3 label no longer names a client.
 
 ### Removed
+- The unused `assets/js/tracking.js`. Pro has shipped its own tracking script since Pro 1.0.3.
 - Unused bundled libraries that no template loads any more: payform, jQuery Migrate (both copies), Bootstrap 5 (`bootstrap-new.js`), the jQuery UI stylesheets and `sqpaymentform.css` from Template B and Template C, plus Popper, Bootstrap JS, Swiper and the unused `functions.php` from Template C. The release zip is smaller.
 - **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
 
