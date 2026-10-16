@@ -53,9 +53,9 @@ Container::make( 'post_meta', __('SEO Sections', 'whiterail-ai') )
                 ' ),
         	Field::make( 'text', 'reviews_h2', __('H2 Heading', 'whiterail-ai') )         
             	->set_default_value('What Our Customers Say'),
-            Field::make( 'textarea', 'reviews_html', __('Reviews Widget Code (iFrame)', 'whiterail-ai') )
+            Field::make( 'textarea', 'reviews_html', __( 'Reviews', 'landing-page-manager' ) )
                 ->set_attribute('data-custom-id', 'reviews_html_code')
-                ->set_help_text( __( 'Paste your review widget code here, or click "Fetch Reviews" to pull this client\'s Google reviews using the Google Maps server key (Settings → API Keys). To control Google charges, each client\'s reviews can be fetched once every 10 minutes.', 'landing-page-manager' ) )
+                ->set_help_text( __( 'Click "Fetch Reviews" to pull this client\'s Google reviews using the Google Maps server key (Settings → API Keys), or paste a YouTube, Vimeo or Google Maps embed (WordPress 6.2 or later). Script-based review widgets and embeds from other sites are removed for security. To control Google charges, each client\'s reviews can be fetched once every 10 minutes.', 'landing-page-manager' ) )
 				->set_rows(10),
             Field::make( 'html', 'fetch_reviews_button' )
                 ->set_html( '<button id="fetch-reviews-btn" class="button button-primary">Fetch Reviews</button>

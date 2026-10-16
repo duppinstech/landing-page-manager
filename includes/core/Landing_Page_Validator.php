@@ -153,7 +153,7 @@ class Landing_Page_Validator {
                 $labels = [
                     'client'     => __( 'Client Name (Landing Page Details)', 'landing-page-manager' ),
                     'keyword'    => __( 'Keyword (Landing Page Details)', 'landing-page-manager' ),
-                    'client_tel' => __( 'Phone: add this page\'s phone, or the client\'s Contact Phone', 'landing-page-manager' ),
+                    'client_tel' => __( 'Phone: fill in this page\'s "Page phone", or the client\'s Contact Phone', 'landing-page-manager' ),
                 ];
                 echo '<li>' . esc_html( isset( $labels[ $field ] ) ? $labels[ $field ] : $field ) . '</li>';
             }
