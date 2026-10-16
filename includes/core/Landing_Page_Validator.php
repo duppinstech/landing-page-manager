@@ -12,6 +12,22 @@ class Landing_Page_Validator {
         add_action( 'transition_post_status', [ __CLASS__, 'note_publish_transition' ], 10, 3 );
         add_action('save_post', [__CLASS__, 'validateLandingPageFields'], 20, 3);
         add_action('admin_notices', [__CLASS__, 'showLandingPageValidationNotices'], 20);
+        add_filter( 'redirect_post_location', [ __CLASS__, 'kept_draft_redirect' ], 10, 2 );
+    }
+
+    /**
+     * After a page was kept as a draft, show WordPress's "Draft updated" message rather than
+     * "Post published".
+     *
+     * @param string $location Redirect URL.
+     * @param int    $post_id  Post ID.
+     * @return string
+     */
+    public static function kept_draft_redirect( $location, $post_id ) {
+        if ( get_transient( "lp_kept_draft_{$post_id}" ) ) {
+            $location = add_query_arg( 'message', 10, remove_query_arg( 'message', $location ) );
+        }
+        return $location;
     }
 
     /** Landing pages being published in this request (not already-live pages being edited). */
@@ -38,14 +54,10 @@ class Landing_Page_Validator {
             return;
         }
 
-        // Redirect revision post IDs to parent post ID
-        if (wp_is_post_revision($post_id)) {
-            $parent_post_id = wp_is_post_revision($post_id);
-            $post = get_post($parent_post_id);
-            if (!$post) {
-                return;
-            }
-            $post_id = $parent_post_id;
+        // Skip revisions. The page's own save_post pass runs after Carbon has saved this request's
+        // fields; on WP < 6.4 the revision pass runs first and would see empty fields.
+        if ( wp_is_post_revision( $post_id ) ) {
+            return;
         }
 
         if ( $post->post_type !== 'landing_page' ) {
@@ -138,7 +150,12 @@ class Landing_Page_Validator {
             }
             echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__( 'Missing required fields for this template:', 'landing-page-manager' ) . '</strong></p><ul>';
             foreach ( $missing_fields as $field ) {
-                echo '<li>' . esc_html( $field ) . '</li>';
+                $labels = [
+                    'client'     => __( 'Client Name (Landing Page Details)', 'landing-page-manager' ),
+                    'keyword'    => __( 'Keyword (Landing Page Details)', 'landing-page-manager' ),
+                    'client_tel' => __( 'Phone: add this page\'s phone, or the client\'s Contact Phone', 'landing-page-manager' ),
+                ];
+                echo '<li>' . esc_html( isset( $labels[ $field ] ) ? $labels[ $field ] : $field ) . '</li>';
             }
             echo '</ul></div>';
         }
