@@ -308,7 +308,7 @@ class Client_Taxonomy {
      * @return \Carbon_Fields\Field\Field
      */
     private static function header_tracking_code_field() {
-        $field = Field::make( 'textarea', 'header_tracking_code', __( 'Header Tracking Code (Nimbata)', 'landing-page-manager' ) )
+        $field = Field::make( 'textarea', 'header_tracking_code', __( 'Header tracking code (call tracking, pixels, tags)', 'landing-page-manager' ) )
             ->set_rows( 4 )
             ->set_help_text( __( 'Paste your tracking script here. It is added to the head of all of this client\'s landing pages. Only administrators (super admins on multisite) can change it.', 'landing-page-manager' ) );
         if ( ! current_user_can( 'unfiltered_html' ) ) {
@@ -357,7 +357,7 @@ class Client_Taxonomy {
 
             Field::make('text', 'client_phone', 'Contact Phone')
                 ->set_required(true)
-                ->set_help_text( __( 'Default phone number for this client\'s landing pages. A page\'s own Client Phone overrides it on that page.', 'landing-page-manager' ) ),
+                ->set_help_text( __( 'Default phone number for this client\'s landing pages. A landing page\'s own "Page phone" overrides it on that page.', 'landing-page-manager' ) ),
 
             Field::make('text', 'client_domain', 'Client Domain')
                 ->set_required(true)
