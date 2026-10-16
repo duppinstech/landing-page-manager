@@ -18,13 +18,26 @@ class Template_Loader {
     /**
      * Get effective template for a landing page.
      *
-     * This project uses the global template setting as the single source of truth.
+     * Core uses the global template setting. Choosing a template per client or page is a
+     * Pro feature, through the lpmanager_template_for_post filter (Odell, 10-16).
      *
      * @param int $post_id Landing page post ID.
      * @return string Template slug.
      */
     public static function get_effective_template_for_page( $post_id ) {
-        return self::get_global_default_template_slug();
+        $global = self::get_global_default_template_slug();
+        /**
+         * Filters the template slug used for a landing page.
+         *
+         * @param string $slug    Template slug. Default: the site-wide template from Settings → Templates.
+         * @param int    $post_id Landing page ID.
+         */
+        $slug = sanitize_title( (string) apply_filters( 'lpmanager_template_for_post', $global, (int) $post_id ) );
+        // Ignore a filtered slug whose template isn't installed, rather than 404ing the page.
+        if ( '' === $slug || ! file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'templates/' . $slug . '/single-landing_page.php' ) ) {
+            return $global;
+        }
+        return $slug;
     }
 
     /**
