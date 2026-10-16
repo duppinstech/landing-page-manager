@@ -318,7 +318,7 @@ class Plugin_Settings {
      */
     private static function additional_scripts_field() {
         $field = Field::make( 'textarea', 'lpmanager_additional_scripts', __( 'Additional Scripts', 'landing-page-manager' ) )
-            ->set_help_text( __( 'Tracking, conversion or chat scripts printed at the bottom of every landing page. Only users allowed to post unfiltered HTML (administrators on a single site, super admins on multisite) can change this.', 'landing-page-manager' ) );
+            ->set_help_text( __( 'Tracking, conversion or chat scripts printed at the bottom of every landing page, once an administrator has saved or approved them. Only administrators (super admins on multisite) can change this.', 'landing-page-manager' ) );
         if ( ! current_user_can( 'unfiltered_html' ) ) {
             $field->set_attribute( 'readOnly', 'readonly' );
         }
@@ -433,8 +433,18 @@ class Plugin_Settings {
         if ( $rejected ) {
             delete_transient( $key );
             $label = ( 'header_tracking_code' === $rejected ) ? __( 'Header Tracking Code', 'landing-page-manager' ) : __( 'Additional Scripts', 'landing-page-manager' );
-            /* translators: %s: field name */
-            echo '<div class="notice notice-error"><p>' . esc_html( sprintf( __( 'Landing Page Manager: your %s change was not saved, because your account isn\'t allowed to post unfiltered HTML. Ask an administrator (a super admin on multisite) to make it.', 'landing-page-manager' ), $label ) ) . '</p></div>';
+            $message = sprintf(
+                /* translators: %s: field name */
+                __( 'Landing Page Manager: your %s change was not saved. Only administrators (super admins on multisite) can change it.', 'landing-page-manager' ),
+                $label
+            );
+            echo '<div class="notice notice-error"><p>' . esc_html( $message ) . '</p></div>';
+        }
+
+        $approved_key = 'lpmanager_additional_scripts_approved_' . get_current_user_id();
+        if ( get_transient( $approved_key ) ) {
+            delete_transient( $approved_key );
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Landing Page Manager: Additional Scripts approved. They now print on landing pages (purge your page cache).', 'landing-page-manager' ) . '</p></div>';
         }
 
         if ( ! current_user_can( 'unfiltered_html' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
@@ -444,8 +454,18 @@ class Plugin_Settings {
         if ( '' === trim( $code ) || self::additional_scripts_approved( $code ) ) {
             return;
         }
+        // Shown on the plugin's screens and the WP Dashboard, so a lost approval (salt rotation,
+        // site migration) is noticed even by admins who don't open Settings.
         $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-        if ( ! $screen || false === strpos( $screen->id, 'crb_carbon_fields_container_settings' ) ) {
+        if ( ! $screen ) {
+            return;
+        }
+        $relevant = 'dashboard' === $screen->id
+            || 'landing_page' === $screen->post_type
+            || 'client' === $screen->taxonomy
+            || false !== strpos( $screen->id, 'lp_dashboard' )
+            || false !== strpos( $screen->id, 'crb_carbon_fields_container_settings' );
+        if ( ! $relevant ) {
             return;
         }
         // Bind the approval to the value being shown, so a swap before the click isn't approved.
@@ -460,10 +480,13 @@ class Plugin_Settings {
             'lpmanager_approve_additional_scripts'
         );
         printf(
-            '<div class="notice notice-warning"><p>%s <a class="button" href="%s">%s</a></p></div>',
-            esc_html__( 'Landing Page Manager: Additional Scripts (API Keys tab) contains code that wasn\'t approved by an administrator, so it is not printed on landing pages. Review it below. If you trust it, approve it.', 'landing-page-manager' ),
+            '<div class="notice notice-warning"><p>%s</p><pre style="max-height:12em;overflow:auto;background:#f6f7f7;padding:8px;white-space:pre-wrap;">%s</pre><p><a class="button button-primary" href="%s">%s</a> <a href="%s">%s</a></p></div>',
+            esc_html__( 'Landing Page Manager: these Additional Scripts were not approved by an administrator, so they are not printed on landing pages. This happens after a site migration or a change of security keys, or when the code was saved another way. Review the code below; approve it only if you trust it.', 'landing-page-manager' ),
+            esc_html( $code ),
             esc_url( $approve_url ),
-            esc_html__( 'Approve Additional Scripts', 'landing-page-manager' )
+            esc_html__( 'Approve Additional Scripts', 'landing-page-manager' ),
+            esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
+            esc_html__( 'Edit in Settings → API Keys', 'landing-page-manager' )
         );
     }
 
@@ -479,6 +502,7 @@ class Plugin_Settings {
         $reviewed = isset( $_GET['h'] ) ? sanitize_text_field( wp_unslash( $_GET['h'] ) ) : '';
         if ( '' !== trim( $code ) && '' !== $reviewed && hash_equals( self::additional_scripts_hmac( $code ), $reviewed ) ) {
             update_option( self::ADDITIONAL_SCRIPTS_HASH, self::additional_scripts_hmac( $code ), false );
+            set_transient( 'lpmanager_additional_scripts_approved_' . get_current_user_id(), 1, MINUTE_IN_SECONDS );
         }
         // If the value changed since it was shown, nothing is approved; the notice shows the new value.
         wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) );
