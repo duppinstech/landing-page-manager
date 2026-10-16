@@ -27,8 +27,8 @@ paths:
 - API keys come from settings. Never log them and never send them to the browser unless the API is a browser-key API (Google Maps JS).
 
 ## Hooks we expose
-- Filters: `lpmanager_unwanted_styles`, `lpmanager_unwanted_style_patterns` (regexes, default `elementor-post-{ID}`), `lpmanager_unwanted_scripts`, `lpmanager_github_releases_api_url`, `lpmanager_github_update_package_url`, `lpmanager_privacy_policy_content`, `lpmanager_load_jquery` (force jQuery on landing pages, e.g. for GTM tags).
-- Actions: `lpmanager_landing_page_footer`.
+- Filters: `lpmanager_unwanted_styles`, `lpmanager_unwanted_style_patterns` (regexes, default `elementor-post-{ID}`), `lpmanager_unwanted_scripts`, `lpmanager_github_releases_api_url`, `lpmanager_github_update_package_url`, `lpmanager_privacy_policy_content`, `lpmanager_load_jquery` (force jQuery on landing pages, e.g. for GTM tags), `lpmanager_allowed_footer_callbacks` (wp_footer callbacks kept on landing pages).
+- Actions: `lpmanager_landing_page_footer` (fires in the landing-page footer; Additional Scripts print here).
 - New hooks are prefixed `lpmanager_`, documented with a docblock, and listed here.
 - Renaming or removing a public hook is a breaking change. Deprecate it first.
 

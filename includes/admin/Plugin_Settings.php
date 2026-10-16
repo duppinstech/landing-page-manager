@@ -11,6 +11,9 @@ class Plugin_Settings {
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_styles']);
         add_action( 'admin_notices', [ __CLASS__, 'render_missing_template_notice' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_empty_server_key_notice' ] );
+        add_action( 'carbon_fields_theme_options_container_saved', [ __CLASS__, 'verify_additional_scripts' ] );
+        add_action( 'admin_notices', [ __CLASS__, 'render_additional_scripts_notice' ] );
+        add_action( 'lpmanager_landing_page_footer', [ __CLASS__, 'print_additional_scripts' ] );
 		add_action('carbon_fields_theme_options_container_saved', function() {
             $fields = [
                 'lpmanager_google_maps_api_key',
@@ -164,8 +167,7 @@ class Plugin_Settings {
                 ->set_help_text( __( 'Used by this site\'s server to look up client addresses and fetch reviews. It needs the Places API (the original "Places API", not "Places API (New)"). Restrict it to your server\'s IP address and to that API. If left empty, the browser key is used, which only works while the browser key has no website restriction.', 'landing-page-manager' ) ),
             Field::make( 'text', 'lpmanager_brandfetch_api_key', __( 'Brandfetch API key', 'landing-page-manager' ) )
                 ->set_help_text( __( 'Used to fetch client brand colors. Usage is billed to the Brandfetch account that owns this key.', 'landing-page-manager' ) ),
-            Field::make( 'textarea', 'lpmanager_additional_scripts', __( 'Additional Scripts', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Add any additional scripts (e.g., tracking or chat scripts) to load on all landing pages.', 'landing-page-manager' ) ),
+            self::additional_scripts_field(),
         ];
 
         $tab_updates = [
@@ -268,6 +270,74 @@ class Plugin_Settings {
             esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
             esc_html__( 'Go to Settings', 'landing-page-manager' )
         );
+    }
+
+    /** Option holding a hash of the Additional Scripts value last saved by a user with unfiltered_html. */
+    const ADDITIONAL_SCRIPTS_HASH = 'lpmanager_additional_scripts_hash';
+
+    /**
+     * "Additional Scripts" field. Read-only for users who may not post unfiltered HTML
+     * (for example site admins on multisite), because the value is printed raw.
+     *
+     * @return \Carbon_Fields\Field\Field
+     */
+    private static function additional_scripts_field() {
+        $field = Field::make( 'textarea', 'lpmanager_additional_scripts', __( 'Additional Scripts', 'landing-page-manager' ) )
+            ->set_help_text( __( 'Tracking, conversion or chat scripts printed at the bottom of every landing page. Only users allowed to post unfiltered HTML (administrators on a single site, super admins on multisite) can change this.', 'landing-page-manager' ) );
+        if ( ! current_user_can( 'unfiltered_html' ) ) {
+            $field->set_attribute( 'readOnly', 'readonly' );
+        }
+        return $field;
+    }
+
+    /**
+     * After Settings are saved: trust the Additional Scripts value only if it is unchanged or the
+     * saving user may post unfiltered HTML. Otherwise clear it, so it is never printed.
+     */
+    public static function verify_additional_scripts() {
+        $code = (string) carbon_get_theme_option( 'lpmanager_additional_scripts' );
+        if ( '' === trim( $code ) ) {
+            delete_option( self::ADDITIONAL_SCRIPTS_HASH );
+            return;
+        }
+        $hash = hash( 'sha256', $code );
+        if ( hash_equals( (string) get_option( self::ADDITIONAL_SCRIPTS_HASH ), $hash ) ) {
+            return; // Unchanged.
+        }
+        if ( current_user_can( 'unfiltered_html' ) ) {
+            update_option( self::ADDITIONAL_SCRIPTS_HASH, $hash, false );
+            return;
+        }
+        carbon_set_theme_option( 'lpmanager_additional_scripts', '' );
+        delete_option( self::ADDITIONAL_SCRIPTS_HASH );
+        set_transient( 'lpmanager_additional_scripts_rejected_' . get_current_user_id(), 1, MINUTE_IN_SECONDS );
+    }
+
+    /**
+     * Tell the user their Additional Scripts change was discarded.
+     */
+    public static function render_additional_scripts_notice() {
+        $key = 'lpmanager_additional_scripts_rejected_' . get_current_user_id();
+        if ( ! get_transient( $key ) ) {
+            return;
+        }
+        delete_transient( $key );
+        echo '<div class="notice notice-error"><p>' . esc_html__( 'Landing Page Manager: your Additional Scripts change was not saved, because your account isn\'t allowed to post unfiltered HTML. Ask an administrator (a super admin on multisite) to add it.', 'landing-page-manager' ) . '</p></div>';
+    }
+
+    /**
+     * Print Additional Scripts at the bottom of landing pages (lpmanager_landing_page_footer),
+     * but only the exact value a user with unfiltered_html saved.
+     */
+    public static function print_additional_scripts() {
+        if ( ! is_singular( 'landing_page' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
+            return;
+        }
+        $code = (string) carbon_get_theme_option( 'lpmanager_additional_scripts' );
+        if ( '' === trim( $code ) || ! hash_equals( (string) get_option( self::ADDITIONAL_SCRIPTS_HASH ), hash( 'sha256', $code ) ) ) {
+            return;
+        }
+        echo "\n" . $code . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput -- raw by design; only a value saved by a user with unfiltered_html is printed.
     }
 
     public static function render_template_selector_and_upload() {

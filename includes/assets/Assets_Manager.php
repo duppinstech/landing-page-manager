@@ -28,9 +28,15 @@ class Assets_Manager {
                 // You could leave this if you want admin bar spacing
                 // add_action('wp_head', '_admin_bar_bump_cb');
 
-                // Footer cleanup
+                // Footer cleanup: drop other plugins' footer output except allowlisted callbacks,
+                // then print scripts and the plugin's own footer hook (Additional Scripts).
+                $kept_footer_callbacks = self::allowlisted_footer_callbacks();
                 remove_all_actions('wp_footer');
+                foreach ( $kept_footer_callbacks as $kept ) {
+                    add_action( 'wp_footer', $kept['function'], $kept['priority'], $kept['accepted_args'] );
+                }
                 add_action('wp_footer', 'wp_print_footer_scripts', 20);
+                add_action('wp_footer', 'lpmanager_custom_landing_page_footer', 25);
                 // wp_auth_check_html breaks on stripped landing templates (false "session expired").
                 if ( is_admin_bar_showing() ) {
                     add_action('wp_footer', 'wp_admin_bar_render', 1000);
@@ -63,6 +69,47 @@ class Assets_Manager {
         // Hook filters for admin bar assets
         add_filter('script_loader_src', [self::class, 'makeAdminBarAssetsRelative'], 10, 2);
         add_filter('style_loader_src', [self::class, 'makeAdminBarAssetsRelative'], 10, 2);
+    }
+
+    /**
+     * wp_footer callbacks that survive the landing-page footer cleanup.
+     *
+     * @return array<int, array{function: callable, priority: int, accepted_args: int}>
+     */
+    private static function allowlisted_footer_callbacks() {
+        global $wp_filter;
+        /**
+         * Filters which wp_footer callbacks are kept on landing pages, which otherwise drop
+         * other plugins' footer output. Name functions as 'function_name' and methods as
+         * 'Class_Name::method_name' (closures can't be allowlisted).
+         *
+         * @param string[] $allowed Callback names. Default empty.
+         */
+        $allowed = array_map( 'strval', (array) apply_filters( 'lpmanager_allowed_footer_callbacks', [] ) );
+        if ( ! $allowed || empty( $wp_filter['wp_footer'] ) || ! isset( $wp_filter['wp_footer']->callbacks ) ) {
+            return [];
+        }
+        $kept = [];
+        foreach ( $wp_filter['wp_footer']->callbacks as $priority => $callbacks ) {
+            foreach ( $callbacks as $callback ) {
+                $function = $callback['function'];
+                if ( is_string( $function ) ) {
+                    $name = $function;
+                } elseif ( is_array( $function ) && 2 === count( $function ) && is_string( $function[1] ) ) {
+                    $name = ( is_object( $function[0] ) ? get_class( $function[0] ) : (string) $function[0] ) . '::' . $function[1];
+                } else {
+                    continue;
+                }
+                if ( in_array( $name, $allowed, true ) ) {
+                    $kept[] = [
+                        'function'      => $function,
+                        'priority'      => (int) $priority,
+                        'accepted_args' => (int) $callback['accepted_args'],
+                    ];
+                }
+            }
+        }
+        return $kept;
     }
 
     /**
