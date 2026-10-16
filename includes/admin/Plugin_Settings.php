@@ -10,6 +10,7 @@ class Plugin_Settings {
         add_action( 'carbon_fields_register_fields', [ __CLASS__, 'register_settings' ] );
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_styles']);
         add_action( 'admin_notices', [ __CLASS__, 'render_missing_template_notice' ] );
+        add_action( 'admin_notices', [ __CLASS__, 'render_empty_server_key_notice' ] );
 		add_action('carbon_fields_theme_options_container_saved', function() {
             $fields = [
                 'lpmanager_google_maps_api_key',
@@ -233,6 +234,39 @@ class Plugin_Settings {
             // Carbon Fields' page slug for the "Settings" theme-options container.
             esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
             esc_html__( 'Go to Settings → Templates', 'landing-page-manager' )
+        );
+    }
+
+    /**
+     * Warn admins on the plugin's screens when a browser key is set but no server key.
+     * The server then falls back to the browser key, which only works while that key
+     * (visible in every page's HTML) has no website restriction.
+     */
+    public static function render_empty_server_key_notice() {
+        if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
+            return;
+        }
+        $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+        if ( ! $screen ) {
+            return;
+        }
+        $on_plugin_screen = 'landing_page' === $screen->post_type
+            || 'client' === $screen->taxonomy
+            || false !== strpos( $screen->id, 'lp_dashboard' )
+            || false !== strpos( $screen->id, 'crb_carbon_fields_container_settings' );
+        if ( ! $on_plugin_screen ) {
+            return;
+        }
+        $browser_key = trim( (string) carbon_get_theme_option( 'lpmanager_google_maps_api_key' ) );
+        $server_key  = trim( (string) carbon_get_theme_option( 'lpmanager_google_server_api_key' ) );
+        if ( '' === $browser_key || '' !== $server_key ) {
+            return;
+        }
+        printf(
+            '<div class="notice notice-warning"><p>%s <a href="%s">%s</a></p></div>',
+            esc_html__( 'Landing Page Manager: no Google Maps server key is set, so address lookups and review fetching use the browser key. That only works while the browser key, which is visible in every landing page\'s HTML, has no website restriction. Add a server key, then restrict the browser key to your sites.', 'landing-page-manager' ),
+            esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
+            esc_html__( 'Go to Settings → API Keys', 'landing-page-manager' )
         );
     }
 
