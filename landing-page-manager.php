@@ -120,6 +120,60 @@ function lpmanager_get_landing_phone( $post_id = 0 ) {
     return trim( (string) carbon_get_term_meta( $terms[0]->term_id, 'client_phone' ) );
 }
 
+/**
+ * Filter rich-text template content like post content, but also allow embedded iframes from
+ * approved hosts (video, maps, review widgets). Iframes from any other host, or not on https, are
+ * removed (Odell, 10-16).
+ *
+ * @param string $html Field content.
+ * @return string Safe HTML.
+ */
+function lpmanager_kses_rich_text( $html ) {
+    $allowed           = wp_kses_allowed_html( 'post' );
+    $allowed['iframe'] = [
+        'src'             => true,
+        'width'           => true,
+        'height'          => true,
+        'title'           => true,
+        'allow'           => true,
+        'allowfullscreen' => true,
+        'loading'         => true,
+        'frameborder'     => true,
+        'referrerpolicy'  => true,
+        'style'           => true,
+        'class'           => true,
+    ];
+    $html = wp_kses( (string) $html, $allowed );
+
+    /**
+     * Filters the hosts whose iframes may appear in rich-text template fields.
+     *
+     * @param string[] $hosts Host names (exact match).
+     */
+    $hosts = array_map(
+        'strtolower',
+        (array) apply_filters(
+            'lpmanager_iframe_hosts',
+            [ 'www.youtube.com', 'youtube.com', 'www.youtube-nocookie.com', 'player.vimeo.com', 'www.google.com', 'maps.google.com' ]
+        )
+    );
+
+    // wp_kses() rebuilds attributes with double quotes, so src="..." is reliable here.
+    return (string) preg_replace_callback(
+        '#<iframe\b[^>]*>(?:.*?</iframe>)?#is',
+        function ( $m ) use ( $hosts ) {
+            if ( ! preg_match( '#\ssrc="([^"]*)"#i', $m[0], $src ) ) {
+                return '';
+            }
+            $url    = html_entity_decode( $src[1], ENT_QUOTES );
+            $scheme = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
+            $host   = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+            return ( 'https' === $scheme && in_array( $host, $hosts, true ) ) ? $m[0] : '';
+        },
+        $html
+    );
+}
+
 // Load composer autoloader first (needed for LPManager namespace classes)
 if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
     add_action( 'admin_notices', function () {
