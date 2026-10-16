@@ -24,7 +24,7 @@ class Landing_Page_Validator {
      * @return string
      */
     public static function kept_draft_redirect( $location, $post_id ) {
-        if ( get_transient( "lp_kept_draft_{$post_id}" ) ) {
+        if ( get_transient( "lp_kept_draft_{$post_id}" ) && 'draft' === get_post_status( $post_id ) ) {
             $location = add_query_arg( 'message', 10, remove_query_arg( 'message', $location ) );
         }
         return $location;
