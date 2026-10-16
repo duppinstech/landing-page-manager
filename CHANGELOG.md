@@ -54,7 +54,6 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Template A's Style 3 label no longer names a client.
 
 ### Removed
-- The unused `assets/js/tracking.js`. Pro has shipped its own tracking script since Pro 1.0.3.
 - Unused bundled libraries that no template loads any more: payform, jQuery Migrate (both copies), Bootstrap 5 (`bootstrap-new.js`), the jQuery UI stylesheets and `sqpaymentform.css` from Template B and Template C, plus Popper, Bootstrap JS, Swiper and the unused `functions.php` from Template C. The release zip is smaller.
 - **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
 
