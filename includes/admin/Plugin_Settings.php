@@ -264,7 +264,7 @@ class Plugin_Settings {
         }
         printf(
             '<div class="notice notice-warning"><p>%s <a href="%s">%s</a></p></div>',
-            esc_html__( 'Landing Page Manager: add a Google Maps server key on the API Keys tab. Right now address lookups and Fetch Reviews use your browser key, which appears in every landing page\'s HTML and can\'t be restricted to your sites without breaking them.', 'landing-page-manager' ),
+            esc_html__( 'Landing Page Manager: add a Google Maps server key on the API Keys tab. Right now address lookups and Fetch Reviews use your browser key, which appears in every landing page\'s HTML and can\'t be restricted to your sites without breaking those lookups.', 'landing-page-manager' ),
             esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
             esc_html__( 'Go to Settings', 'landing-page-manager' )
         );
