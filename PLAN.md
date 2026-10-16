@@ -124,7 +124,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 
 ## P0 — before the next release
 
-- [~] **Department review 10-16c fixes on `fix/owner-decisions-p0`.** The full list is in [the meeting notes](meeting-notes/2026-10-16-1034-owner-decisions-review.md). It covers:
+- [x] **Department review 10-16c fixes on `fix/owner-decisions-p0`.** **Done 10-16** (commits `384fea9` through the docs commit; see progress.md). The full list is in [the meeting notes](meeting-notes/2026-10-16-1034-owner-decisions-review.md). It covers:
   - the validator revision fix and the "Draft updated" message;
   - reviews compliance wording and the privacy text;
   - upgrade notes: colours, phone, Additional Scripts, embeds, class renames, deleted files, `DISALLOW_UNFILTERED_HTML`, and salts or site migration;

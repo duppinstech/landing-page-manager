@@ -46,7 +46,7 @@ class Admin_Dashboard {
         <div class="notice lp-pro-banner" style="margin: 0 0 20px 0; padding: 12px 20px; border-left-color: #2271b1; background: #f0f6fc; border-left-width: 4px;">
             <p style="margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <strong><?php esc_html_e( 'Pro analytics is coming soon', 'landing-page-manager' ); ?></strong>
-                <span style="color: #50575e;">— <?php esc_html_e( 'Page views, conversions, click-through rates and behavior insights. Contact Duppins Technology for early access.', 'landing-page-manager' ); ?></span>
+                <span style="color: #50575e;">— <?php esc_html_e( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Contact Duppins Technology for early access.', 'landing-page-manager' ); ?></span>
                 <a href="<?php echo esc_url( $get_pro_url ); ?>" class="button button-primary" style="margin-left: auto;" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Contact for early access', 'landing-page-manager' ); ?></a>
             </p>
         </div>
