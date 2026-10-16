@@ -8,6 +8,7 @@ use LPManager\cpt\Landing_Page_CPT_Enhancements;
 use LPManager\cpt\Rewrite_Rules;
 use LPManager\admin\Admin_Dashboard;
 use LPManager\admin\Plugin_Settings;
+use LPManager\admin\Help_Widget;
 use LPManager\templates\Template_Manager;
 use LPManager\templates\Template_Loader;
 use LPManager\ajax\Reviews_Ajax;
@@ -41,6 +42,7 @@ final class Plugin {
         // Tracking is loaded by the Pro plugin only.
         Admin_Dashboard::init();
         Plugin_Settings::init();
+        Help_Widget::init();
         Update_Checker::init();
     }
 
