@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $lpm_wra_has_reviews = function_exists( 'carbon_get_post_meta' )
-	&& '' !== trim( (string) carbon_get_post_meta( get_queried_object_id(), 'reviews_html' ) );
+	&& '' !== trim( wp_kses_post( (string) carbon_get_post_meta( get_queried_object_id(), 'reviews_html' ) ) );
 
 $lpm_wra_styles = array(
 	'bootstrap'  => array( 'css/bootstrap.css' ),

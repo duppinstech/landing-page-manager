@@ -130,12 +130,13 @@ if ($section_8_img_id) {
   </div>
 </section>
 <!-- Section 3: Reviews (only when the page has reviews; lib/assets.php skips Swiper otherwise) -->
-<?php if ( '' !== trim( (string) $reviews_html ) ) : ?>
+<?php $reviews_html_safe = wp_kses_post( (string) $reviews_html ); ?>
+<?php if ( '' !== trim( $reviews_html_safe ) ) : ?>
 <section id="reviews" class="reviews-section" style="background-color: #F3F3F3;">
   <div class="reviews-wrapper">
     <h2><?php echo esc_html( $reviews_h2 ); ?></h2>
     <div class="reviews-html">
-      <?php echo wp_kses_post( $reviews_html ); ?>
+      <?php echo $reviews_html_safe; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped with wp_kses_post above. ?>
     </div>
   </div>
 </section>

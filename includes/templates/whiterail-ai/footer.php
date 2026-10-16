@@ -166,7 +166,7 @@
             <?php
             endif;
         } elseif ( current_user_can( 'edit_posts' ) ) {
-            echo '<p style="text-align:center; color:#fff;">' . esc_html__( 'No client is assigned to this landing page. Choose one in the Clients box on the edit screen. Only logged-in editors see this message.', 'landing-page-manager' ) . '</p>';
+            echo '<p style="text-align:center; color:#fff;">' . esc_html__( 'No client is assigned to this landing page. Choose one in the Client Name field under Landing Page Details on the edit screen. Only logged-in editors see this message.', 'landing-page-manager' ) . '</p>';
         }
         ?>
 
