@@ -169,7 +169,7 @@
 					<div class="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section">
 						<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="section-header-mobile-trigger">
 							<div class="ast-button-wrap">
-								<button type="button" class="menu-toggle main-header-menu-toggle ast-mobile-menu-trigger-minimal" aria-expanded="false" data-index="0" style="display: flex;">
+								<button type="button" class="menu-toggle main-header-menu-toggle ast-mobile-menu-trigger-minimal" aria-expanded="false" aria-controls="lpm-mobile-nav" data-index="0" style="display: flex;">
 									<span class="screen-reader-text">Main Menu</span>
 										<span class="mobile-menu-toggle-icon">
 											<span class="ahfb-svg-iconset ast-inline-flex svg-baseline">
@@ -190,6 +190,19 @@
 				</div>
 			</div>
 		</div>
+		<nav id="lpm-mobile-nav" class="lpm-mobile-nav" aria-label="<?php esc_attr_e( 'Main menu', 'landing-page-manager' ); ?>" hidden>
+			<ul>
+				<li><a href="#services"><?php esc_html_e( 'Services', 'landing-page-manager' ); ?></a></li>
+				<li><a href="#about"><?php esc_html_e( 'About Us', 'landing-page-manager' ); ?></a></li>
+				<li><a href="#benefits"><?php esc_html_e( 'Benefits', 'landing-page-manager' ); ?></a></li>
+				<li><a href="#more">
+					<?php
+					/* translators: %s: client name */
+					echo esc_html( sprintf( __( 'More About %s', 'landing-page-manager' ), $client_name ) );
+					?>
+				</a></li>
+			</ul>
+		</nav>
 	</div>
 	</header>
     <main class="main-content" id="main-content">

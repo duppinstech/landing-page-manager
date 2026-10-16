@@ -957,3 +957,36 @@ header.header.stiky{
         background: rgba(13, 13, 13, 0.8);
     }
 }
+
+/* Mobile menu (toggled by .main-header-menu-toggle in js/main.js). */
+.lpm-mobile-nav {
+	background: #fff;
+	border-top: 1px solid #e5e5e5;
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+.lpm-mobile-nav[hidden] {
+	display: none;
+}
+.lpm-mobile-nav ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.lpm-mobile-nav a {
+	display: block;
+	padding: 14px 20px;
+	color: #222;
+	font-weight: 600;
+	text-decoration: none;
+	border-bottom: 1px solid #f0f0f0;
+}
+.lpm-mobile-nav a:hover,
+.lpm-mobile-nav a:focus-visible {
+	background: #f5f5f5;
+}
+.menu-toggle.toggled .ast-menu-svg {
+	display: none;
+}
+.menu-toggle.toggled .ast-close-svg {
+	display: block;
+}

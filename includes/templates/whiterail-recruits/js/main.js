@@ -1076,3 +1076,29 @@ jQuery(function($) {
     }
 
 });
+
+// Mobile menu: the header toggle opens #lpm-mobile-nav. Closes on link tap or Escape.
+(function () {
+    var button = document.querySelector('#ast-mobile-header .main-header-menu-toggle');
+    var nav = document.getElementById('lpm-mobile-nav');
+    if (!button || !nav) return;
+
+    function setOpen(open) {
+        nav.hidden = !open;
+        button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        button.classList.toggle('toggled', open);
+    }
+
+    button.addEventListener('click', function () {
+        setOpen(nav.hidden);
+    });
+    nav.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+        if ((e.key === 'Escape' || e.key === 'Esc') && !nav.hidden) {
+            setOpen(false);
+            button.focus();
+        }
+    });
+})();
