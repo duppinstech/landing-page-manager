@@ -240,12 +240,12 @@ add_action( 'template_redirect', function () {
         }
 } );
 
-// Custom action for your own tracking/scripts on landing pages
+/**
+ * Landing-page footer hook, attached to wp_footer on landing pages (see Assets_Manager).
+ * Settings → API Keys → Additional Scripts prints here; add your own output with
+ * add_action( 'lpmanager_landing_page_footer', ... ).
+ */
 function lpmanager_custom_landing_page_footer() {
-    /**
-     * Place your AdWords or other tracking scripts here.
-     */
-    // You can also use a filter here for extensibility
     do_action('lpmanager_landing_page_footer');
 }
 
