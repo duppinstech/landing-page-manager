@@ -66,7 +66,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Problem:** The default hero images are hotlinked from the client's site and include a car-care brand–named photo, so their rights are unknown. The footer hardcodes "© Template C" on every client's pages. The `client_g` text domain suggests the code came from another project.
   - **Recommendation:** confirm the rights, use operator-uploaded media only, set the copyright line from the site name, and decide whether "Apply Now" becomes an HTML button.
   - _(legal, ux · DR 10-14)_
-- [x] **P1 — Template A design choices.** **Decided (Odell, 10-16):** swap in a phone icon for the mobile call button, and make Template A honor the client's colours.
+- [x] **P1 — Template A design choices.** **Decided (Odell, 10-16):** swap in a phone icon for the mobile call button, and make Template A honor the client's colours. **Done 10-16** on `fix/owner-decisions-p0`: phone icon, and client colours via `lpm_qt_brand_palette()` (darkened to keep 4.5:1 with white text).
   - **Mobile button:** the default header's three-bar "menu" icon actually dials the phone. Recommendation: swap in a phone icon.
   - **Client colors:** Template A ignores client and Brandfetch colors and uses a fixed red and navy palette. Decide whether it should honor client colors or keep the palette (and document that).
   - _(ux · DR 10-14)_
