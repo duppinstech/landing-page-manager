@@ -82,3 +82,14 @@ Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with ea
 ## 2026-10-16 — Rich-text iframes are rebuilt, never passed through
 **Decision:** `lpmanager_kses_rich_text()` reads each iframe with `WP_HTML_Tag_Processor` and requires an anchored per-provider https pattern match (`lpmanager_iframe_src_patterns`). It then rebuilds approved iframes with fixed attributes. Before WP 6.2, and in site-kses fallbacks, all iframes are removed.
 
+
+## 2026-10-16 — Release v1.0.7 without the staging smoke test (Odell)
+**Decision (Odell):** "Merge and release." The stack (`chore/template-field-cleanup` → `fix/review-p0-batch` → `perf/maps-lazy-load-p1-batch` → `fix/owner-decisions-p0`) merges to `main` and ships as v1.0.7.
+**Waived:**
+- the staging smoke test (steps 1–41), including the per-site phone audit (step 26) and the `DISALLOW_UNFILTERED_HTML` check (step 31);
+- two open P0 decisions, which ship as currently built and documented in the upgrade notes:
+  - who can change Header Tracking Code: users with `unfiltered_html`, including Editors on a single site;
+  - QuickTow's generic fallback colours, which apply as client colours.
+
+All four batches passed department review with no `block`.
+**Consequences:** Live sites receive v1.0.7 through the updater. Check live QuickTow pages (colours and phone numbers) and Additional Scripts approval right after the update.
