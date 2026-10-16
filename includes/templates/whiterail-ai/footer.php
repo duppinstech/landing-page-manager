@@ -68,7 +68,7 @@
                 /* translators: %s: business name */
                 $map_label = $client_name ? sprintf( __( 'Map showing the location of %s', 'landing-page-manager' ), $client_name ) : __( 'Location map', 'landing-page-manager' );
             ?>
-                <div id="footer-map" role="region" aria-label="<?php echo esc_attr( $map_label ); ?>" style="width: 100%; height: 400px;"></div>
+                <div id="footer-map" role="region" aria-label="<?php echo esc_attr( $map_label ); ?>" style="width: 100%; height: 400px; background-color: #f2e5d4;"></div>
                 <script>
                     function initFooterMap() {
                         var mapOptions = {
@@ -123,8 +123,9 @@
                             });
                         }
 
-                        // Optionally auto-open on load
-                        infoWindow.open(map, marker);
+                        // Auto-open without moving keyboard focus: the map now loads while the visitor
+                        // is scrolling or tabbing nearby, and a focus jump would be disorienting.
+                        infoWindow.open({ anchor: marker, map: map, shouldFocus: false });
                     }
 
                     // Maps JS is billed per load, and the map sits at the bottom of the page: only load it
@@ -161,11 +162,11 @@
             elseif ( current_user_can( 'edit_posts' ) ) :
                 // Setup hints are for editors only; visitors just don't see a map.
             ?>
-                <p style="text-align:center; color:#fff;"><?php esc_html_e( 'Map unavailable: the client needs a geocoded address and a Google Maps browser key must be set. (Only logged-in editors see this.)', 'landing-page-manager' ); ?></p>
+                <p style="text-align:center; color:#fff;"><?php esc_html_e( 'Map unavailable. Add the client\'s Contact Address and save the client, which looks up its latitude and longitude, and set a Google Maps browser key under Landing Pages → Settings → API Keys. Only logged-in editors see this message.', 'landing-page-manager' ); ?></p>
             <?php
             endif;
         } elseif ( current_user_can( 'edit_posts' ) ) {
-            echo '<p style="text-align:center; color:#fff;">' . esc_html__( 'No client assigned to this landing page. (Only logged-in editors see this.)', 'landing-page-manager' ) . '</p>';
+            echo '<p style="text-align:center; color:#fff;">' . esc_html__( 'No client is assigned to this landing page. Choose one in the Clients box on the edit screen. Only logged-in editors see this message.', 'landing-page-manager' ) . '</p>';
         }
         ?>
 

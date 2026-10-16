@@ -129,7 +129,8 @@ if ($section_8_img_id) {
     </div>
   </div>
 </section>
-<!-- Section 3: Reviews -->
+<!-- Section 3: Reviews (only when the page has reviews; lib/assets.php skips Swiper otherwise) -->
+<?php if ( '' !== trim( (string) $reviews_html ) ) : ?>
 <section id="reviews" class="reviews-section" style="background-color: #F3F3F3;">
   <div class="reviews-wrapper">
     <h2><?php echo esc_html( $reviews_h2 ); ?></h2>
@@ -138,6 +139,7 @@ if ($section_8_img_id) {
     </div>
   </div>
 </section>
+<?php endif; ?>
 <!-- Section 4 -->
 <section id="services" class="icon-boxes-section">
   <div class="container">
