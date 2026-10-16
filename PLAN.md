@@ -26,7 +26,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Problem:** WhiteRail AI shows the page's "Client Phone" but dials the client's "Contact Phone". QuickTow ignores the page number when the client has one. Call-tracking numbers lose attribution.
   - **Recommendation:** the page number overrides the client number everywhere. Make the page field optional, then use one resolved number for both display and `tel:`, and add help text to both fields.
   - _(prod, ux, sup · DR 10-14)_
-- [x] **P0 — "Additional Scripts" setting and the footer hook.** **Decided (Odell, 10-16): wire it up for admins only.** Print it only when saved by a user with `unfiltered_html`, re-enable `lpmanager_landing_page_footer`, and add an allowlist filter. Needs `security-reviewer`.
+- [x] **P0 — "Additional Scripts" setting and the footer hook.** **Decided (Odell, 10-16): wire it up for admins only.** Print it only when saved by a user with `unfiltered_html`, re-enable `lpmanager_landing_page_footer`, and add an allowlist filter. Needs `security-reviewer`. **Done 10-16** on `fix/owner-decisions-p0` (hash-verified, printed via `lpmanager_landing_page_footer`; `lpmanager_allowed_footer_callbacks` filter).
   - **Problem:** Conversion and pixel tags pasted there are saved but never printed. The `lpmanager_landing_page_footer` action never fires, and `remove_all_actions('wp_footer')` strips other plugins' tags.
   - **Recommendation:** wire it up for users with `unfiltered_html` only, re-add the footer action, and add an allowlist filter for tracking hooks. The alternative is to remove the setting.
   - **Review:** `security-reviewer`.
