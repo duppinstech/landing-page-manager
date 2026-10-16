@@ -206,3 +206,6 @@ address a:hover{color:var(--red)}
 
 /* QuickTow style variants (Style 1 / #hdr + #hero layout only) */
 .quicktow--james .hero-fade--james{background:linear-gradient(to right,#06091a,transparent)}
+/* Mobile call button (dials the phone, so it shows a phone icon, not menu bars). */
+.ham.ham--call{align-items:center;justify-content:center;color:#fff}
+.ham.ham--call svg{width:22px;height:22px;display:block}

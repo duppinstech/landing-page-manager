@@ -93,3 +93,86 @@ function lpm_quicktow_render_service_icon( $raw ) {
 	}
 	return esc_html( $raw );
 }
+
+if ( ! function_exists( 'lpm_qt_mix' ) ) {
+	/**
+	 * Mix a hex colour toward another (0 = unchanged, 1 = the other colour).
+	 *
+	 * @param string $hex    #rrggbb.
+	 * @param string $toward #rrggbb.
+	 * @param float  $amount 0..1.
+	 * @return string #rrggbb.
+	 */
+	function lpm_qt_mix( $hex, $toward, $amount ) {
+		$a = array_map( 'hexdec', str_split( ltrim( $hex, '#' ), 2 ) );
+		$b = array_map( 'hexdec', str_split( ltrim( $toward, '#' ), 2 ) );
+		$out = '#';
+		for ( $i = 0; $i < 3; $i++ ) {
+			$out .= sprintf( '%02x', (int) round( $a[ $i ] + ( $b[ $i ] - $a[ $i ] ) * $amount ) );
+		}
+		return $out;
+	}
+}
+
+if ( ! function_exists( 'lpm_qt_contrast_with_white' ) ) {
+	/**
+	 * WCAG contrast ratio between a hex colour and white.
+	 *
+	 * @param string $hex #rrggbb.
+	 * @return float
+	 */
+	function lpm_qt_contrast_with_white( $hex ) {
+		$lum = 0.0;
+		foreach ( array( 0.2126, 0.7152, 0.0722 ) as $i => $weight ) {
+			$c    = hexdec( substr( ltrim( $hex, '#' ), $i * 2, 2 ) ) / 255;
+			$c    = ( $c <= 0.03928 ) ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
+			$lum += $weight * $c;
+		}
+		return 1.05 / ( $lum + 0.05 );
+	}
+}
+
+if ( ! function_exists( 'lpm_qt_brand_palette' ) ) {
+	/**
+	 * CSS custom properties that apply the client's colours to QuickTow.
+	 *
+	 * QuickTow puts white text on its red and navy, so a client colour too light for that is
+	 * darkened until white text reaches WCAG AA (4.5:1). Returns an empty array when the client
+	 * uses the default red and navy, so the built-in palette applies unchanged.
+	 *
+	 * @param string $primary   Client primary colour (#rrggbb), used where QuickTow uses navy.
+	 * @param string $secondary Client secondary colour (#rrggbb), used where QuickTow uses red.
+	 * @return array<string, string> Custom property => colour.
+	 */
+	function lpm_qt_brand_palette( $primary, $secondary ) {
+		$primary   = sanitize_hex_color( (string) $primary );
+		$secondary = sanitize_hex_color( (string) $secondary );
+		if ( ! $primary || ! $secondary ) {
+			return array();
+		}
+		$expand = function ( $hex ) {
+			$hex = strtolower( ltrim( $hex, '#' ) );
+			return '#' . ( 3 === strlen( $hex ) ? $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2] : $hex );
+		};
+		$primary   = $expand( $primary );
+		$secondary = $expand( $secondary );
+		if ( '#002868' === $primary && '#b22234' === $secondary ) {
+			return array();
+		}
+		$readable = function ( $hex ) {
+			for ( $i = 0; $i < 30 && lpm_qt_contrast_with_white( $hex ) < 4.5; $i++ ) {
+				$hex = lpm_qt_mix( $hex, '#000000', 0.06 );
+			}
+			return $hex;
+		};
+		$red  = $readable( $secondary );
+		$navy = $readable( $primary );
+		return array(
+			'--red'       => $red,
+			'--red-dark'  => lpm_qt_mix( $red, '#000000', 0.22 ),
+			'--red-light' => lpm_qt_mix( $red, '#ffffff', 0.9 ),
+			'--navy'      => $navy,
+			'--navy-dark' => lpm_qt_mix( $navy, '#000000', 0.35 ),
+		);
+	}
+}

@@ -44,12 +44,6 @@ if ( 'james_heavy' === $style_variant ) {
 	<?php echo $qt_schema_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Re-encoded above with JSON_HEX_TAG, so it cannot contain "<". ?>
 	</script>
 	<?php endif; ?>
-	<style id="qt-brand-vars">
-		:root .quicktow {
-			--red: <?php echo esc_attr( isset( $client_secondary ) ? $client_secondary : '#B22234' ); ?>;
-			--navy: <?php echo esc_attr( isset( $client_primary ) ? $client_primary : '#002868' ); ?>;
-		}
-	</style>
 	<?php if ( $qt_fixed_palette ) : ?>
 	<style id="qt-charmeck-palette">
 		/* James / CharMeck canonical tokens (matches static HTML samples; overrides client brand on Style 1–3). */
@@ -73,6 +67,25 @@ if ( 'james_heavy' === $style_variant ) {
 			--strong-dark: #1a1a2e;
 			--border: #e0e3ef;
 			--text-light: rgba(255, 255, 255, 0.78);
+		}
+	</style>
+	<?php endif; ?>
+	<?php
+	// Client colours (Odell, 10-16): after the built-in palette so they win; shades are derived and
+	// darkened where needed so white text stays readable (see lpm_qt_brand_palette()).
+	$qt_brand_palette = function_exists( 'lpm_qt_brand_palette' )
+		? lpm_qt_brand_palette( isset( $client_primary ) ? $client_primary : '', isset( $client_secondary ) ? $client_secondary : '' )
+		: array();
+	if ( $qt_brand_palette ) :
+		?>
+	<style id="qt-brand-vars">
+		:root .quicktow,
+		:root .quicktow.quicktow--james,
+		:root .quicktow.quicktow--charmeck,
+		:root .quicktow.quicktow--james-heavy {
+			<?php foreach ( $qt_brand_palette as $qt_var => $qt_colour ) : ?>
+			<?php echo esc_html( $qt_var ); ?>: <?php echo esc_html( $qt_colour ); ?>;
+			<?php endforeach; ?>
 		}
 	</style>
 	<?php endif; ?>
@@ -220,8 +233,8 @@ $phone_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke
 			<?php if ( ! empty( $client_phone ) && ! empty( $tel_digits ) ) : ?>
 				<a href="tel:<?php echo esc_attr( $tel_digits ); ?>" class="hdr-phone bebas"><?php echo esc_html( $client_phone ); ?></a>
 				<a href="tel:<?php echo esc_attr( $tel_digits ); ?>" class="btn btn-navy hdr-cta"><span><?php esc_html_e( 'Call Now', 'landing-page-manager' ); ?></span></a>
-				<a href="tel:<?php echo esc_attr( $tel_digits ); ?>" class="ham" id="ham" aria-label="<?php esc_attr_e( 'Call us', 'landing-page-manager' ); ?>">
-					<span></span><span></span><span></span>
+				<a href="tel:<?php echo esc_attr( $tel_digits ); ?>" class="ham ham--call" id="ham" aria-label="<?php esc_attr_e( 'Call us', 'landing-page-manager' ); ?>">
+					<?php echo $phone_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG defined above. ?>
 				</a>
 			<?php endif; ?>
 		</div>

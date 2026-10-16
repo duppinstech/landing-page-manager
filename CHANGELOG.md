@@ -31,6 +31,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
 ### Changed
+- **QuickTow uses the client's colours.** The client's primary colour replaces QuickTow's navy, and the secondary colour replaces its red, on all three styles. Darker and lighter shades are derived from them, and a colour too light for white text is darkened until the text is readable (WCAG AA). Clients that use the default red and navy look the same as before.
+- QuickTow's mobile call button shows a phone icon instead of three "menu" bars, because it dials the phone.
 - The "Get Pro" prompts now say Pro analytics is coming soon and link to Duppins Technology for early access, instead of a dead link.
 - Whiterail Recruits: the footer copyright line shows the year and the client's (or site's) name instead of "Whiterail Recruits" on every client's pages.
 - Uninstall also removes the leftover per-client template setting from the removed field.
