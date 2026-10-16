@@ -86,11 +86,18 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Whiterail AI and Recruits:** `payform.min.js`, `jquery-migrate*.js`, `bootstrap-new.js`, the jQuery UI CSS and `sqpaymentform.css`.
   - **Recruits only:** `popper.min.js`, `bootstrap.js` and the Swiper files.
   - **Also:** the dead `whiterail-recruits/functions.php`.
+  - **Added 10-16:** `whiterail-ai/js/plugins/swiper.js`, now unused because `swiper.min.js` replaced it. Delete it no sooner than one release after 10-16, because cached pages may still request it. _(legal, ops · DR 10-16)_
   - **Why:** none of these load any more, but they still ship in the zip and need license credits.
   - **Needed from Odell:** approval to delete files. _(DR 10-14b)_ _(prod, ux, legal)_
 - [ ] **P1 — Allow iframes in rich-text template fields?**
   - **Problem:** Escaping now runs Whiterail AI `section_4_text_1`, Recruits `more_content` and Whiterail AI `reviews_html` through `wp_kses_post`, which strips iframes. Video, map or review-widget embeds pasted there no longer show.
   - **Decide:** allow iframes from an allowlist of hosts (product and security call), or keep stripping them. _(DR 10-14b)_ _(ops, sec)_
+- [ ] **P1 — Do any live QuickTow clients use Google Tag Manager or jQuery-based tracking tags?** _(DR 10-16: ops, fin, ux, sup)_
+  - **Why:** QuickTow no longer loads jQuery for logged-out visitors unless the client's Header Tracking Code looks like it needs it. A jQuery tag inside a GTM container can't be detected, and would stop firing without any visible error.
+  - **Recommendation:** check before the next release. For an affected site, add the `lpmanager_load_jquery` filter in a mu-plugin, or put a comment mentioning jQuery in that client's Header Tracking Code.
+- [ ] **P2 — Should the empty-server-key warning be dismissible?** It shows on every plugin screen until a server key is saved. **Recommendation:** keep it, but allow each user to dismiss it for 30 days. _(DR 10-16: prod, sup, ops)_
+- [ ] **P2 — Recruits mobile menu colours.** The panel is white with dark text. Should it follow the client's brand colours? This is a design call; contrast is fine as it is. _(DR 10-16: ux)_
+- [ ] **P2 — Document a "needs jQuery" marker for the client's Header Tracking Code?** Any mention of "jQuery" in that field already makes QuickTow load it. **Recommendation:** don't promise it as a feature. Document the `lpmanager_load_jquery` filter instead. _(DR 10-16: sup)_
 - [ ] **P2 — Should internal planning docs stay in the public repo?**
   - `PLAN.md`, `meeting-notes/` and `.claude/memory/` are excluded from the zip but readable on GitHub, including the legal-risk analysis.
   - **Decide:** move them to a private repo or keep them public. _(DR 10-14b)_ _(legal)_
@@ -160,7 +167,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - The permanent fix is the P1 "store outside plugin folder" item.
   - _(sup · DR 10-14)_
 
-- [ ] **Smoke-test the `fix/review-p0-batch` release on staging.** Run the 15-step test in [the 10-14b appendix](meeting-notes/2026-10-14-2245-p0-batch-review.md#smoke-test). It covers updating through the updater, the asset changes per template, reduced motion, the Google keys and the CSV export. It needs a WordPress staging site, and it's the merge gate for this batch. _(DR 10-14b)_ _(ops, prod, fin)_
+- [ ] **Smoke-test the whole unmerged stack on staging** (`chore/template-field-cleanup` → `fix/review-p0-batch` → `perf/maps-lazy-load-p1-batch`), once, at the top of the stack. Then merge them in order as separate PRs. Run the 15-step test in [the 10-14b appendix](meeting-notes/2026-10-14-2245-p0-batch-review.md#smoke-test) plus steps 16–24 in [the 10-16 appendix](meeting-notes/2026-10-16-0009-maps-p1-batch-review-appendix.md#smoke-test-steps-1624). Test logged out: logged-in users always get jQuery. _(DR 10-16: ops, prod)_ It covers updating through the updater, the asset changes per template, reduced motion, the Google keys and the CSV export. It needs a WordPress staging site, and it's the merge gate for this batch. _(DR 10-14b)_ _(ops, prod, fin)_
 - [x] **Stop loading Maps JS on every page view (whiterail-ai footer).** This is now the biggest per-view Google cost (about $7 per 1,000 loads after the free 10,000), so it moved up from P1. See the P1 entry below for the fix. _(DR 10-14b)_ _(fin)_ **Done 10-16** (`perf/maps-lazy-load-p1-batch`): Maps JS loads when the map is within 300px of the viewport, the map has an accessible region name, and setup messages show to editors only.
 
 ## P1 — deployment and quality
@@ -258,6 +265,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [ ] **`CREDITS.md` (shipped) and license headers.**
   - List every bundled third-party component and its license, as in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - Restore the MIT header on `payform.min.js`.
+  - Swiper 5.3.0 (JS, `whiterail-ai/js/plugins/swiper.min.js` and `swiper.js`) and Swiper 6.0.2 (CSS, `swiper-bundle.css`): both MIT, © Vladimir Kharlampidi. _(legal · DR 10-16)_
   - Note that Carbon Fields is GPL-2.0-only, so no GPL-3.0-only or Apache-2.0 code may be added.
   - WOW.js 1.1.2 is MIT: do not upgrade past 1.1.2. Use the `graingert/WOW` fork if needed.
   - Animate.css: the bundled 2015 MIT build. Do not upgrade to 4.x, which is under the Hippocratic License 2.1 and isn't GPL-compatible. _(DR 10-14b)_
@@ -302,15 +310,19 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **Warn when the server key is empty.** Show an admin notice when a browser key is set but no server key, so operators don't leave an unrestricted key in page HTML. _(DR 10-14b)_ _(fin)_ **Done 10-16.**
 - [x] **Don't load jQuery on QuickTow.** QuickTow's `main.js` doesn't use it. Move `wp_enqueue_script('jquery')` into the fallback branch in `Assets_Manager` after checking that no client tracking code relies on it. _(DR 10-14b)_ _(ux)_ **Done 10-16.** Still loaded when the client's Header Tracking Code mentions jQuery.
 - [x] **Load Swiper on Whiterail AI only when `reviews_html` has content,** and use a minified build. _(DR 10-14b)_ _(ux)_ **Done 10-16.** `swiper.min.js` is the official 5.3.0 build: the npm integrity hash was verified, and the vendored `swiper.js` is identical to the one in the same package.
-- [x] **Fix the Recruits mobile menu button.** It has no handler, so tapping it does nothing. Add a toggle that sets `aria-expanded`, or remove the button. _(DR 10-14b)_ _(ux)_ **Done 10-16.**
+- [x] **Fix the Recruits mobile menu button.** **10-16 follow-up done:** the dead "Services" anchor was replaced by the client's other landing pages in both menus. It has no handler, so tapping it does nothing. Add a toggle that sets `aria-expanded`, or remove the button. _(DR 10-14b)_ _(ux)_ **Done 10-16.**
 - [ ] **Accessibility and Core Web Vitals audit** of each template on mobile, with a Lighthouse baseline. Moved from P2 to P1; the 10-14 UX report is the first pass. _(prod, ux · DR 10-14)_
 
 ## P2 — later
+
+- [ ] **Map cost follow-up.** In the Core Web Vitals audit, record how far below the fold the Whiterail AI footer map sits. On short pages and tall screens it still loads on every view, and Google's crawlers can trigger it. If savings matter, add an optional "click to load map" mode or the free Maps Embed iframe. _(fin · DR 10-16)_
+- [ ] **Recruits mobile menu: add the Apply button to the panel.** _(prod, ux · DR 10-16)_
 
 - [ ] **WordPress.org readiness.** `readme.txt` is empty.
   - Write it in WP.org format: stable tag, tested up to, changelog, FAQ, screenshots, and the external-services section.
   - **Blockers:** the self-updater (guideline 8), the `Update URI` header, CDN scripts, and the Get Pro banner, which can't be dismissed. A WP.org build needs Odell's decision.
   - _(mkt, legal · DR 10-14)_
+  - **Feature list for the listing and README:** "Google Maps loads on scroll (lower Maps bill)" and "Loads only the scripts each template needs". _(mkt · DR 10-16)_
 - [ ] **i18n pass.**
   - Regenerate `languages/landing-page-manager.pot`.
   - Wrap the remaining strings in the templates **and core**: `Client_Taxonomy`, `Landing_Page_CPT`, `_Enhancements`, `Plugin_Settings`, `admin.js`, and the dashboard menu labels.
@@ -343,7 +355,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Make the vendor-missing notice operator-friendly.
   - _(ux, sup · DR 10-14)_
 - [ ] **Template metadata consistency.** Use one "Whiterail/WhiteRail" spelling, and describe templates by what they contain. Remove the recruits `style.css` "theme" wording. _(mkt · DR 10-14)_
-- [ ] **CONTRIBUTING.md:** add the `template/` and `security/` branch prefixes. _(sup · DR 10-14)_
+- [x] **CONTRIBUTING.md:** add the `template/` and `security/` branch prefixes. Done 10-16, together with `perf/` in `pr.md`. _(sup · DR 10-14, prod · DR 10-16)_
 
 ## Done
 - [x] GitHub-release updater with WP.org toggle (v1.0.1)

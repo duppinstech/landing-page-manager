@@ -39,3 +39,12 @@ Append-only log. Format: `## YYYY-MM-DD — Title`, then Context / Decision / Co
 ## 2026-10-14 — Updates come only from GitHub until a WordPress.org listing exists
 **Context:** The `landing-page-manager` slug is unclaimed on WordPress.org, and the plugin had no `Update URI`. Whoever published that slug could push code to every site.
 **Decision (Odell):** Close the gap now. Add `Update URI` and use GitHub Releases as the only update source. Plan for WordPress.org later: the free core goes on WordPress.org, and Pro stays the paid add-on. Revisit this decision when the listing is created.
+
+## 2026-10-16 — Footer map: lazy-loaded Maps JS, not the Embed iframe
+**Decision:** The Whiterail AI footer map loads Maps JS when it comes within 300px of the viewport, not as the free Maps Embed iframe. Lazy-loading keeps the custom styling, marker and info window, and a load is billed only when a visitor gets near the footer.
+**Consequences:** Short pages and tall screens still load it on every view. Revisit if Maps loads stay a top cost line (PLAN P2 "Map cost follow-up").
+
+## 2026-10-16 — jQuery is a template dependency, not a global
+**Decision:** Templates with a manifest declare `jquery` as a script dependency when they need it. Core loads jQuery itself only for templates without a manifest (uploaded templates), when the client's Header Tracking Code looks like it uses jQuery or GTM, or when the `lpmanager_load_jquery` filter returns true.
+**Consequences:** QuickTow pages ship without jQuery for logged-out visitors. A jQuery tag inside GTM that detection can't see needs the filter. Logged-in users always get jQuery through heartbeat and wp-auth-check, so test this logged out.
+
