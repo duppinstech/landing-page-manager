@@ -128,13 +128,13 @@ if ($section_8_img_id) {
   </div>
 </section>
 <!-- Section 3: Reviews (only when the page has reviews; lib/assets.php skips Swiper otherwise) -->
-<?php $reviews_html_safe = wp_kses_post( (string) $reviews_html ); ?>
+<?php $reviews_html_safe = lpmanager_kses_rich_text( (string) $reviews_html ); ?>
 <?php if ( '' !== trim( $reviews_html_safe ) ) : ?>
 <section id="reviews" class="reviews-section" style="background-color: #F3F3F3;">
   <div class="reviews-wrapper">
     <h2><?php echo esc_html( $reviews_h2 ); ?></h2>
     <div class="reviews-html">
-      <?php echo $reviews_html_safe; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped with wp_kses_post above. ?>
+      <?php echo $reviews_html_safe; // phpcs:ignore WordPress.Security.EscapeOutput -- filtered by lpmanager_kses_rich_text() above. ?>
     </div>
   </div>
 </section>
@@ -143,7 +143,7 @@ if ($section_8_img_id) {
 <section id="services" class="icon-boxes-section">
   <div class="container">
     <h2><?php echo esc_html( $section_4_h2 ); ?></h2>
-    <p class="section-intro"><?php echo wp_kses_post( $section_4_text_1 ); ?></p>
+    <p class="section-intro"><?php echo lpmanager_kses_rich_text( $section_4_text_1 ); // phpcs:ignore WordPress.Security.EscapeOutput -- kses with an iframe host allowlist. ?></p>
 
     <?php 
     $icon_boxes = carbon_get_the_post_meta('icon_boxes');

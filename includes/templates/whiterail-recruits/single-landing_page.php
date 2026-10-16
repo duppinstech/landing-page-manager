@@ -230,7 +230,7 @@ Description: A simple landing page template for Whiterail Recruits.
 			</h2>
 		</div>
 		<div class="content">
-			<?php echo wp_kses_post( $more_content ); ?>
+			<?php echo lpmanager_kses_rich_text( $more_content ); // phpcs:ignore WordPress.Security.EscapeOutput -- kses with an iframe host allowlist. ?>
 		</div>
 	<?php endif; ?>
 </section>
