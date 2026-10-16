@@ -124,3 +124,6 @@ if ( is_multisite() ) {
 
 // Network-wide cache of the latest GitHub release (Update_Checker).
 delete_site_transient( 'lpmanager_github_release' );
+
+// Per-user notice dismissals (user meta is shared across a network).
+delete_metadata( 'user', 0, 'lpmanager_server_key_notice_dismissed', '', true );

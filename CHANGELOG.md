@@ -28,7 +28,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Developer filter `lpmanager_template_for_post` to choose a landing page's template (core still uses one site-wide template; per-client templates come with Pro).
 - **Separate Google Maps server key** (Settings → API Keys). Server-side lookups (client geocoding and Fetch Reviews) use it, so the browser key that maps need can be restricted to your site and its subdomains. If it's empty, the browser key is used as before.
 - Suggested privacy-policy text for landing pages under **Settings → Privacy → Policy Guide**.
-- An admin notice on the plugin's screens when a Google Maps browser key is set but no server key. Without a server key, address lookups and Fetch Reviews use the browser key, and restricting that key to your sites breaks them.
+- An admin notice on the plugin's screens when a Google Maps browser key is set but no server key (each admin can hide it for 30 days). Without a server key, address lookups and Fetch Reviews use the browser key, and restricting that key to your sites breaks them.
 - An admin notice, with a link to Settings, when the active template is missing (for example, an uploaded template removed by an update), which makes landing pages 404.
 - The plugin declares its requirements (WordPress 5.9, PHP 7.4), so WordPress won't install it on older hosts.
 
