@@ -11,8 +11,13 @@ if ( ! defined('ABSPATH') ) exit;
  */
 final class Reviews_Ajax {
 
-    /** Seconds to reuse a place's reviews before calling Google again. */
-    const CACHE_TTL = 12 * HOUR_IN_SECONDS;
+    /**
+     * Seconds to refuse repeat fetches for a place after a successful one.
+     *
+     * Only the time of the fetch is stored, never review content: Google's Places terms
+     * don't allow caching Places content. This replaced a 12-hour content cache (Odell, 10-16).
+     */
+    const LOCK_TTL = 10 * MINUTE_IN_SECONDS;
 
     /** Seconds to refuse repeat calls after Google rejected or failed a request. */
     const FAILURE_TTL = 10 * MINUTE_IN_SECONDS;
@@ -90,7 +95,7 @@ final class Reviews_Ajax {
     }
 
     /**
-     * A place's reviews from Places Details, cached per place.
+     * A place's reviews from Places Details. Nothing from the response is cached.
      *
      * Requests only the `reviews` and `rating` fields, so Google bills Places Details
      * plus Atmosphere Data and skips Contact Data. Returns an array of reviews
@@ -98,9 +103,22 @@ final class Reviews_Ajax {
      */
     private static function get_place_reviews( $place_id, $api_key ) {
         $cache_key = 'lpmanager_reviews_' . md5( $place_id );
-        $cached = get_transient( $cache_key );
-        if ( is_array( $cached ) ) {
-            return $cached;
+        // Remove review content cached by earlier versions.
+        delete_transient( $cache_key );
+
+        // Cost control without keeping content: after a fetch, refuse repeats for a short while.
+        $lock_key  = 'lpmanager_reviews_lock_' . md5( $place_id );
+        $locked_at = (int) get_transient( $lock_key );
+        if ( $locked_at ) {
+            $minutes = max( 1, (int) ceil( ( $locked_at + self::LOCK_TTL - time() ) / MINUTE_IN_SECONDS ) );
+            return new \WP_Error(
+                'lpmanager_reviews_locked',
+                sprintf(
+                    /* translators: %d: minutes until reviews can be fetched again */
+                    _n( 'Reviews for this client were fetched a moment ago. Try again in %d minute.', 'Reviews for this client were fetched a moment ago. Try again in %d minutes.', $minutes, 'landing-page-manager' ),
+                    $minutes
+                )
+            );
         }
 
         // After a failure, refuse repeats for a while so a bad key or Place ID can't
@@ -140,7 +158,7 @@ final class Reviews_Ajax {
         }
 
         $reviews = ( isset( $data['result']['reviews'] ) && is_array( $data['result']['reviews'] ) ) ? $data['result']['reviews'] : [];
-        set_transient( $cache_key, $reviews, self::CACHE_TTL );
+        set_transient( $lock_key, time(), self::LOCK_TTL );
         return $reviews;
     }
 }
