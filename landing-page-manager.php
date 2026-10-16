@@ -173,12 +173,14 @@ function lpmanager_kses_rich_text( $html ) {
         $src = $processor->get_attribute( 'src' );
         $src = is_string( $src ) ? $src : '';
         $ok  = '' !== $src && ! preg_match( '#[\x00-\x20\\\\@]#', $src );
+        $provider = '';
         if ( $ok ) {
             $ok = false;
-            foreach ( $patterns as $pattern ) {
+            foreach ( $patterns as $key => $pattern ) {
                 // Only anchored https patterns count, so a loose pattern from a filter can't widen the check.
                 if ( is_string( $pattern ) && 0 === strpos( $pattern, '#^https://' ) && '$#' === substr( $pattern, -2 ) && preg_match( $pattern, $src ) ) {
-                    $ok = true;
+                    $ok       = true;
+                    $provider = (string) $key;
                     break;
                 }
             }
@@ -195,12 +197,29 @@ function lpmanager_kses_rich_text( $html ) {
                 $allow[] = $token;
             }
         }
+        // Sizes: plain pixels (capped) or a percentage such as width="100%"; anything else is dropped.
+        $size = function ( $value ) {
+            if ( ! is_string( $value ) || ! preg_match( '#^\s*([0-9]{1,4})\s*(%?)\s*$#', $value, $m ) ) {
+                return '';
+            }
+            return '%' === $m[2] ? min( 100, (int) $m[1] ) . '%' : (string) min( 2000, (int) $m[1] );
+        };
         $title = $processor->get_attribute( 'title' );
+        $title = is_string( $title ) ? sanitize_text_field( $title ) : '';
+        if ( '' === $title ) {
+            // Every iframe needs an accessible name; most pasted embed code has none.
+            $fallback = [
+                'youtube'     => __( 'YouTube video', 'landing-page-manager' ),
+                'vimeo'       => __( 'Vimeo video', 'landing-page-manager' ),
+                'google_maps' => __( 'Google map', 'landing-page-manager' ),
+            ];
+            $title = isset( $fallback[ $provider ] ) ? $fallback[ $provider ] : __( 'Embedded content', 'landing-page-manager' );
+        }
         $embeds[] = [
             'src'             => $src,
-            'width'           => min( 2000, absint( $processor->get_attribute( 'width' ) ) ),
-            'height'          => min( 2000, absint( $processor->get_attribute( 'height' ) ) ),
-            'title'           => is_string( $title ) ? sanitize_text_field( $title ) : '',
+            'width'           => $size( $processor->get_attribute( 'width' ) ),
+            'height'          => $size( $processor->get_attribute( 'height' ) ),
+            'title'           => $title,
             'allow'           => array_unique( $allow ),
             'allowfullscreen' => null !== $processor->get_attribute( 'allowfullscreen' ),
         ];
@@ -228,10 +247,16 @@ function lpmanager_kses_rich_text( $html ) {
             if ( '' === $src ) {
                 return '';
             }
-            $out = '<iframe src="' . $src . '"';
-            $out .= $e['width'] ? ' width="' . $e['width'] . '"' : '';
-            $out .= $e['height'] ? ' height="' . $e['height'] . '"' : '';
-            $out .= '' !== $e['title'] ? ' title="' . esc_attr( $e['title'] ) . '"' : '';
+            // Responsive: never wider than its container; pixel sizes keep their aspect ratio.
+            $style = 'max-width:100%;';
+            if ( ctype_digit( $e['width'] ) && ctype_digit( $e['height'] ) && (int) $e['width'] > 0 && (int) $e['height'] > 0 ) {
+                $style .= 'height:auto;aspect-ratio:' . (int) $e['width'] . '/' . (int) $e['height'] . ';';
+            }
+            $out = '<iframe class="lpm-embed" src="' . $src . '"';
+            $out .= '' !== $e['width'] ? ' width="' . esc_attr( $e['width'] ) . '"' : '';
+            $out .= '' !== $e['height'] ? ' height="' . esc_attr( $e['height'] ) . '"' : '';
+            $out .= ' style="' . esc_attr( $style ) . '"';
+            $out .= ' title="' . esc_attr( $e['title'] ) . '"';
             $out .= $e['allow'] ? ' allow="' . esc_attr( implode( '; ', $e['allow'] ) ) . '"' : '';
             $out .= $e['allowfullscreen'] ? ' allowfullscreen' : '';
             return $out . ' loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
