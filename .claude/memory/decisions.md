@@ -70,3 +70,15 @@ Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with ea
 - **Internal docs:** stay public.
 - **Smaller calls:** all yes. Incomplete pages stay drafts, landing pages get their own capability type, uninstall removes the orphaned template meta, and the v1.0.6 release notes get corrected.
 - **Still open:** Recruits mobile menu colours, the Pro price and licensing, and the attorney questions.
+
+## 2026-10-16 — Raw-HTML fields need `unfiltered_html`, enforced in Carbon's save filters
+**Decision:** Additional Scripts and Header Tracking Code can only be changed or deleted by users with `unfiltered_html`. This is enforced in `carbon_fields_should_delete_field_value_on_save` and `carbon_fields_should_save_field_value`, which cover the settings form, the term screens and Carbon's REST route. The stored value is captured in the delete filter, because Carbon deletes before it saves.
+**Consequences:** On sites with `DISALLOW_UNFILTERED_HTML`, nobody can edit these fields. This is an open question for Odell.
+
+## 2026-10-16 — Additional Scripts print only with a keyed approval
+**Decision:** Printing requires an HMAC of the exact value, keyed with `wp_salt('auth')`. A trusted save of a new value approves it. Any other value needs an explicit Approve, which is bound to the reviewed value.
+**Consequences:** Rotating the salts, or cloning a site to new salts, revokes approval until an admin approves again.
+
+## 2026-10-16 — Rich-text iframes are rebuilt, never passed through
+**Decision:** `lpmanager_kses_rich_text()` reads each iframe with `WP_HTML_Tag_Processor` and requires an anchored per-provider https pattern match (`lpmanager_iframe_src_patterns`). It then rebuilds approved iframes with fixed attributes. Before WP 6.2, and in site-kses fallbacks, all iframes are removed.
+

@@ -102,6 +102,16 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Now:** the `client` taxonomy uses default capabilities, so Editors can add and edit clients. Since 10-16 they can no longer change the Header Tracking Code, which prints raw.
   - **Recommendation:** limit managing clients to administrators (`manage_options`), or keep Editors, since the raw-HTML field is now locked.
 - [ ] **P2 — Who can run Fetch Reviews?** _(security · 10-16)_ The 10-minute lock allows up to 144 billed calls per place per day, and anyone who can edit a page for that client can trigger them. **Recommendation:** require Editor-level access (`edit_others_posts`), and optionally add a daily cap per place.
+- [ ] **P1 — Whiterail template names and the hotlinked Recruits heroes.** Both templates still carry a client's name, and the Recruits default hero images load from the client's own server. **Recommendation:** rename the templates' display names (keep the slugs), as was done for QuickTow, or record the client's written consent. _(legal, mkt _(DR 10-16c)_)_
+- [ ] **P1 — Jiffy Lube–named default hero images in Recruits, and how far the image rights reach.** Do the rights you confirmed cover use by every operator? **Recommendation:** remove the two Jiffy Lube images from the defaults, or ask the attorney. _(legal _(DR 10-16c)_)_
+- [ ] **P0 — QuickTow fallback colours.** Clients with no brand match are stored with the fallback `#007BFF`/`#FF4136`, so their QuickTow pages turn generic blue and red on update. **Recommendation:** treat that pair as "no brand colour" and keep QuickTow's own palette. _(prod, sup, ops _(DR 10-16c)_)_
+- [ ] **P1 — API keys are per install, not per client.** "Clients supply their own keys" only works with one install per client. **Options:** one install per client on Duppins-run sites; a per-client key override in core; or Duppins' key with the cost passed through. _(fin _(DR 10-16c)_)_
+- [ ] **P1 — Early-access link target.** The buttons go to the duppinstech.com home page. **Recommendation:** a contact or early-access page with UTM tags. _(fin, mkt _(DR 10-16c)_)_
+- [ ] **P1 — Sites with `DISALLOW_UNFILTERED_HTML`.** Nobody, admins included, can save or approve Additional Scripts or change Header Tracking Code there. **Options:** document it (done in the CHANGELOG), or fall back to `manage_options` on single-site installs. _(ops _(DR 10-16c)_)_
+- [ ] **P1 — When can core's `assets/js/tracking.js` be deleted?** Pro 1.0.2 loads it from core. The Pro session will confirm once every managed site runs Pro 1.0.3 or later. _(ops _(DR 10-16c)_)_
+- [ ] **P2 — QuickTow accents when the client's two colours are similar.** Red accents disappear against navy. **Options:** fall back to the built-in red for accents, or accept it. _(ux _(DR 10-16c)_)_
+- [ ] **P2 — Upsell copy for per-client templates on the Templates tab** ("coming in Pro, contact for early access"), if the Pro roadmap commits to it. _(mkt _(DR 10-16c)_)_
+- [ ] **P2 — Pro 1.0.3 support window.** This decides when core's tracking-toggle definitions can be removed. _(prod _(DR 10-16c)_)_
 - [x] **P2 — Should internal planning docs stay in the public repo?** **Decided (Odell, 10-16): keep them public.**
   - `PLAN.md`, `meeting-notes/` and `.claude/memory/` are excluded from the zip but readable on GitHub, including the legal-risk analysis.
   - **Decide:** move them to a private repo or keep them public. _(DR 10-14b)_ _(legal)_
@@ -113,6 +123,18 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - _(DR 10-14)_
 
 ## P0 — before the next release
+
+- [~] **Department review 10-16c fixes on `fix/owner-decisions-p0`.** The full list is in [the meeting notes](meeting-notes/2026-10-16-1034-owner-decisions-review.md). It covers:
+  - the validator revision fix and the "Draft updated" message;
+  - reviews compliance wording and the privacy text;
+  - upgrade notes: colours, phone, Additional Scripts, embeds, class renames, deleted files, `DISALLOW_UNFILTERED_HTML`, and salts or site migration;
+  - `reviews_html` help text, labels and the README;
+  - the approval notice on every plugin screen;
+  - QuickTow contrast targets, iframe sizing and title, and a 44px call button;
+  - a jQuery check that covers Additional Scripts;
+  - i18n fixes.
+
+  _(DR 10-16c)_
 
 - [~] **Remove or re-wire the per-client template field.**
   - **Done:** the WIP on `chore/template-field-cleanup` removes it. The README already matches.
@@ -171,10 +193,21 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - The permanent fix is the P1 "store outside plugin folder" item.
   - _(sup · DR 10-14)_
 
-- [ ] **Smoke-test the whole unmerged stack on staging** (`chore/template-field-cleanup` → `fix/review-p0-batch` → `perf/maps-lazy-load-p1-batch`), once, at the top of the stack, then merge them in order as separate PRs. Run the 15 steps in [the 10-14b appendix](meeting-notes/2026-10-14-2245-p0-batch-review.md#smoke-test) (updater, per-template assets, reduced motion, Google keys, CSV export) plus steps 16–24 in [the 10-16 appendix](meeting-notes/2026-10-16-0009-maps-p1-batch-review-appendix.md#smoke-test-steps-1624), with the step 16/22 corrections and the new step 25 from [the 10-16 re-review](meeting-notes/2026-10-16-0022-maps-p1-batch-rereview.md#corrections-to-the-0009-appendix). Test logged out: logged-in users always get jQuery. Include a touch tablet in landscape (≥921px) to check that "Services" opens on tap. Needs a WordPress staging site; it is the merge gate. _(DR 10-14b: ops, prod, fin · DR 10-16: ops, prod)_
+- [ ] **Smoke-test the whole unmerged stack on staging** (`chore/template-field-cleanup` → `fix/review-p0-batch` → `perf/maps-lazy-load-p1-batch` → `fix/owner-decisions-p0`), once, at the top of the stack, then merge them in order as separate PRs. Run the 15 steps in [the 10-14b appendix](meeting-notes/2026-10-14-2245-p0-batch-review.md#smoke-test) (updater, per-template assets, reduced motion, Google keys, CSV export) plus steps 16–24 in [the 10-16 appendix](meeting-notes/2026-10-16-0009-maps-p1-batch-review-appendix.md#smoke-test-steps-1624), with the step 16/22 corrections and the new step 25 from [the 10-16 re-review](meeting-notes/2026-10-16-0022-maps-p1-batch-rereview.md#corrections-to-the-0009-appendix). Test logged out: logged-in users always get jQuery. Include a touch tablet in landscape (≥921px) to check that "Services" opens on tap. Steps 25–41 for the owner-decisions batch are in [the 10-16c appendix](meeting-notes/2026-10-16-1034-owner-decisions-review-appendix.md#smoke-test-steps-2541). Run the phone audit (step 26) and the `DISALLOW_UNFILTERED_HTML` check (step 31) on every live site before release. This needs a WordPress staging site, and it is the merge gate. _(DR 10-14b: ops, prod, fin · DR 10-16: ops, prod)_
 - [x] **Stop loading Maps JS on every page view (whiterail-ai footer).** This is now the biggest per-view Google cost (about $7 per 1,000 loads after the free 10,000), so it moved up from P1. See the P1 entry below for the fix. _(DR 10-14b)_ _(fin)_ **Done 10-16** (`perf/maps-lazy-load-p1-batch`): Maps JS loads when the map is within 300px of the viewport, the map has an accessible region name, and setup messages show to editors only.
 
 ## P1 — deployment and quality
+
+- [ ] **Draft-on-publish polish.**
+  - Validate a page when it is scheduled, not when it goes live.
+  - Keep a lasting notice when cron reverts a scheduled page.
+  - Show a notice on the list screen when Quick Edit, bulk edit or REST publishes are reverted.
+  - Note for Pro: re-check the post status in publish hooks.
+
+  _(prod, ops, sec _(DR 10-16c)_)_
+- [ ] **Landing pages get their own capability type** (decided 10-16 (b)). Map the defaults to today's post capabilities, then allow scoping by role. Needs `security-reviewer` and an upgrade routine that grants the new capabilities to existing roles. _(prod _(DR 10-16c)_)_
+- [ ] **Migrate to Places API (New)** (decided 10-16), after the attorney answers. Redo the cost maths with the field-mask SKU, and add a per-place daily cap. _(prod, fin _(DR 10-16c)_)_
+- [ ] **Ship a neutral "Starter" default template** (decided 10-16: templates are reusable products). _(prod _(DR 10-16c)_)_
 
 - [x] **Shipped v1.0.6 on 2026-10-14.** Ongoing: **keep the `oduppinsjr` GitHub account and never create or fork a `landing-page-manager` repo under it.** (From the security review.) Sites on v1.0.5 and earlier still call the old API URL and only reach the new repo through GitHub's redirect. If a repo with that name is ever recreated there, it controls their updates, which means remote code execution on those sites.
 - [ ] **Updater integrity.** Allow package URLs only from `github.com`, `codeload.github.com` and `objects.githubusercontent.com`, and verify a checksum or signature published with the release (for example a `.sha256` asset).
@@ -187,7 +220,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **Pin Composer dependency.** `carbon-field-password` is pinned to `dev-master#80df427`, the commit already locked and vendored. Upstream has no tags.
 - [x] **CHANGELOG backfill** for v1.0.1–v1.0.5.
 - [x] **Add a copyright line to LICENSE.**
-- [ ] **Store uploaded templates outside the plugin folder.** When this is done, `render_missing_template_notice()` must check both locations (DR 10-14b). (From the security review.) Every plugin update replaces `includes/templates/`, which silently deletes uploaded templates; their landing pages then fall back to a 404. Move uploads to `wp-content/lpmanager-templates/<slug>/` and have `get_templates()` and `Template_Loader` search both locations, with shipped templates taking priority.
+- [ ] **Store uploaded templates outside the plugin folder.** The `lpmanager_template_for_post` fallback must check both locations (DR 10-16c). When this is done, `render_missing_template_notice()` must check both locations (DR 10-14b). (From the security review.) Every plugin update replaces `includes/templates/`, which silently deletes uploaded templates; their landing pages then fall back to a 404. Move uploads to `wp-content/lpmanager-templates/<slug>/` and have `get_templates()` and `Template_Loader` search both locations, with shipped templates taking priority.
 - [ ] **Guard template field loading.** (From the security review.) `Template_Loader` `require_once`s `<slug>/lib/fields/landing-page-fields.php` on wp-admin requests, so a broken uploaded template can take down wp-admin. Do this after the WIP in `Template_Loader.php` is committed.
 - [x] **Uninstall routine.** `uninstall.php` removes `lpmanager_*` and `_lpmanager_*` options (but not `lpmanager_pro_*`) and the validation transients, on every site in a multisite network. Content is kept unless `LPMANAGER_UNINSTALL_DELETE_CONTENT` is true. Needs a test on a WP site.
 - [x] **Repo moved to `duppinstech/landing-page-manager`.** Updated the remote, the updater API URL, the Plugin URI and the docs.
@@ -285,7 +318,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **"Client Phone":** add help text once the phone decision is made.
   - The text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(sup, prod · DR 10-14)_
-- [ ] **Validator messages.** Show field labels and which tab each is on, say the page was saved anyway, and keep the notice until the fields are fixed. _(prod, sup · DR 10-14)_
+- [ ] **Validator messages** (raised to P0 by DR 10-16c: publishing is now blocked, so the notice must say what to fix). Show field labels and which tab each is on, say the page was saved anyway, and keep the notice until the fields are fixed. _(prod, sup · DR 10-14)_
 - [ ] **Draft preview on client subdomains.**
   - Allow draft and pending posts when `preview=true` and the user can edit the post.
   - Fall back to the default preview link when the slug is empty.
@@ -318,6 +351,10 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [ ] **Accessibility and Core Web Vitals audit** of each template on mobile, with a Lighthouse baseline. Moved from P2 to P1; the 10-14 UX report is the first pass. _(prod, ux · DR 10-14)_
 
 ## P2 — later
+
+- [ ] **Move the QuickTow `.html` mockups to a private repo.** Needs a destination from Odell. _(legal, prod _(DR 10-16c)_)_
+- [ ] **Remove core's tracking-toggle definitions** once Pro 1.0.3 is no longer supported. The support window is a decision for Odell. _(prod _(DR 10-16c)_)_
+- [ ] **Narrow the CREDITS list now that payform is gone:** Bootstrap CSS; Bootstrap JS 4 and Popper (Whiterail AI); Swiper 5.3.0 JS and 6.0.2 CSS; Animate.css; WOW 1.1.2; Carbon Fields and the rest of `vendor/`. _(legal _(DR 10-16c)_)_
 
 - [ ] **Map cost follow-up.** In the Core Web Vitals audit, record how far below the fold the Whiterail AI footer map sits. On short pages and tall screens it still loads on every view, and Google's crawlers can trigger it. If savings matter, add an optional "click to load map" mode or the free Maps Embed iframe. _(fin · DR 10-16)_
 - [ ] **Recruits mobile menu: add the Apply button to the panel.** _(prod, ux · DR 10-16)_
