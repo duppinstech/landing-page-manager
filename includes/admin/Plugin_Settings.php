@@ -280,6 +280,9 @@ class Plugin_Settings {
     /** Fields whose values are printed raw, so only users with unfiltered_html may change them. */
     const RAW_HTML_FIELDS = [ 'lpmanager_additional_scripts', 'header_tracking_code' ];
 
+    /** Stored raw-HTML values captured before Carbon deletes them during a save, keyed by field object. */
+    private static $raw_html_before_save = [];
+
     /**
      * "Additional Scripts" field. Read-only for users who may not post unfiltered HTML
      * (for example site admins on multisite), because the value is printed raw.
@@ -342,7 +345,12 @@ class Plugin_Settings {
      * @return bool
      */
     public static function guard_raw_html_delete( $delete, $field ) {
-        if ( in_array( $field->get_base_name(), self::RAW_HTML_FIELDS, true ) && ! current_user_can( 'unfiltered_html' ) ) {
+        if ( ! in_array( $field->get_base_name(), self::RAW_HTML_FIELDS, true ) ) {
+            return $delete;
+        }
+        // Field::save() deletes before the save filter runs, so remember the stored value now.
+        self::$raw_html_before_save[ spl_object_hash( $field ) ] = self::stored_raw_html_value( $field );
+        if ( ! current_user_can( 'unfiltered_html' ) ) {
             return false;
         }
         return $delete;
@@ -363,7 +371,11 @@ class Plugin_Settings {
             return $save;
         }
         $value  = (string) $value;
-        $stored = self::stored_raw_html_value( $field );
+        $key    = spl_object_hash( $field );
+        // The value stored before this save (captured in guard_raw_html_delete, because Carbon has
+        // already deleted it by now). Fall back to the database if delete was skipped.
+        $stored = array_key_exists( $key, self::$raw_html_before_save ) ? self::$raw_html_before_save[ $key ] : self::stored_raw_html_value( $field );
+        unset( self::$raw_html_before_save[ $key ] );
 
         if ( ! current_user_can( 'unfiltered_html' ) ) {
             if ( $value !== $stored ) {
@@ -409,7 +421,17 @@ class Plugin_Settings {
         if ( ! $screen || false === strpos( $screen->id, 'crb_carbon_fields_container_settings' ) ) {
             return;
         }
-        $approve_url = wp_nonce_url( admin_url( 'admin-post.php?action=lpmanager_approve_additional_scripts' ), 'lpmanager_approve_additional_scripts' );
+        // Bind the approval to the value being shown, so a swap before the click isn't approved.
+        $approve_url = wp_nonce_url(
+            add_query_arg(
+                [
+                    'action' => 'lpmanager_approve_additional_scripts',
+                    'h'      => self::additional_scripts_hmac( $code ),
+                ],
+                admin_url( 'admin-post.php' )
+            ),
+            'lpmanager_approve_additional_scripts'
+        );
         printf(
             '<div class="notice notice-warning"><p>%s <a class="button" href="%s">%s</a></p></div>',
             esc_html__( 'Landing Page Manager: Additional Scripts (API Keys tab) contains code that wasn\'t approved by an administrator, so it is not printed on landing pages. Review it below. If you trust it, approve it.', 'landing-page-manager' ),
@@ -426,10 +448,12 @@ class Plugin_Settings {
         if ( ! current_user_can( 'unfiltered_html' ) || ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'You are not allowed to approve scripts.', 'landing-page-manager' ), 403 );
         }
-        $code = (string) get_option( '_lpmanager_additional_scripts', '' );
-        if ( '' !== trim( $code ) ) {
+        $code     = (string) get_option( '_lpmanager_additional_scripts', '' );
+        $reviewed = isset( $_GET['h'] ) ? sanitize_text_field( wp_unslash( $_GET['h'] ) ) : '';
+        if ( '' !== trim( $code ) && '' !== $reviewed && hash_equals( self::additional_scripts_hmac( $code ), $reviewed ) ) {
             update_option( self::ADDITIONAL_SCRIPTS_HASH, self::additional_scripts_hmac( $code ), false );
         }
+        // If the value changed since it was shown, nothing is approved; the notice shows the new value.
         wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) );
         exit;
     }

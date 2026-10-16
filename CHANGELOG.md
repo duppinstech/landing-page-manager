@@ -13,6 +13,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **QuickTow: jQuery no longer loads by default.** If a tag on your QuickTow pages uses jQuery or `$`, for example a Custom HTML tag in Google Tag Manager, tick the new **Tracking tags need jQuery** box on that client (Clients → Tracking & Integration) before or right after updating. jQuery also still loads when the client's Header Tracking Code mentions jQuery, calls `$(` or `$.`, or contains a Google Tag Manager container snippet (`gtm.js` / `GTM-…`); the Google Ads/Analytics gtag.js snippet alone doesn't count. Developers can force it with the `lpmanager_load_jquery` filter.
 - **New warning about the Google server key.** Sites with a browser key but no server key will see a warning on the plugin's screens. Add a server key under Settings → API Keys, then restrict the browser key.
 - **Purge your page cache after updating**, so visitors get the new pages (with the map that loads on scroll).
+- **Review each client's Header Tracking Code once after updating.** Only administrators can change it from now on, but code saved earlier by other users is still printed.
+- Script approval relies on the security keys and salts in `wp-config.php`. If those salts are changed, Additional Scripts stop printing until an administrator approves them again (a notice on the Settings screen offers this).
 - No settings re-save, permalink flush or database step is needed.
 
 ### Security
