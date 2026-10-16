@@ -61,7 +61,7 @@ Deleting the plugin removes its settings. Landing pages, clients and keywords ar
 
 ## Developer hooks
 
-- `lpmanager_load_jquery` (filter, `bool $load, int $post_id`): return `true` to load jQuery on landing pages whose template doesn't need it, for example for a jQuery-based Custom HTML tag in Google Tag Manager.
+- `lpmanager_load_jquery` (filter, `bool $load, int $post_id`): return `true` to load jQuery on landing pages whose template doesn't need it. Operators can do the same per client with the **Tracking tags need jQuery** box.
 - `lpmanager_unwanted_styles`, `lpmanager_unwanted_style_patterns`, `lpmanager_unwanted_scripts` (filters): styles and scripts removed from landing pages.
 - `lpmanager_landing_page_footer` (action): output in the landing page footer.
 
