@@ -135,7 +135,11 @@ class Assets_Manager {
         // each call was a billed Google Places request. Reviews are fetched from the editor and saved
         // into the template's reviews field instead (Reviews_Ajax).
 
-        wp_enqueue_script('jquery');
+        // jQuery is not loaded for every page: manifest templates pull it in through their script
+        // dependencies (Template A doesn't need it). Keep it when the client's tracking code uses it.
+        if ( self::client_tracking_code_uses_jquery() ) {
+            wp_enqueue_script('jquery');
+        }
 
         // --- ENQUEUE landing page local assets ---
         $includes_dir = dirname(plugin_dir_path(__FILE__));
@@ -152,7 +156,8 @@ class Assets_Manager {
         if ( file_exists( $template_dir . 'lib/assets.php' ) ) {
             $this->enqueueTemplateManifest( $current_template, $template_dir, $template_url );
         } else {
-            // Templates without a manifest (e.g. uploaded ones) keep the old behaviour: load every file.
+            // Templates without a manifest (e.g. uploaded ones) keep the old behaviour: jQuery plus every file.
+            wp_enqueue_script('jquery');
             $this->enqueueFilesInDir($template_dir . 'css/', $template_url . 'css/', 'style');
             $this->enqueueFilesInDir($template_dir . 'js/', $template_url . 'js/', 'script');
         }
@@ -162,6 +167,20 @@ class Assets_Manager {
             //error_log('Enqueued Styles: ' . print_r($wp_styles->queue, true));
             //error_log('Enqueued Scripts: ' . print_r($wp_scripts->queue, true));
         }
+    }
+
+    /**
+     * Whether the current page's client "Header Tracking Code" (printed in wp_head) calls jQuery.
+     *
+     * @return bool
+     */
+    private static function client_tracking_code_uses_jquery() {
+        $terms = get_the_terms( get_queried_object_id(), 'client' );
+        if ( empty( $terms ) || is_wp_error( $terms ) || ! function_exists( 'carbon_get_term_meta' ) ) {
+            return false;
+        }
+        $code = (string) carbon_get_term_meta( $terms[0]->term_id, 'header_tracking_code' );
+        return '' !== $code && ( false !== stripos( $code, 'jquery' ) || false !== strpos( $code, '$(' ) );
     }
 
     /**
