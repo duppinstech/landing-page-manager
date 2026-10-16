@@ -129,57 +129,110 @@ function lpmanager_get_landing_phone( $post_id = 0 ) {
 }
 
 /**
- * Filter rich-text template content like post content, but also allow embedded iframes from
- * approved hosts (video, maps, review widgets). Iframes from any other host, or not on https, are
- * removed (Odell, 10-16).
+ * Filter rich-text template content like post content, but keep embedded video and map iframes
+ * from approved providers (Odell, 10-16).
+ *
+ * Iframes are never passed through as written. Each one is read with WordPress's HTML parser
+ * (which takes the first `src`, decoded, as browsers do), its src is checked against strict
+ * per-provider URL patterns, and approved iframes are rebuilt from scratch with a fixed set of
+ * clean attributes. Everything else goes through wp_kses_post(), which removes iframes.
+ * Without the HTML API (WordPress before 6.2), all iframes are removed.
  *
  * @param string $html Field content.
  * @return string Safe HTML.
  */
 function lpmanager_kses_rich_text( $html ) {
-    $allowed           = wp_kses_allowed_html( 'post' );
-    $allowed['iframe'] = [
-        'src'             => true,
-        'width'           => true,
-        'height'          => true,
-        'title'           => true,
-        'allow'           => true,
-        'allowfullscreen' => true,
-        'loading'         => true,
-        'frameborder'     => true,
-        'referrerpolicy'  => true,
-        'style'           => true,
-        'class'           => true,
-    ];
-    $html = wp_kses( (string) $html, $allowed );
+    $html = (string) $html;
+    if ( false === stripos( $html, '<iframe' ) || ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+        return wp_kses_post( $html );
+    }
 
     /**
-     * Filters the hosts whose iframes may appear in rich-text template fields.
+     * Filters the URL patterns an iframe src must fully match to be kept in rich-text fields.
      *
-     * @param string[] $hosts Host names (exact match).
+     * @param string[] $patterns PCRE patterns, anchored, https only.
      */
-    $hosts = array_map(
-        'strtolower',
-        (array) apply_filters(
-            'lpmanager_iframe_hosts',
-            [ 'www.youtube.com', 'youtube.com', 'www.youtube-nocookie.com', 'player.vimeo.com', 'www.google.com', 'maps.google.com' ]
-        )
+    $patterns = (array) apply_filters(
+        'lpmanager_iframe_src_patterns',
+        [
+            'youtube'     => '#^https://www\.youtube(?:-nocookie)?\.com/embed/[A-Za-z0-9_-]+(?:\?[A-Za-z0-9_=&%.-]*)?$#',
+            'vimeo'       => '#^https://player\.vimeo\.com/video/[0-9]+(?:\?[A-Za-z0-9_=&%.-]*)?$#',
+            'google_maps' => '#^https://www\.google\.com/maps/embed(?:/v1/[a-z]+)?\?[A-Za-z0-9_=&%.!:,+-]*$#',
+        ]
     );
+    $allow_tokens = [ 'accelerometer', 'autoplay', 'clipboard-write', 'encrypted-media', 'gyroscope', 'picture-in-picture', 'web-share', 'fullscreen' ];
 
-    // wp_kses() rebuilds attributes with double quotes, so src="..." is reliable here.
-    return (string) preg_replace_callback(
-        '#<iframe\b[^>]*>(?:.*?</iframe>)?#is',
-        function ( $m ) use ( $hosts ) {
-            if ( ! preg_match( '#\ssrc="([^"]*)"#i', $m[0], $src ) ) {
+    // 1. Read every iframe; mark the approved ones with an index into $embeds.
+    $embeds    = [];
+    $processor = new WP_HTML_Tag_Processor( $html );
+    while ( $processor->next_tag( [ 'tag_name' => 'IFRAME' ] ) ) {
+        $src = $processor->get_attribute( 'src' );
+        $src = is_string( $src ) ? $src : '';
+        $ok  = '' !== $src && ! preg_match( '#[\x00-\x20\\\\@]#', $src );
+        if ( $ok ) {
+            $ok = false;
+            foreach ( $patterns as $pattern ) {
+                if ( is_string( $pattern ) && preg_match( $pattern, $src ) ) {
+                    $ok = true;
+                    break;
+                }
+            }
+        }
+        if ( ! $ok ) {
+            continue;
+        }
+        $allow = [];
+        $raw   = $processor->get_attribute( 'allow' );
+        foreach ( is_string( $raw ) ? explode( ';', $raw ) : [] as $token ) {
+            $token = strtolower( trim( $token ) );
+            if ( in_array( $token, $allow_tokens, true ) ) {
+                $allow[] = $token;
+            }
+        }
+        $title = $processor->get_attribute( 'title' );
+        $embeds[] = [
+            'src'             => $src,
+            'width'           => min( 2000, absint( $processor->get_attribute( 'width' ) ) ),
+            'height'          => min( 2000, absint( $processor->get_attribute( 'height' ) ) ),
+            'title'           => is_string( $title ) ? sanitize_text_field( $title ) : '',
+            'allow'           => array_unique( $allow ),
+            'allowfullscreen' => null !== $processor->get_attribute( 'allowfullscreen' ),
+        ];
+        $processor->set_attribute( 'data-lpm-embed', (string) ( count( $embeds ) - 1 ) );
+    }
+    $html = $processor->get_updated_html();
+
+    // 2. Standard post filtering; iframes survive only as bare markers.
+    $allowed           = wp_kses_allowed_html( 'post' );
+    $allowed['iframe'] = [ 'data-lpm-embed' => true ];
+    $html              = wp_kses( $html, $allowed );
+
+    // 3. Drop original closing tags (rebuilt iframes get their own, so an unclosed iframe can't
+    //    swallow the rest of the page), then rebuild approved iframes and drop every other one.
+    //    After kses an iframe tag can only carry the marker, so these patterns see exactly that.
+    $html = preg_replace( '#</iframe\s*>#i', '', (string) $html );
+    $html = preg_replace_callback(
+        '#<iframe\b[^>]*>#i',
+        function ( $m ) use ( $embeds ) {
+            if ( ! preg_match( '#data-lpm-embed=["\']?([0-9]+)#i', $m[0], $idx ) || ! isset( $embeds[ (int) $idx[1] ] ) ) {
                 return '';
             }
-            $url    = html_entity_decode( $src[1], ENT_QUOTES );
-            $scheme = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
-            $host   = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
-            return ( 'https' === $scheme && in_array( $host, $hosts, true ) ) ? $m[0] : '';
+            $e   = $embeds[ (int) $idx[1] ];
+            $src = esc_url( $e['src'], [ 'https' ] );
+            if ( '' === $src ) {
+                return '';
+            }
+            $out = '<iframe src="' . $src . '"';
+            $out .= $e['width'] ? ' width="' . $e['width'] . '"' : '';
+            $out .= $e['height'] ? ' height="' . $e['height'] . '"' : '';
+            $out .= '' !== $e['title'] ? ' title="' . esc_attr( $e['title'] ) . '"' : '';
+            $out .= $e['allow'] ? ' allow="' . esc_attr( implode( '; ', $e['allow'] ) ) . '"' : '';
+            $out .= $e['allowfullscreen'] ? ' allowfullscreen' : '';
+            return $out . ' loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
         },
-        $html
+        (string) $html
     );
+    return (string) $html;
 }
 
 // Load composer autoloader first (needed for LPManager namespace classes)
