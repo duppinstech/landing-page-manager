@@ -55,7 +55,7 @@ Container::make( 'post_meta', __('SEO Sections', 'whiterail-ai') )
             	->set_default_value('What Our Customers Say'),
             Field::make( 'textarea', 'reviews_html', __('Reviews Widget Code (iFrame)', 'whiterail-ai') )
                 ->set_attribute('data-custom-id', 'reviews_html_code')
-                ->set_help_text( __( 'Paste your review widget code here, or click "Fetch Reviews" to pull this client\'s Google reviews using the Google Maps server key (Settings → API Keys). Results are reused for 12 hours, so new Google reviews can take up to 12 hours to appear.', 'landing-page-manager' ) )
+                ->set_help_text( __( 'Paste your review widget code here, or click "Fetch Reviews" to pull this client\'s Google reviews using the Google Maps server key (Settings → API Keys). To control Google charges, each client\'s reviews can be fetched once every 10 minutes.', 'landing-page-manager' ) )
 				->set_rows(10),
             Field::make( 'html', 'fetch_reviews_button' )
                 ->set_html( '<button id="fetch-reviews-btn" class="button button-primary">Fetch Reviews</button>
