@@ -13,6 +13,7 @@ Model it on `includes/templates/template-b/`. Create `includes/templates/<slug>/
 - `screenshot.png`: a placeholder. Template_Manager requires it.
 - `lib/fields/landing-page-fields.php`: Carbon Fields container for this template only, keys prefixed `lpmanager_<slug>_`
 - `lib/helper-functions.php`: functions wrapped in `function_exists` guards
+- `lib/assets.php`: returns the template's `styles` and `scripts` in load order (`key => [ path, deps ]`). Only listed files load. Without it, every file in `css/` and `js/` loads.
 - `css/main.css`, `js/main.js`, scoped to the template wrapper
 
 Do **not** copy the vendored bootstrap, swiper, or jquery files unless the template needs them (PLAN.md P2 tracks consolidating them).

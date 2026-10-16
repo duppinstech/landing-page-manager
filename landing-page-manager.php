@@ -2,12 +2,16 @@
 /**
  * Plugin Name: Landing Page Manager
  * Plugin URI: https://github.com/duppinstech/landing-page-manager
- * Description: Manage multi-client landing pages with subdomain routing.
+ * Description: Launch fast, client-branded landing pages on subdomains for every service, keyword and city.
  * Version: 1.0.6
- * Author: Odell Duppins
+ * Requires at least: 5.9
+ * Requires PHP: 7.4
+ * Author: Odell Duppins / Duppins Technology
+ * Author URI: https://duppinstech.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: landing-page-manager
+ * Update URI: https://github.com/duppinstech/landing-page-manager
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,6 +37,27 @@ function lpmanager_is_premium() {
 }
 
 /**
+ * Google API key for server-side calls (Places, Geocoding).
+ *
+ * The browser key (`lpmanager_google_maps_api_key`) is printed in page HTML for the
+ * Maps JavaScript API, so it should be restricted to the site's URLs, and a key
+ * restricted that way can't be used from the server. Sites that haven't set a
+ * separate server key fall back to the browser key, as before.
+ *
+ * @return string
+ */
+function lpmanager_google_server_api_key() {
+    if ( ! function_exists( 'carbon_get_theme_option' ) ) {
+        return '';
+    }
+    $key = trim( (string) carbon_get_theme_option( 'lpmanager_google_server_api_key' ) );
+    if ( '' === $key ) {
+        $key = trim( (string) carbon_get_theme_option( 'lpmanager_google_maps_api_key' ) );
+    }
+    return $key;
+}
+
+/**
  * Which conversion-tracking options are enabled (Pro + Settings). Used to gate tracking and UI.
  *
  * @return array{ track_page_views: bool, track_link_clicks: bool, enable_conversion_tracking: bool, track_time_on_page: bool, track_scroll_depth: bool, track_heatmap: bool, track_rage_clicks: bool, track_outbound_clicks: bool, track_cta_visibility: bool, track_form_interactions: bool }
@@ -53,6 +78,14 @@ function lpmanager_tracking_options() {
     if ( ! function_exists( 'lpmanager_is_premium' ) || ! lpmanager_is_premium() ) {
         return $defaults;
     }
+    // Pro 1.0.4+ owns the tracking toggles (same wp_options rows, its own Settings section).
+    if ( function_exists( 'lpmanager_pro_tracking_options' ) ) {
+        $pro = (array) lpmanager_pro_tracking_options();
+        foreach ( $defaults as $key => $unused ) {
+            $defaults[ $key ] = ! empty( $pro[ $key ] );
+        }
+        return $defaults;
+    }
     if ( ! function_exists( 'carbon_get_theme_option' ) ) {
         return $defaults;
     }
@@ -68,6 +101,173 @@ function lpmanager_tracking_options() {
         'track_cta_visibility'       => (bool) carbon_get_theme_option( 'lpmanager_track_cta_visibility' ),
         'track_form_interactions'    => (bool) carbon_get_theme_option( 'lpmanager_track_form_interactions' ),
     ];
+}
+
+/**
+ * The phone number a landing page shows and dials.
+ *
+ * The page's own "Page phone" (meta key client_tel; e.g. a call-tracking number for that page) wins; otherwise the
+ * client's default "Contact Phone" is used. Every template uses this for both display and tel: links.
+ *
+ * @param int $post_id Landing page ID. Defaults to the current post.
+ * @return string Phone number as entered (may be empty).
+ */
+function lpmanager_get_landing_phone( $post_id = 0 ) {
+    $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+    if ( ! $post_id || ! function_exists( 'carbon_get_post_meta' ) ) {
+        return '';
+    }
+    $page_phone = trim( (string) carbon_get_post_meta( $post_id, 'client_tel' ) );
+    if ( '' !== $page_phone ) {
+        return $page_phone;
+    }
+    $terms = get_the_terms( $post_id, 'client' );
+    if ( empty( $terms ) || is_wp_error( $terms ) ) {
+        return '';
+    }
+    return trim( (string) carbon_get_term_meta( $terms[0]->term_id, 'client_phone' ) );
+}
+
+/**
+ * Filter rich-text template content like post content, but keep embedded video and map iframes
+ * from approved providers (Odell, 10-16).
+ *
+ * Iframes are never passed through as written. Each one is read with WordPress's HTML parser
+ * (which takes the first `src`, decoded, as browsers do), its src is checked against strict
+ * per-provider URL patterns, and approved iframes are rebuilt from scratch with a fixed set of
+ * clean attributes. Everything else goes through wp_kses_post(), which removes iframes.
+ * Without the HTML API (WordPress before 6.2), all iframes are removed.
+ *
+ * @param string $html Field content.
+ * @return string Safe HTML.
+ */
+function lpmanager_kses_rich_text( $html ) {
+    $html = (string) $html;
+    // Post rules without iframes, whatever other plugins add to them.
+    $no_iframes = wp_kses_allowed_html( 'post' );
+    unset( $no_iframes['iframe'] );
+    if ( false === stripos( $html, 'iframe' ) || ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+        return wp_kses( $html, $no_iframes );
+    }
+
+    /**
+     * Filters the URL patterns an iframe src must fully match to be kept in rich-text fields.
+     *
+     * @param string[] $patterns PCRE patterns. Each must start with `#^https://` and end with `$#`,
+     *                           or it is ignored.
+     */
+    $patterns = (array) apply_filters(
+        'lpmanager_iframe_src_patterns',
+        [
+            'youtube'     => '#^https://www\.youtube(?:-nocookie)?\.com/embed/[A-Za-z0-9_-]+(?:\?[A-Za-z0-9_=&%.-]*)?$#',
+            'vimeo'       => '#^https://player\.vimeo\.com/video/[0-9]+(?:\?[A-Za-z0-9_=&%.-]*)?$#',
+            'google_maps' => '#^https://www\.google\.com/maps/embed(?:/v1/[a-z]+)?\?[A-Za-z0-9_=&%.!:,+-]*$#',
+        ]
+    );
+    $allow_tokens = [ 'accelerometer', 'autoplay', 'clipboard-write', 'encrypted-media', 'gyroscope', 'picture-in-picture', 'web-share', 'fullscreen' ];
+
+    // 1. Read every iframe; mark the approved ones with an index into $embeds.
+    $embeds    = [];
+    $processor = new WP_HTML_Tag_Processor( $html );
+    while ( $processor->next_tag( [ 'tag_name' => 'IFRAME' ] ) ) {
+        $src = $processor->get_attribute( 'src' );
+        $src = is_string( $src ) ? $src : '';
+        $ok  = '' !== $src && ! preg_match( '#[\x00-\x20\\\\@]#', $src );
+        $provider = '';
+        if ( $ok ) {
+            $ok = false;
+            foreach ( $patterns as $key => $pattern ) {
+                // Only anchored https patterns count, so a loose pattern from a filter can't widen the check.
+                if ( is_string( $pattern ) && 0 === strpos( $pattern, '#^https://' ) && '$#' === substr( $pattern, -2 ) && preg_match( $pattern, $src ) ) {
+                    $ok       = true;
+                    $provider = (string) $key;
+                    break;
+                }
+            }
+        }
+        if ( ! $ok ) {
+            $processor->remove_attribute( 'data-lpm-embed' ); // No smuggled markers.
+            continue;
+        }
+        $allow = [];
+        $raw   = $processor->get_attribute( 'allow' );
+        foreach ( is_string( $raw ) ? explode( ';', $raw ) : [] as $token ) {
+            $token = strtolower( trim( $token ) );
+            if ( in_array( $token, $allow_tokens, true ) ) {
+                $allow[] = $token;
+            }
+        }
+        // Sizes: plain pixels (capped) or a percentage such as width="100%"; anything else is dropped.
+        $size = function ( $value ) {
+            if ( ! is_string( $value ) || ! preg_match( '#^\s*([0-9]{1,4})\s*(%?)\s*$#', $value, $m ) ) {
+                return '';
+            }
+            if ( 0 === (int) $m[1] ) {
+                return ''; // A zero size would hide the embed.
+            }
+            return '%' === $m[2] ? min( 100, (int) $m[1] ) . '%' : (string) min( 2000, (int) $m[1] );
+        };
+        $title = $processor->get_attribute( 'title' );
+        $title = is_string( $title ) ? sanitize_text_field( $title ) : '';
+        if ( '' === $title ) {
+            // Every iframe needs an accessible name; most pasted embed code has none.
+            $fallback = [
+                'youtube'     => __( 'YouTube video', 'landing-page-manager' ),
+                'vimeo'       => __( 'Vimeo video', 'landing-page-manager' ),
+                'google_maps' => __( 'Google map', 'landing-page-manager' ),
+            ];
+            $title = isset( $fallback[ $provider ] ) ? $fallback[ $provider ] : __( 'Embedded content', 'landing-page-manager' );
+        }
+        $embeds[] = [
+            'src'             => $src,
+            'width'           => $size( $processor->get_attribute( 'width' ) ),
+            'height'          => $size( $processor->get_attribute( 'height' ) ),
+            'title'           => $title,
+            'allow'           => array_unique( $allow ),
+            'allowfullscreen' => null !== $processor->get_attribute( 'allowfullscreen' ),
+        ];
+        $processor->set_attribute( 'data-lpm-embed', (string) ( count( $embeds ) - 1 ) );
+    }
+    $html = $processor->get_updated_html();
+
+    // 2. Standard post filtering; iframes survive only as bare markers.
+    $allowed           = $no_iframes;
+    $allowed['iframe'] = [ 'data-lpm-embed' => true ];
+    $html              = wp_kses( $html, $allowed );
+
+    // 3. Drop original closing tags (rebuilt iframes get their own, so an unclosed iframe can't
+    //    swallow the rest of the page), then rebuild approved iframes and drop every other one.
+    //    After kses an iframe tag can only carry the marker, so these patterns see exactly that.
+    $html = preg_replace( '#</iframe\s*>#i', '', (string) $html );
+    $html = preg_replace_callback(
+        '#<iframe\b[^>]*>#i',
+        function ( $m ) use ( $embeds ) {
+            if ( ! preg_match( '#data-lpm-embed=["\']?([0-9]+)#i', $m[0], $idx ) || ! isset( $embeds[ (int) $idx[1] ] ) ) {
+                return '';
+            }
+            $e   = $embeds[ (int) $idx[1] ];
+            $src = esc_url( $e['src'], [ 'https' ] );
+            if ( '' === $src ) {
+                return '';
+            }
+            // Responsive: never wider than its container; pixel sizes keep their aspect ratio.
+            $style = 'max-width:100%;';
+            // preg_match, not ctype_digit: the ctype extension can be missing on some hosts.
+            if ( preg_match( '/^[0-9]+$/', $e['width'] ) && preg_match( '/^[0-9]+$/', $e['height'] ) ) {
+                $style .= 'height:auto;aspect-ratio:' . (int) $e['width'] . '/' . (int) $e['height'] . ';';
+            }
+            $out = '<iframe class="lpm-embed" src="' . $src . '"';
+            $out .= '' !== $e['width'] ? ' width="' . esc_attr( $e['width'] ) . '"' : '';
+            $out .= '' !== $e['height'] ? ' height="' . esc_attr( $e['height'] ) . '"' : '';
+            $out .= ' style="' . esc_attr( $style ) . '"';
+            $out .= ' title="' . esc_attr( $e['title'] ) . '"';
+            $out .= $e['allow'] ? ' allow="' . esc_attr( implode( '; ', $e['allow'] ) ) . '"' : '';
+            $out .= $e['allowfullscreen'] ? ' allowfullscreen' : '';
+            return $out . ' loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+        },
+        (string) $html
+    );
+    return (string) $html;
 }
 
 // Load composer autoloader first (needed for LPManager namespace classes)
@@ -190,12 +390,12 @@ add_action( 'template_redirect', function () {
         }
 } );
 
-// Custom action for your own tracking/scripts on landing pages
+/**
+ * Landing-page footer hook, attached to wp_footer on landing pages (see Assets_Manager).
+ * Settings → API Keys → Additional Scripts prints here; add your own output with
+ * add_action( 'lpmanager_landing_page_footer', ... ).
+ */
 function lpmanager_custom_landing_page_footer() {
-    /**
-     * Place your AdWords or other tracking scripts here.
-     */
-    // You can also use a filter here for extensibility
     do_action('lpmanager_landing_page_footer');
 }
 

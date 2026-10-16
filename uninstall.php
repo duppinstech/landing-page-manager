@@ -26,14 +26,16 @@ function lpmanager_uninstall_site() {
     global $wpdb;
 
     // Settings. Carbon Fields stores theme options as `_<field>` rows (plus `_<field>|...` for complex fields).
-    // `lpmanager_pro_*` belongs to the Pro add-on, which manages its own uninstall.
+    // `lpmanager_pro_*` and the tracking toggles `_lpmanager_track_*` belong to the Pro add-on
+    // (agreed with the Pro repo, 10-16), which removes them in its own uninstall.
     $wpdb->query(
         $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE ( option_name LIKE %s OR option_name LIKE %s ) AND option_name NOT LIKE %s AND option_name NOT LIKE %s",
+            "DELETE FROM {$wpdb->options} WHERE ( option_name LIKE %s OR option_name LIKE %s ) AND option_name NOT LIKE %s AND option_name NOT LIKE %s AND option_name NOT LIKE %s",
             $wpdb->esc_like( 'lpmanager_' ) . '%',
             $wpdb->esc_like( '_lpmanager_' ) . '%',
             $wpdb->esc_like( 'lpmanager_pro_' ) . '%',
-            $wpdb->esc_like( '_lpmanager_pro_' ) . '%'
+            $wpdb->esc_like( '_lpmanager_pro_' ) . '%',
+            $wpdb->esc_like( '_lpmanager_track_' ) . '%'
         )
     );
 
@@ -54,12 +56,27 @@ function lpmanager_uninstall_site() {
         }
     }
 
-    // Transients (validation notices).
+    // Orphaned client meta from the removed per-client "Landing Page Template" field (Odell, 10-16).
+    // Carbon Fields stores it as `_lpmanager_client_template` (plus `|`-suffixed rows).
     $wpdb->query(
         $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+            "DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE %s",
+            $wpdb->esc_like( '_lpmanager_client_template' ) . '%'
+        )
+    );
+
+    // Transients (validation notices, Google reviews locks).
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
             $wpdb->esc_like( '_transient_lp_missing_fields_' ) . '%',
-            $wpdb->esc_like( '_transient_timeout_lp_missing_fields_' ) . '%'
+            $wpdb->esc_like( '_transient_timeout_lp_missing_fields_' ) . '%',
+            $wpdb->esc_like( '_transient_lp_kept_draft_' ) . '%',
+            $wpdb->esc_like( '_transient_timeout_lp_kept_draft_' ) . '%',
+            $wpdb->esc_like( '_transient_lpmanager_additional_scripts_approved_' ) . '%',
+            $wpdb->esc_like( '_transient_timeout_lpmanager_additional_scripts_approved_' ) . '%',
+            $wpdb->esc_like( '_transient_lpmanager_reviews_' ) . '%',
+            $wpdb->esc_like( '_transient_timeout_lpmanager_reviews_' ) . '%'
         )
     );
 
@@ -108,3 +125,9 @@ if ( is_multisite() ) {
 } else {
     lpmanager_uninstall_site();
 }
+
+// Network-wide cache of the latest GitHub release (Update_Checker).
+delete_site_transient( 'lpmanager_github_release' );
+
+// Per-user notice dismissals (user meta is shared across a network).
+delete_metadata( 'user', 0, 'lpmanager_server_key_notice_dismissed', '', true );

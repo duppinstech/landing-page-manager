@@ -12,7 +12,6 @@ use Carbon_Fields\Container;
 use Carbon_Fields\Field;
 use League\ColorExtractor\Palette;
 use League\ColorExtractor\Color;
-use LPManager\templates\Template_Manager;
 
 class Client_Taxonomy {
 
@@ -302,15 +301,20 @@ class Client_Taxonomy {
     }
 
     /**
-     * Options for client template select (slug => label). Empty = use global default.
+     * "Header Tracking Code" field. It is printed raw in the head of the client's landing pages,
+     * so only users allowed to post unfiltered HTML can change it (enforced on save by
+     * Plugin_Settings::guard_raw_html_save); for everyone else the field is read-only.
+     *
+     * @return \Carbon_Fields\Field\Field
      */
-    public static function get_client_template_options() {
-        $opts = [ '' => __( 'Use global default', 'landing-page-manager' ) ];
-        $templates = Template_Manager::get_templates();
-        foreach ( $templates as $slug => $info ) {
-            $opts[ $slug ] = isset( $info['name'] ) ? $info['name'] : $slug;
+    private static function header_tracking_code_field() {
+        $field = Field::make( 'textarea', 'header_tracking_code', __( 'Header tracking code (call tracking, pixels, tags)', 'landing-page-manager' ) )
+            ->set_rows( 4 )
+            ->set_help_text( __( 'Paste your tracking script here. It is added to the head of all of this client\'s landing pages. Only users who can post unfiltered HTML (administrators and editors on a single site, super admins on multisite) can change it.', 'landing-page-manager' ) );
+        if ( ! current_user_can( 'unfiltered_html' ) ) {
+            $field->set_attribute( 'readOnly', 'readonly' );
         }
-        return $opts;
+        return $field;
     }
 
     public static function register_fields() {
@@ -329,10 +333,6 @@ class Client_Taxonomy {
 
             Field::make('color', 'client_secondary_color', 'Secondary Color')
                 ->set_help_text('Secondary brand color for the client.'),
-
-            Field::make('select', 'lpmanager_client_template', __('Landing Page Template', 'landing-page-manager'))
-                ->set_options( self::get_client_template_options() )
-                ->set_help_text(__('Template used for all landing pages under this client. Overrides the global default.', 'landing-page-manager')),
         ])
 
         // Contact Info Tab
@@ -357,7 +357,7 @@ class Client_Taxonomy {
 
             Field::make('text', 'client_phone', 'Contact Phone')
                 ->set_required(true)
-                ->set_help_text('Contact phone number for the client.'),
+                ->set_help_text( __( 'Default phone number for this client\'s landing pages. A landing page\'s own "Page phone" overrides it on that page.', 'landing-page-manager' ) ),
 
             Field::make('text', 'client_domain', 'Client Domain')
                 ->set_required(true)
@@ -366,9 +366,11 @@ class Client_Taxonomy {
 
         // Tracking & Integration Tab
         ->add_tab(__('Tracking & Integration', 'landing-page-manager'), [
-            Field::make('textarea', 'header_tracking_code', 'Header Tracking Code (Nimbata)')
-                ->set_rows(4)
-                ->set_help_text('Paste your tracking script here. It will be injected into the head of all associated landing pages.'),
+            self::header_tracking_code_field(),
+
+            Field::make( 'checkbox', 'lpmanager_client_needs_jquery', __( 'Tracking tags need jQuery', 'landing-page-manager' ) )
+                ->set_option_value( 'yes' )
+                ->set_help_text( __( 'Tick this if this client\'s tracking or conversion tags use jQuery, for example a Custom HTML tag in Google Tag Manager. Templates that don\'t need jQuery (such as Template A) then load it anyway, so those tags keep working.', 'landing-page-manager' ) ),
         ])
 
         // Social Media Tab
@@ -524,7 +526,7 @@ class Client_Taxonomy {
         }
         $company_name = $term->name;
         $address     = carbon_get_term_meta( $term_id, 'client_address' );
-        $api_key     = carbon_get_theme_option( 'lpmanager_google_maps_api_key' );
+        $api_key     = lpmanager_google_server_api_key();
         if ( ! $address || ! $api_key ) {
             return;
         }

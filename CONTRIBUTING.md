@@ -5,7 +5,7 @@ your contributions are licensed under GPL-2.0-or-later and that the project is
 owned by Odell Duppins / Duppins Technology (see [OWNERSHIP.md](OWNERSHIP.md)).
 
 ## Workflow
-1. Branch from `main`: `feature/<short-name>`, `fix/<short-name>`, or `chore/<short-name>`.
+1. Branch from `main`: `feature/<short-name>`, `fix/<short-name>`, `chore/<short-name>`, `template/<short-name>`, `security/<short-name>` or `perf/<short-name>`.
 2. Make focused commits. Write messages in the imperative ("Fix subdomain AJAX", not "Fixed…").
 3. Lint every PHP file you touched with `php -l`.
 4. Update `CHANGELOG.md` under **[Unreleased]**.
@@ -31,4 +31,4 @@ Activate the plugin in WP admin, then set a default template under **Landing Pag
 2. Commit, then push to `main`.
 3. Push tag `vX.Y.Z`. The Release workflow builds the zip and publishes the GitHub Release with it attached. Don't create the release by hand first.
 4. Check the release has the `landing-page-manager.zip` asset.
-5. On a test site, run **Dashboard → Updates → Check Again** to confirm the update appears.
+5. On a test site, open **Plugins** and click **Check for updates** under Landing Page Manager to confirm the update appears. (Dashboard → Updates → Check Again can use a release cached for up to 6 hours.)
