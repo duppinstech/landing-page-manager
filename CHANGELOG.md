@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.8] - 2026-10-16
 ### Added
 - **Help button on the plugin's admin screens.** A round **Help** button at the bottom right of the Dashboard, Landing Pages, Clients, Keywords, Analytics and each Settings tab opens short notes about that screen and a link to its section of the user guide. It doesn't appear on Posts, Pages or other screens. Developers can change the guide address with the `lpmanager_user_guide_url` filter.
 
@@ -135,7 +137,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.7...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.8...HEAD
+[1.0.8]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.5
