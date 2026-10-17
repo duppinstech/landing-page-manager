@@ -176,7 +176,7 @@ class Plugin_Settings {
         $tab_updates = [
             Field::make( 'html', 'lpmanager_update_source_info' )
                 ->set_html(
-                    '<p>' . esc_html__( 'Updates come only from Duppins Technology\'s official GitHub releases of Landing Page Manager and are checked automatically. To check now, click "Check for updates" under Landing Page Manager on the Plugins screen.', 'landing-page-manager' ) . '</p>'
+                    '<p>' . esc_html__( 'Updates come only from Duppins Technology\'s official GitHub releases of Landing Page Manager and are checked automatically. To check now, go to Dashboard → Updates and click "Check again".', 'landing-page-manager' ) . '</p>'
                     . '<p>' . esc_html__( 'The "Plugin update source" setting from earlier versions has been removed; WordPress.org is no longer used for updates.', 'landing-page-manager' ) . '</p>'
                 ),
         ];

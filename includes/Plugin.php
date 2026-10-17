@@ -9,6 +9,7 @@ use LPManager\cpt\Rewrite_Rules;
 use LPManager\admin\Admin_Dashboard;
 use LPManager\admin\Plugin_Settings;
 use LPManager\admin\Help_Widget;
+use LPManager\admin\Plugin_Links;
 use LPManager\templates\Template_Manager;
 use LPManager\templates\Template_Loader;
 use LPManager\ajax\Reviews_Ajax;
@@ -43,6 +44,7 @@ final class Plugin {
         Admin_Dashboard::init();
         Plugin_Settings::init();
         Help_Widget::init();
+        Plugin_Links::init();
         Update_Checker::init();
     }
 
