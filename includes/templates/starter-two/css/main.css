@@ -10,6 +10,8 @@
 	--lpm-accent: #f2c14e;
 	--lpm-on-accent: #0f1720;
 	--lpm-accent-text: #f2c14e;
+	--lpm-callbar-border: transparent;
+	--lpm-contact-button-border: transparent;
 	--lpm-bg: #0f1720;
 	--lpm-surface: #18222e;
 	--lpm-text: #f1f4f7;
@@ -232,7 +234,7 @@
 }
 
 .lpm-contact .lpm-button {
-	border-color: transparent;
+	border-color: var(--lpm-contact-button-border);
 	background: var(--lpm-bg);
 	color: var(--lpm-primary-text);
 }
@@ -244,8 +246,7 @@
 
 /* Footer and mobile call bar */
 .lpm-footer {
-	/* Room for the mobile call bar, even when its label wraps to two lines. */
-	padding: 24px 0 128px;
+	padding: 24px 0;
 	color: var(--lpm-muted);
 	font-size: 14px;
 	text-align: center;
@@ -260,6 +261,7 @@
 	min-height: 48px;
 	padding: 12px;
 	border-radius: var(--lpm-radius);
+	border: 2px solid var(--lpm-callbar-border);
 	background: var(--lpm-accent);
 	color: var(--lpm-on-accent);
 	font-weight: 700;
@@ -269,8 +271,12 @@
 }
 
 @media (max-width: 799px) {
-	/* Keyboard focus never lands behind the call bar. */
-	html {
+	/* Room for the call bar, even when its label wraps to two lines, and keyboard focus never behind it. */
+	.lpm-has-callbar .lpm-footer {
+		padding-bottom: 128px;
+	}
+
+	html:has(.lpm-has-callbar) {
 		scroll-padding-bottom: 128px;
 	}
 }

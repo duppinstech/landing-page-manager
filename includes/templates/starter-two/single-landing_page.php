@@ -9,8 +9,12 @@ Description: A dark starter layout: hero with call button, highlights, about, FA
  *
  * Starter templates are a base to copy. To make your own, copy this folder to
  * wp-content/lpmanager-templates/<your-slug>/, change "Template Name" above, and edit freely.
+ * Keep this notice in copies.
  *
- * @package Landing_Page_Manager
+ * @package   Landing_Page_Manager
+ * @author    Odell Duppins / Duppins Technology
+ * @copyright 2026 Odell Duppins (d/b/a Duppins Technology)
+ * @license   GPL-2.0-or-later
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,7 +29,7 @@ $lpm_starter = require __DIR__ . '/lib/page-data.php';
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<?php wp_head(); ?>
 </head>
-<body <?php body_class( 'lpm-starter' ); ?> style="<?php echo esc_attr( $lpm_starter['style'] ); ?>">
+<body <?php body_class( $lpm_starter['phone'] ? array( 'lpm-starter', 'lpm-has-callbar' ) : 'lpm-starter' ); ?> style="<?php echo esc_attr( $lpm_starter['style'] ); ?>">
 <?php wp_body_open(); ?>
 <a class="lpm-skip" href="#lpm-main"><?php esc_html_e( 'Skip to content', 'landing-page-manager' ); ?></a>
 
@@ -33,7 +37,7 @@ $lpm_starter = require __DIR__ . '/lib/page-data.php';
 	<div class="lpm-wrap lpm-header__inner">
 		<span class="lpm-brand">
 			<?php if ( $lpm_starter['logo_id'] && wp_get_attachment_image_url( $lpm_starter['logo_id'], 'medium' ) ) : ?>
-				<?php echo wp_get_attachment_image( $lpm_starter['logo_id'], 'medium', false, array( 'alt' => $lpm_starter['name'] ) ); ?>
+				<?php echo wp_get_attachment_image( $lpm_starter['logo_id'], 'medium', false, array( 'alt' => $lpm_starter['name'], 'loading' => 'eager' ) ); ?>
 			<?php else : ?>
 				<?php echo esc_html( $lpm_starter['name'] ); ?>
 			<?php endif; ?>

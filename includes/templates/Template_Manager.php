@@ -37,9 +37,13 @@ class Template_Manager {
         // get_template_dir() keeps using the copy inside the plugin folder.
         add_action( 'init', [ __CLASS__, 'maybe_schedule_copy' ] );
         add_action( self::COPY_EVENT, [ __CLASS__, 'copy_pending_templates' ] );
-        // Every admin page re-checks, so a restored site or another server gets its copies too.
-        add_action( 'admin_init', [ __CLASS__, 'copy_pending_templates' ] );
+        // Admin pages re-check, so a restored site or another server gets its copies too.
+        add_action( 'admin_init', [ __CLASS__, 'copy_pending_templates_on_admin' ] );
         add_filter( 'upgrader_pre_install', [ __CLASS__, 'block_update_while_templates_at_risk' ], 10, 2 );
+        // Uploading a plugin ZIP with "Replace current with uploaded" (or wp plugin install --force) skips
+        // upgrader_pre_install's plugin check; this runs before the old folder is cleared. After the
+        // updater's own folder-name fix (priority 10).
+        add_filter( 'upgrader_source_selection', [ __CLASS__, 'block_replace_while_templates_at_risk' ], 20, 3 );
         // Template_Loader::load_template (priority 99) handles landing page template; no duplicate filter needed.
     }
 
@@ -114,13 +118,6 @@ class Template_Manager {
     /** Whether a template is installed in either location. */
     public static function template_exists( $slug ) {
         return '' !== self::get_template_dir( $slug );
-    }
-
-    /** Whether the template is running from inside the plugin folder although it isn't a starter. */
-    public static function is_at_risk( $slug ) {
-        $slug = sanitize_title( (string) $slug );
-        return ! in_array( $slug, self::STARTER_TEMPLATES, true )
-            && 0 === strpos( self::get_template_dir( $slug ), self::bundled_dir() );
     }
 
     public static function get_template_path( $file ) {
@@ -213,35 +210,67 @@ class Template_Manager {
         wp_schedule_single_event( time(), self::COPY_EVENT );
     }
 
-    /**
-     * Copy templates out of the plugin folder before an update can delete them (WP-Cron and admin pages).
-     */
-    public static function copy_pending_templates() {
-        // Hardened sites that don't allow file changes can't update plugins either; the admin notice explains.
-        if ( ! wp_is_file_mod_allowed( 'lpmanager_copy_templates' ) ) {
+    /** Admin-page re-check: administrators only, and never on AJAX requests (heartbeat, logged-out admin-ajax). */
+    public static function copy_pending_templates_on_admin() {
+        if ( wp_doing_ajax() || ! current_user_can( 'activate_plugins' ) ) {
             return;
         }
-        // One copy at a time. add_option() fails if the lock exists; a lock older than ten minutes is stale.
-        $lock = 'lpmanager_templates_copy_lock';
-        if ( ! add_option( $lock, time(), '', false ) ) {
-            if ( (int) get_option( $lock ) > time() - 10 * MINUTE_IN_SECONDS ) {
+        self::copy_pending_templates();
+    }
+
+    /**
+     * Copy templates out of the plugin folder before an update can delete them (WP-Cron and admin pages).
+     * Once nothing is pending, this costs one folder scan and no database writes.
+     */
+    public static function copy_pending_templates() {
+        $copied = ! self::pending_templates();
+        if ( ! $copied ) {
+            if ( ! wp_is_file_mod_allowed( 'lpmanager_copy_templates' ) ) {
+                // These sites deploy the plugin another way; the admin notice says to copy the folders by hand.
+                set_transient( 'lpmanager_templates_copy_retry', 1, DAY_IN_SECONDS );
                 return;
             }
-            update_option( $lock, time(), false );
+            require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+            // Atomic lock (a ten-minute timeout covers a request that dies mid-copy).
+            if ( ! \WP_Upgrader::create_lock( 'lpmanager_templates_copy', 10 * MINUTE_IN_SECONDS ) ) {
+                return;
+            }
+            $copied = self::move_bundled_custom_templates();
+            \WP_Upgrader::release_lock( 'lpmanager_templates_copy' );
+            if ( ! $copied ) {
+                // For example, wp-content isn't writable: WP-Cron tries again in an hour, admin pages on every load.
+                set_transient( 'lpmanager_templates_copy_retry', 1, HOUR_IN_SECONDS );
+            }
         }
-        $copied = self::move_bundled_custom_templates();
-        delete_option( $lock );
-
-        update_option( self::COPIED_OPTION, $copied ? 1 : 0, true );
-        if ( ! $copied ) {
-            // For example, wp-content isn't writable: WP-Cron tries again in an hour, admin pages on every load.
-            set_transient( 'lpmanager_templates_copy_retry', 1, HOUR_IN_SECONDS );
+        // Write only when the state changes.
+        if ( (int) get_option( self::COPIED_OPTION ) !== (int) $copied ) {
+            update_option( self::COPIED_OPTION, (int) $copied, true );
         }
     }
 
     /**
+     * Templates other than the starters that exist only inside the plugin folder, keyed by slug.
+     * A custom-folder copy without single-landing_page.php (an interrupted copy) doesn't count.
+     *
+     * @return array<string, string> Slug => folder inside the plugin.
+     */
+    public static function pending_templates() {
+        $pending = [];
+        foreach ( (array) glob( self::bundled_dir() . '*', GLOB_ONLYDIR ) as $dir ) {
+            $slug = basename( $dir );
+            if ( '' === $slug || '.' === $slug[0] || in_array( $slug, self::STARTER_TEMPLATES, true )
+                || ! file_exists( $dir . '/single-landing_page.php' )
+                || file_exists( self::custom_dir() . $slug . '/single-landing_page.php' ) ) {
+                continue;
+            }
+            $pending[ $slug ] = $dir;
+        }
+        return $pending;
+    }
+
+    /**
      * Stop a plugin update (manual or automatic) while a template exists only inside the plugin
-     * folder, because the update deletes that folder. Tries the copy first.
+     * folder, because the update deletes that folder.
      *
      * @param bool|\WP_Error $response   Installation response.
      * @param array          $hook_extra Extra arguments passed to hooked filters.
@@ -252,36 +281,52 @@ class Template_Manager {
             || plugin_basename( LP_MANAGER_PLUGIN_PATH . 'landing-page-manager.php' ) !== $hook_extra['plugin'] ) {
             return $response;
         }
-        if ( self::move_bundled_custom_templates() ) {
-            return $response;
+        $error = self::templates_at_risk_error();
+        return $error ? $error : $response;
+    }
+
+    /**
+     * The same check for a ZIP uploaded over this plugin ("Replace current with uploaded").
+     *
+     * @param string|\WP_Error $source        Folder of the unpacked package.
+     * @param string           $remote_source Folder the package was unpacked into.
+     * @param \WP_Upgrader     $upgrader      Upgrader instance.
+     * @return string|\WP_Error
+     */
+    public static function block_replace_while_templates_at_risk( $source, $remote_source, $upgrader ) {
+        if ( is_wp_error( $source ) || ! ( $upgrader instanceof \Plugin_Upgrader )
+            || basename( untrailingslashit( (string) $source ) ) !== basename( untrailingslashit( LP_MANAGER_PLUGIN_PATH ) ) ) {
+            return $source;
+        }
+        $error = self::templates_at_risk_error();
+        return $error ? $error : $source;
+    }
+
+    /** Try the copy now; if templates are still only inside the plugin, an error naming them. */
+    private static function templates_at_risk_error() {
+        if ( ! self::pending_templates() || self::move_bundled_custom_templates() ) {
+            return null;
         }
         return new \WP_Error(
             'lpmanager_templates_not_copied',
             sprintf(
-                /* translators: %s: folder path */
-                __( 'Landing Page Manager was not updated: some templates are stored only inside the plugin folder, and updating would delete them. Make %s writable or copy the template folders there, then update again.', 'landing-page-manager' ),
+                /* translators: 1: template folder names, 2: folder path */
+                __( 'Landing Page Manager was not updated: the templates %1$s are stored only inside the plugin folder, and updating would delete them. Make wp-content writable and try again, or copy those folders from wp-content/plugins/landing-page-manager/includes/templates/ to %2$s yourself.', 'landing-page-manager' ),
+                wp_sprintf_l( '%l', array_keys( self::pending_templates() ) ),
                 'wp-content/' . self::CUSTOM_DIR_NAME . '/'
             )
         );
     }
 
     /**
-     * Copy every template in the plugin folder that isn't a starter into the custom folder, unless a
-     * template with that slug is already there. Templates are copied, not moved: the plugin folder is
-     * replaced on the next update anyway, and this version can still run from the originals if a copy fails.
+     * Copy every pending template (see pending_templates()) into the custom folder. Templates are
+     * copied, not moved: the plugin folder is replaced on the next update anyway, and this version can
+     * still run from the originals if a copy fails.
      *
      * @return bool Whether every template is now in the custom folder.
      */
     public static function move_bundled_custom_templates() {
-        $pending = [];
-        foreach ( (array) glob( self::bundled_dir() . '*', GLOB_ONLYDIR ) as $dir ) {
-            $slug = basename( $dir );
-            if ( '' === $slug || '.' === $slug[0] || in_array( $slug, self::STARTER_TEMPLATES, true )
-                || ! file_exists( $dir . '/single-landing_page.php' ) || file_exists( self::custom_dir() . $slug ) ) {
-                continue;
-            }
-            $pending[ $slug ] = $dir;
-        }
+        $pending = self::pending_templates();
         if ( ! $pending ) {
             return true;
         }
@@ -291,6 +336,12 @@ class Template_Manager {
 
         $ok = true;
         foreach ( $pending as $slug => $dir ) {
+            // A folder without single-landing_page.php is an interrupted copy, perhaps one made by hand:
+            // never overwrite it. The admin notice lists the template until someone finishes it.
+            if ( file_exists( self::custom_dir() . $slug ) ) {
+                $ok = false;
+                continue;
+            }
             $staging = self::custom_dir() . '.staging-' . wp_generate_password( 12, false );
             // A fatal error or timeout mid-copy must not leave a partial PHP tree behind.
             register_shutdown_function( [ __CLASS__, 'delete_dir' ], $staging );
@@ -304,24 +355,25 @@ class Template_Manager {
         return $ok;
     }
 
-    /**
-     * Create the custom templates folder, with an index.php and an .htaccess so its folders can't be listed.
-     */
+    /** Create the custom templates folder, with an index.php so it can't be listed. */
     private static function ensure_custom_dir() {
         $dir = self::custom_dir();
         if ( ! wp_mkdir_p( $dir ) || ! wp_is_writable( $dir ) ) {
             return false;
         }
-        $guards = [
-            'index.php' => "<?php\n// Silence is golden.\n",
-            '.htaccess' => "Options -Indexes\n",
-        ];
-        foreach ( $guards as $file => $contents ) {
-            if ( ! file_exists( $dir . $file ) && false !== @file_put_contents( $dir . $file, $contents ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions, WordPress.PHP.NoSilencedErrors
-                @chmod( $dir . $file, self::file_mode() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
-            }
-        }
+        self::write_index_file( $dir );
         return true;
+    }
+
+    /**
+     * Put an empty index.php in a folder, so servers that list folders show nothing. (An .htaccess
+     * with "Options -Indexes" would return errors on hosts that don't allow Options overrides.)
+     */
+    private static function write_index_file( $dir ) {
+        $file = trailingslashit( $dir ) . 'index.php';
+        if ( ! file_exists( $file ) && false !== @file_put_contents( $file, "<?php\n// Silence is golden.\n" ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions, WordPress.PHP.NoSilencedErrors
+            @chmod( $file, self::file_mode() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+        }
     }
 
     /** Permissions WordPress uses for files it writes (FS_CHMOD_FILE). */
@@ -334,21 +386,31 @@ class Template_Manager {
         if ( ! wp_mkdir_p( $to ) ) {
             return false;
         }
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator( $from, \FilesystemIterator::SKIP_DOTS ),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-        foreach ( $items as $item ) {
-            $target = $to . '/' . substr( $item->getPathname(), strlen( $from ) + 1 );
-            if ( $item->isDir() ) {
-                if ( ! wp_mkdir_p( $target ) ) {
+        try {
+            $items = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator( $from, \FilesystemIterator::SKIP_DOTS ),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
+            $dirs = [ $to ];
+            foreach ( $items as $item ) {
+                $target = $to . '/' . substr( $item->getPathname(), strlen( $from ) + 1 );
+                if ( $item->isDir() ) {
+                    if ( ! wp_mkdir_p( $target ) ) {
+                        return false;
+                    }
+                    $dirs[] = $target;
+                } elseif ( ! @copy( $item->getPathname(), $target ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- reported through the return value and the admin notice.
                     return false;
+                } else {
+                    @chmod( $target, self::file_mode() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
                 }
-            } elseif ( ! @copy( $item->getPathname(), $target ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- reported through the return value and the admin notice.
-                return false;
-            } else {
-                @chmod( $target, self::file_mode() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
             }
+        } catch ( \Exception $e ) {
+            // An unreadable folder must not break every admin page; the copy is retried later.
+            return false;
+        }
+        foreach ( $dirs as $dir ) {
+            self::write_index_file( $dir );
         }
         return true;
     }
@@ -358,12 +420,16 @@ class Template_Manager {
         if ( ! is_dir( $dir ) ) {
             return;
         }
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ( $items as $item ) {
-            $item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+        try {
+            $items = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ( $items as $item ) {
+                $item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+            }
+        } catch ( \Exception $e ) {
+            return;
         }
         @rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
     }
@@ -465,7 +531,7 @@ class Template_Manager {
         $destination = $templates_dir . $slug;
         $exists_msg  = sprintf(
             /* translators: %s: template slug */
-            __( 'A template named "%s" already exists.', 'landing-page-manager' ),
+            __( 'A template named "%s" is already installed. To update it, replace its folder in wp-content/lpmanager-templates/.', 'landing-page-manager' ),
             $slug
         );
         // Also refuse starter slugs and templates still inside the plugin folder.
