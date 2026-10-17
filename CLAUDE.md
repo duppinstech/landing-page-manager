@@ -22,7 +22,7 @@ Open action items: [PLAN.md](PLAN.md). Agent roster: [AGENTS.md](AGENTS.md).
 - `includes/Plugin.php` — `Plugin::init()` wires every module in order. Order matters: taxonomies → CPT → assets/validator → templates → ajax → admin → updater.
 - `includes/cpt/` — `landing_page` CPT, list-table enhancements, subdomain rewrite rules.
 - `includes/taxonomy/` — `client` (branding, domain, template, Brandfetch) and `keyword`.
-- `includes/templates/` — `Template_Manager` (registry + zip upload), `Template_Loader` (template_include at priority 99), and one folder per template (`template-b`, `template-c`, `template_a`). Each template has `single-landing_page.php`, `screenshot.png`, `lib/fields/landing-page-fields.php`, `lib/helper-functions.php`.
+- `includes/templates/` — `Template_Manager` (registry + zip upload), `Template_Loader` (template_include at priority 99), and the starter templates (`starter-one`, `starter-two`). Custom and uploaded templates live in `wp-content/lpmanager-templates/<slug>/`, outside the plugin; client templates are kept in the private `landing-page-manager-templates` repository, never here. Resolve template paths with `Template_Manager::get_template_dir()` / `get_template_url()`. Each template has `single-landing_page.php` and `screenshot.png`, and usually `lib/fields/landing-page-fields.php` and `lib/assets.php` (the starters also have `lib/page-data.php`).
 - `includes/admin/` — dashboard, stats, settings (tabs: Templates, API Keys, Conversion Tracking, Updates).
 - `includes/core/` — validator, required-field registry, Google Maps helpers.
 - `includes/Update_Checker.php` — GitHub-release updater; normalizes zipball folder name.

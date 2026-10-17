@@ -370,7 +370,7 @@ class Client_Taxonomy {
 
             Field::make( 'checkbox', 'lpmanager_client_needs_jquery', __( 'Tracking tags need jQuery', 'landing-page-manager' ) )
                 ->set_option_value( 'yes' )
-                ->set_help_text( __( 'Tick this if this client\'s tracking or conversion tags use jQuery, for example a Custom HTML tag in Google Tag Manager. Templates that don\'t need jQuery (such as Template A) then load it anyway, so those tags keep working.', 'landing-page-manager' ) ),
+                ->set_help_text( __( 'Tick this if this client\'s tracking or conversion tags use jQuery, for example a Custom HTML tag in Google Tag Manager. Templates that don\'t need jQuery (such as the starter templates) then load it anyway, so those tags keep working.', 'landing-page-manager' ) ),
         ])
 
         // Social Media Tab
