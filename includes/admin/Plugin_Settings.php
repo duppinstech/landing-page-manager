@@ -220,38 +220,57 @@ class Plugin_Settings {
 
     /**
      * Warn admins when the active template's folder is gone, because every landing page then
-     * 404s, and when a custom template still runs from inside the plugin folder, where the next
-     * plugin update deletes it.
+     * 404s, and when any template other than the starters still exists only inside the plugin
+     * folder, where the next plugin update would delete it (updating is blocked until then).
      */
     public static function render_missing_template_notice() {
         if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
             return;
         }
-        $slug = sanitize_title( (string) carbon_get_theme_option( 'lpmanager_active_template' ) );
-        // Runs on every admin screen, so check one template rather than scanning all of them.
-        if ( '' === $slug ) {
-            return;
+        $notices = [];
+        $slug    = sanitize_title( (string) carbon_get_theme_option( 'lpmanager_active_template' ) );
+        // Runs on every admin screen: one file check plus one scan of the plugin's template folders.
+        if ( '' !== $slug && ! Template_Manager::template_exists( $slug ) ) {
+            $notices[] = [
+                'notice-error',
+                sprintf(
+                    /* translators: 1: template slug, 2: folder path */
+                    __( 'Landing Page Manager: the active template "%1$s" is missing, so landing pages are showing a 404. Put its folder in %2$s (as %2$s%1$s/), upload it again, or choose another template.', 'landing-page-manager' ),
+                    $slug,
+                    'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
+                ),
+            ];
         }
-        $folder = 'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/' . $slug . '/';
-        if ( ! Template_Manager::template_exists( $slug ) ) {
-            $class   = 'notice-error';
-            /* translators: 1: template slug, 2: folder path */
-            $message = __( 'Landing Page Manager: the active template "%1$s" is missing, so landing pages are showing a 404. Copy the template folder to %2$s, upload it again, or choose another template.', 'landing-page-manager' );
-        } elseif ( Template_Manager::is_at_risk( $slug ) ) {
-            $class   = 'notice-warning';
-            /* translators: 1: template slug, 2: folder path */
-            $message = __( 'Landing Page Manager: the active template "%1$s" is still stored inside the plugin folder, and a future plugin update will remove it. Landing Page Manager could not copy it to %2$s. Make wp-content writable and reload this page, or copy the template folder there yourself. Until then, updating the plugin is blocked so the template is not deleted.', 'landing-page-manager' );
-        } else {
-            return;
+        $pending = array_keys( Template_Manager::pending_templates() );
+        if ( $pending ) {
+            $names = wp_sprintf_l( '%l', $pending );
+            $notices[] = [
+                'notice-warning',
+                wp_is_file_mod_allowed( 'lpmanager_copy_templates' )
+                    ? sprintf(
+                        /* translators: 1: template folder names, 2: folder path */
+                        __( 'Landing Page Manager: the templates %1$s are still stored only inside the plugin folder, where a plugin update would delete them, so updating the plugin is blocked. Landing Page Manager could not copy them to %2$s. Make wp-content writable and reload this page, or copy those folders from wp-content/plugins/landing-page-manager/includes/templates/ into %2$s yourself.', 'landing-page-manager' ),
+                        $names,
+                        'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
+                    )
+                    : sprintf(
+                        /* translators: 1: template folder names, 2: folder path */
+                        __( 'Landing Page Manager: the templates %1$s are still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy those folders from wp-content/plugins/landing-page-manager/includes/templates/ into %2$s before you deploy the next plugin version, or that deploy deletes them.', 'landing-page-manager' ),
+                        $names,
+                        'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
+                    ),
+            ];
         }
-        printf(
-            '<div class="notice %s"><p>%s <a href="%s">%s</a></p></div>',
-            esc_attr( $class ),
-            esc_html( sprintf( $message, $slug, $folder ) ),
-            // Carbon Fields' page slug for the "Settings" theme-options container.
-            esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
-            esc_html__( 'Go to Settings → Templates', 'landing-page-manager' )
-        );
+        foreach ( $notices as $notice ) {
+            printf(
+                '<div class="notice %s"><p>%s <a href="%s">%s</a></p></div>',
+                esc_attr( $notice[0] ),
+                esc_html( $notice[1] ),
+                // Carbon Fields' page slug for the "Settings" theme-options container.
+                esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
+                esc_html__( 'Go to Settings → Templates', 'landing-page-manager' )
+            );
+        }
     }
 
     /**

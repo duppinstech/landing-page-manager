@@ -9,7 +9,7 @@ Landing Page Manager is a WordPress plugin for creating and managing landing pag
 - **Landing Page post type** — Dedicated content type for landing pages
 - **Client taxonomy** — One client per brand, with its logo, colors, address, phone and website. The client's slug becomes its subdomain. A landing page's own "Page phone" overrides the client's phone on that page.
 - **Keyword taxonomy** — Tag pages by keyword/campaign
-- **Templates** — Pick the site's template in Settings → Templates; each template brings its own page fields. Starter One (light) and Starter Two (dark) ship with the plugin, and you can add your own in `wp-content/lpmanager-templates/` (see [Custom templates](#custom-templates))
+- **Templates** — Pick the site's template in Settings → Templates; each template brings its own page fields. Starter One (light) and Starter Two (dark) ship with the plugin, and you can add your own in `wp-content/lpmanager-templates/`, where plugin updates never remove them (see [Custom templates](#custom-templates))
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
 - **Analytics** (Pro) — Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Without Pro, this screen shows an upgrade prompt.
 - **Settings** — Templates, API keys (Google Maps browser key, Google Maps server key, Brandfetch), and (with Pro) conversion-tracking toggles
@@ -54,7 +54,9 @@ To add a custom template, either upload a .zip under **Settings → Templates �
 - `screenshot.png` (1200×900 works well) for its tile,
 - optionally `lib/fields/landing-page-fields.php` (its Carbon Fields), `lib/assets.php` (its stylesheets and scripts), and `404.php`.
 
-The easiest start is to copy `wp-content/plugins/landing-page-manager/includes/templates/starter-one/` to `wp-content/lpmanager-templates/my-template/`, then change the `Template Name` header in `single-landing_page.php` and the field box title in `lib/fields/landing-page-fields.php`. The starter templates are GPL-2.0-or-later, like the plugin; a template built from one is a derivative and, if you distribute it, must use a GPL-compatible licence. In a template, use `\LPManager\templates\Template_Manager::get_template_url( 'css/file.css' )` for file URLs and `__DIR__` for file paths, never paths inside the plugin folder.
+By default the plugin also loads Google Fonts and Font Awesome from their CDNs on every landing page. A template that doesn't use them should return `'cdn_assets' => false` from `lib/assets.php`, as the starters do, so visitors' browsers don't contact those services.
+
+The easiest start is to copy `wp-content/plugins/landing-page-manager/includes/templates/starter-one/` to `wp-content/lpmanager-templates/my-template/`, then change the `Template Name` header in `single-landing_page.php` and the field box title in `lib/fields/landing-page-fields.php`. The starter templates are licensed under GPL-2.0-or-later, like the plugin. A template built from one is a derivative work; if you distribute it, you must license it under the GPL, version 2 or later. In a template, use `\LPManager\templates\Template_Manager::get_template_url( 'css/file.css' )` for file URLs and `__DIR__` for file paths, never paths inside the plugin folder.
 
 ## Updates from GitHub
 
@@ -72,7 +74,7 @@ To build the zip locally: `bin/build-zip.sh` (uses `zip`, or Python if `zip` is 
 
 ## Uninstalling
 
-Deleting the plugin removes its settings. Landing pages, clients and keywords are kept, and so are the templates in `wp-content/lpmanager-templates/`; delete that folder yourself if you no longer need it. To delete those too, add `define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );` to `wp-config.php` before deleting.
+Deleting the plugin removes its settings. Landing pages, clients and keywords are kept; to delete them too, add `define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );` to `wp-config.php` before deleting. Templates in `wp-content/lpmanager-templates/` are always kept, even with that setting; delete that folder yourself if you no longer need it.
 
 ## Developer hooks
 

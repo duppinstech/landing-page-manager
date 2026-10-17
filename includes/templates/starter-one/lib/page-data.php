@@ -133,8 +133,12 @@ $lpm_data['style'] = '';
 if ( $lpm_data['primary'] ) {
 	$lpm_primary        = $lpm_data['primary'];
 	$lpm_data['style'] .= '--lpm-primary:' . $lpm_primary . ';--lpm-on-primary:' . $lpm_on( $lpm_primary ) . ';';
-	// The primary colour as text on the page (header phone, contact button), or the text colour.
-	$lpm_data['style'] .= '--lpm-primary-text:' . ( $lpm_contrast( $lpm_primary, $lpm_page_bg ) >= 4.5 ? $lpm_primary : $lpm_page_text ) . ';';
+	// The primary colour as text on the page and its panels (header phone, contact button), or the text colour.
+	$lpm_data['style'] .= '--lpm-primary-text:' . ( min( $lpm_contrast( $lpm_primary, $lpm_page_bg ), $lpm_contrast( $lpm_primary, $lpm_page_surface ) ) >= 4.5 ? $lpm_primary : $lpm_page_text ) . ';';
+	// The contact button (page colour) sits on a primary-coloured band.
+	if ( $lpm_contrast( $lpm_primary, $lpm_page_bg ) < 3 ) {
+		$lpm_data['style'] .= '--lpm-contact-button-border:' . $lpm_on( $lpm_primary ) . ';';
+	}
 	// A primary-coloured button needs a visible edge where it barely differs from the page.
 	if ( min( $lpm_contrast( $lpm_primary, $lpm_page_bg ), $lpm_contrast( $lpm_primary, $lpm_page_surface ) ) < 3 ) {
 		$lpm_data['style'] .= '--lpm-button-border:' . $lpm_page_text . ';';
@@ -143,7 +147,11 @@ if ( $lpm_data['primary'] ) {
 if ( $lpm_data['secondary'] ) {
 	$lpm_accent         = $lpm_data['secondary'];
 	$lpm_data['style'] .= '--lpm-accent:' . $lpm_accent . ';--lpm-on-accent:' . $lpm_on( $lpm_accent ) . ';';
-	$lpm_data['style'] .= '--lpm-accent-text:' . ( $lpm_contrast( $lpm_accent, $lpm_page_bg ) >= 4.5 ? $lpm_accent : $lpm_page_text ) . ';';
+	$lpm_data['style'] .= '--lpm-accent-text:' . ( min( $lpm_contrast( $lpm_accent, $lpm_page_bg ), $lpm_contrast( $lpm_accent, $lpm_page_surface ) ) >= 4.5 ? $lpm_accent : $lpm_page_text ) . ';';
+	// The mobile call bar (accent colour) needs a visible edge where it barely differs from the page.
+	if ( $lpm_contrast( $lpm_accent, $lpm_page_bg ) < 3 ) {
+		$lpm_data['style'] .= '--lpm-callbar-border:' . $lpm_page_text . ';';
+	}
 }
 
 $lpm_data['show_contact'] = '' !== $lpm_data['phone'] || '' !== trim( $lpm_data['contact_text'] ) || '' !== trim( $lpm_data['address'] );

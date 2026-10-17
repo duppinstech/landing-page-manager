@@ -6,15 +6,14 @@ argument-hint: "template <slug> | module <dir>/<Class_Name>"
 Request: $ARGUMENTS
 
 ## `template <slug>`
-Model it on `includes/templates/whiterail-ai/`. Create `includes/templates/<slug>/` containing:
-- `single-landing_page.php`: the entry point Template_Loader resolves
-- `header.php`, `footer.php`, `index.php`, `404.php`
-- `style.css`: the header comment carries `Template Name`, and the author is Odell Duppins / Duppins Technology
-- `screenshot.png`: a placeholder. Template_Manager requires it.
-- `lib/fields/landing-page-fields.php`: Carbon Fields container for this template only, keys prefixed `lpmanager_<slug>_`
-- `lib/helper-functions.php`: functions wrapped in `function_exists` guards
-- `lib/assets.php`: returns the template's `styles` and `scripts` in load order (`key => [ path, deps ]`). Only listed files load. Without it, every file in `css/` and `js/` loads.
-- `css/main.css`, `js/main.js`, scoped to the template wrapper
+Copy `includes/templates/starter-one/` to `wp-content/lpmanager-templates/<slug>/` on the site (client templates belong in the private `landing-page-manager-templates` repository, never in this one). A template contains:
+- `single-landing_page.php`: the entry point Template_Loader resolves. Its header comment carries `Template Name` (the upload check reads it there) and keeps the author, copyright and licence lines
+- `screenshot.png`: the tile image (1200x900). Uploads require it.
+- `lib/fields/landing-page-fields.php`: Carbon Fields container for this template; rename its title
+- `lib/page-data.php`: reads the page and client data once (the starters' pattern)
+- `lib/assets.php`: returns `styles` and `scripts` in load order (`key => [ path, deps ]`), plus `'cdn_assets' => false` unless the template uses Google Fonts or Font Awesome. Only listed files load.
+- `css/main.css` (and `js/` only if needed), optionally `404.php`
+- File URLs through `Template_Manager::get_template_url()`, file paths through `__DIR__`
 
 Do **not** copy the vendored bootstrap, swiper, or jquery files unless the template needs them (PLAN.md P2 tracks consolidating them).
 
