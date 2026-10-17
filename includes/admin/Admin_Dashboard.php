@@ -40,7 +40,7 @@ class Admin_Dashboard {
         if ( strpos( $screen->id, 'lp_analytics' ) !== false || strpos( $screen->id, 'lp_tracking' ) !== false ) {
             return;
         }
-        $on_lp_pages = ( strpos( $screen->id, 'lp_dashboard' ) !== false || strpos( $screen->id, 'lp_analytics' ) !== false || strpos( $screen->id, 'crb_carbon_fields' ) !== false || ( isset( $screen->parent_base ) && $screen->parent_base === 'lp_dashboard' ) );
+        $on_lp_pages = ( strpos( $screen->id, 'lp_dashboard' ) !== false || strpos( $screen->id, 'crb_carbon_fields' ) !== false || ( isset( $screen->parent_base ) && $screen->parent_base === 'lp_dashboard' ) );
         if ( ! $on_lp_pages ) {
             return;
         }
@@ -481,12 +481,13 @@ class Admin_Dashboard {
             __( 'Conversion tracking is part of Landing Page Manager Pro. Install Pro to track page views, phone and call-button conversions, link clicks, scroll depth and form use on your landing pages, and to choose whose visits are counted.', 'landing-page-manager' ),
             self::pro_has_own_screens()
                 ? __( 'Landing Page Manager Pro is active, but this version keeps its tracking settings under Landing Pages → Pro Settings. Update Landing Page Manager Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
-                : __( 'Landing Page Manager Pro is active, but this version keeps its tracking options under Settings → Conversion Tracking. Update Landing Page Manager Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
+                : __( 'Landing Page Manager Pro is active, but this version keeps its tracking options under Settings → Conversion Tracking (and, in Pro 1.0.3, Landing Pages → Pro Settings). Update Landing Page Manager Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
         );
     }
 
     /**
-     * Whether the active Pro (1.0.4–1.0.5) has its own Pro Analytics and Pro Settings screens. Pro
+     * Whether the active Pro is 1.0.4 or later. When Pro doesn't fill the Analytics and Tracking
+     * screens (1.0.4–1.0.5), this means it has its own Pro Analytics and Pro Settings screens; Pro
      * before 1.0.4 keeps its tracking options in Settings → Conversion Tracking instead.
      */
     public static function pro_has_own_screens() {

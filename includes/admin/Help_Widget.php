@@ -309,7 +309,7 @@ class Help_Widget {
                     : ( $is_premium
                         ? [ Admin_Dashboard::pro_has_own_screens()
                             ? __( 'This version of Landing Page Manager Pro keeps its tracking settings under Landing Pages → Pro Settings. Update Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
-                            : __( 'This version of Landing Page Manager Pro keeps its tracking options under Settings → Conversion Tracking. Update Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' ) ]
+                            : __( 'This version of Landing Page Manager Pro keeps its tracking options under Settings → Conversion Tracking (and, in Pro 1.0.3, Landing Pages → Pro Settings). Update Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' ) ]
                         : [
                             __( 'Conversion tracking needs the Landing Page Manager Pro add-on.', 'landing-page-manager' ),
                             __( 'Without Pro, this screen shows a notice, and the plugin tracks nothing.', 'landing-page-manager' ),

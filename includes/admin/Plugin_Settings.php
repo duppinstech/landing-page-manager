@@ -172,7 +172,6 @@ class Plugin_Settings {
         $container = Container::make( 'theme_options', __( 'Settings', 'landing-page-manager' ) )
             ->set_page_parent( 'lp_dashboard' )
             ->add_tab( __( 'Templates', 'landing-page-manager' ), $tab_templates );
-        // Pro 1.0.4+ shows the tracking toggles on its own Settings screen (same stored options).
         // Only Pro before 1.0.4 keeps its tracking options here; later Pro versions have their own Tracking
         // screen, and without Pro the Tracking menu item explains how to get it.
         if ( $is_premium && ! function_exists( 'lpmanager_pro_tracking_options' ) ) {
