@@ -9,7 +9,7 @@ Landing Page Manager is a WordPress plugin for creating and managing landing pag
 - **Landing Page post type** — Dedicated content type for landing pages
 - **Client taxonomy** — One client per brand, with its logo, colors, address, phone and website. The client's slug becomes its subdomain. A landing page's own "Page phone" overrides the client's phone on that page.
 - **Keyword taxonomy** — Tag pages by keyword/campaign
-- **Templates** — One site-wide template (Whiterail AI, Whiterail Recruits, QuickTow), each with its own fields, chosen in Settings → Templates
+- **Templates** — One site-wide template, each with its own fields, chosen in Settings → Templates. Two starter templates ship with the plugin; custom templates live in `wp-content/lpmanager-templates/` (see [Custom templates](#custom-templates))
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
 - **Analytics** (Pro) — Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Without Pro, this screen shows an upgrade prompt.
 - **Settings** — Templates, API keys (Google Maps browser key, Google Maps server key, Brandfetch), and (with Pro) conversion-tracking toggles
@@ -39,7 +39,22 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 - **Keywords** — Add keyword/campaign terms for organizing pages.
 - **Dashboard** — View counts and quick links.
 - **Analytics** (Pro) — View page views, conversions, engagement, heatmaps, rage clicks.
-- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps browser key (restrict it to your site and `https://*.yourdomain/*` for client subdomains), Google Maps server key (restrict it by IP; it needs the original Places API), Brandfetch API key, and Additional Scripts (printed at the bottom of every landing page; only administrators can change them, and they print only after an administrator saves or approves them). Conversion Tracking tab (Pro): enable/disable tracking options. **Updates tab**: shows where updates come from (GitHub Releases). Uploaded templates are stored inside the plugin folder and are deleted by plugin updates; keep the .zip and upload it again after each update.
+- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps browser key (restrict it to your site and `https://*.yourdomain/*` for client subdomains), Google Maps server key (restrict it by IP; it needs the original Places API), Brandfetch API key, and Additional Scripts (printed at the bottom of every landing page; only administrators can change them, and they print only after an administrator saves or approves them). Conversion Tracking tab (Pro): enable/disable tracking options. **Updates tab**: shows where updates come from (GitHub Releases). Uploaded templates are stored in `wp-content/lpmanager-templates/`, which plugin updates don't touch.
+
+## Custom templates
+
+Landing Page Manager looks for templates in two places:
+
+- **Starter templates** (Starter One and Starter Two) ship inside the plugin, in `includes/templates/`. Their names are reserved.
+- **Custom templates** live in `wp-content/lpmanager-templates/<slug>/`. Plugin updates replace the plugin folder but never touch this folder, so templates kept here survive updates.
+
+To add a custom template, either upload a .zip under **Settings → Templates → Upload New Template**, or copy the template folder into `wp-content/lpmanager-templates/` yourself (SFTP, your host's file manager, or a deploy from a private repository). A template folder needs:
+
+- `single-landing_page.php` with a `Template Name:` header (and optionally `Description:`),
+- `screenshot.png` (1200×900 works well) for its tile,
+- optionally `lib/fields/landing-page-fields.php` (its Carbon Fields), `lib/assets.php` (its stylesheets and scripts), and `404.php`.
+
+The easiest start is to copy `includes/templates/starter-one/` to `wp-content/lpmanager-templates/my-template/` and change its `Template Name`. In a template, use `\LPManager\templates\Template_Manager::get_template_url( 'css/file.css' )` for file URLs and `__DIR__` for file paths, never paths inside the plugin folder.
 
 ## Updates from GitHub
 

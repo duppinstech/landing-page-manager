@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Two starter templates, Starter One (light) and Starter Two (dark).** They ship with the plugin, appear first under Settings → Templates, and are the default for new sites. Each has a hero with a call button, highlights, about, FAQ and contact sections, uses the client's logo, colours and phone number, and is meant as a base to copy for your own template.
+
+### Changed
+- **Uploaded and custom templates are kept outside the plugin folder**, in `wp-content/lpmanager-templates/`, so plugin updates no longer delete them. You can also copy a template folder there yourself. On the first page load after updating, templates that are still inside the plugin folder (QuickTow, Whiterail AI, Whiterail Recruits) are copied there automatically and used from there.
+- The template tiles list the starter templates first, then other templates by name, then **Upload New Template**.
+- If a template can't be copied out (for example, `wp-content` isn't writable), an admin notice says so before the next update can remove it. The notice for a missing template now says where to put it.
+
+### Upgrade notes
+- **QuickTow, Whiterail AI and Whiterail Recruits will be removed from the plugin in a later release.** This update copies them to `wp-content/lpmanager-templates/`, and your landing pages keep using them. Update to this version before any later one, and check that no template notice appears under Landing Pages → Settings.
+- Sites that never saved the template setting keep Whiterail AI, the previous default. New sites start with Starter One.
 
 ## [1.0.9] - 2026-10-17
 ### Added

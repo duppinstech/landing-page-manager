@@ -108,7 +108,7 @@ class Plugin_Settings {
                 ->set_help_text( __( 'Select a template or upload a new one.', 'landing-page-manager' ) ),
             Field::make( 'hidden', 'lpmanager_active_template' )
                 ->set_label( false )
-                ->set_default_value( 'whiterail-ai' ),
+                ->set_default_value( Template_Manager::DEFAULT_TEMPLATE ),
         ];
 
         if ( $is_premium ) {
@@ -219,27 +219,35 @@ class Plugin_Settings {
     }
 
     /**
-     * Warn admins when the active template's folder is gone (for example, an uploaded
-     * template removed by a plugin update), because every landing page then 404s.
+     * Warn admins when the active template's folder is gone, because every landing page then
+     * 404s, and when a custom template still runs from inside the plugin folder, where the next
+     * plugin update deletes it.
      */
     public static function render_missing_template_notice() {
         if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'carbon_get_theme_option' ) ) {
             return;
         }
         $slug = sanitize_title( (string) carbon_get_theme_option( 'lpmanager_active_template' ) );
-        // Runs on every admin screen, so check one file rather than scanning all templates.
-        if ( '' === $slug || file_exists( LP_MANAGER_PLUGIN_PATH . 'includes/templates/' . $slug . '/single-landing_page.php' ) ) {
+        // Runs on every admin screen, so check one template rather than scanning all of them.
+        if ( '' === $slug ) {
+            return;
+        }
+        $folder = 'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/' . $slug . '/';
+        if ( ! Template_Manager::template_exists( $slug ) ) {
+            $class   = 'notice-error';
+            /* translators: 1: template slug, 2: folder path */
+            $message = __( 'Landing Page Manager: the active template "%1$s" is missing, so landing pages are showing a 404. Copy the template folder to %2$s, upload it again, or choose another template.', 'landing-page-manager' );
+        } elseif ( Template_Manager::is_at_risk( $slug ) ) {
+            $class   = 'notice-warning';
+            /* translators: 1: template slug, 2: folder path */
+            $message = __( 'Landing Page Manager: the active template "%1$s" is still stored inside the plugin folder, and a future plugin update will remove it. Landing Page Manager could not copy it to %2$s. Make that folder writable or copy the template there yourself before you update.', 'landing-page-manager' );
+        } else {
             return;
         }
         printf(
-            '<div class="notice notice-error"><p>%s <a href="%s">%s</a></p></div>',
-            esc_html(
-                sprintf(
-                    /* translators: %s: template slug */
-                    __( 'Landing Page Manager: the active template "%s" is missing, so landing pages are showing a 404. It was probably removed by a plugin update. Upload it again, or choose another template.', 'landing-page-manager' ),
-                    $slug
-                )
-            ),
+            '<div class="notice %s"><p>%s <a href="%s">%s</a></p></div>',
+            esc_attr( $class ),
+            esc_html( sprintf( $message, $slug, $folder ) ),
             // Carbon Fields' page slug for the "Settings" theme-options container.
             esc_url( admin_url( 'admin.php?page=crb_carbon_fields_container_settings.php' ) ),
             esc_html__( 'Go to Settings → Templates', 'landing-page-manager' )
@@ -558,10 +566,14 @@ class Plugin_Settings {
 
         $html .= '</div>';
 
-        // Uploaded templates live inside the plugin folder until PLAN.md "Store uploaded templates
-        // outside the plugin folder" lands, so a plugin update deletes them.
-        $html .= '<p class="description" style="margin-top: 12px;"><strong>' . esc_html__( 'Important:', 'landing-page-manager' ) . '</strong> '
-            . esc_html__( 'Uploaded templates are stored inside the plugin folder and are deleted when the plugin updates. Keep your template .zip and upload it again after each update.', 'landing-page-manager' )
+        $html .= '<p class="description" style="margin-top: 12px;">'
+            . esc_html(
+                sprintf(
+                    /* translators: %s: folder path */
+                    __( 'Uploaded and custom templates are kept in %s, outside the plugin folder, so plugin updates don\'t remove them. You can also copy a template folder there yourself.', 'landing-page-manager' ),
+                    'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
+                )
+            )
             . '</p>';
 
         // Hidden input to track selected template

@@ -1,0 +1,262 @@
+/*
+ * Starter Two: dark layout with a centred hero.
+ * Client colours arrive as --lpm-primary, --lpm-on-primary and --lpm-accent on <body>.
+ */
+.lpm-starter {
+	--lpm-primary: #3fb68b;
+	--lpm-on-primary: #0f1720;
+	--lpm-accent: #f2c14e;
+	--lpm-bg: #0f1720;
+	--lpm-surface: #18222e;
+	--lpm-text: #f1f4f7;
+	--lpm-muted: #b6c0cb;
+	--lpm-border: #2c3a48;
+	--lpm-radius: 8px;
+	margin: 0;
+	background: var(--lpm-bg);
+	color: var(--lpm-text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size: 17px;
+	line-height: 1.6;
+}
+
+.lpm-starter *,
+.lpm-starter *::before,
+.lpm-starter *::after {
+	box-sizing: border-box;
+}
+
+.lpm-starter img {
+	max-width: 100%;
+	height: auto;
+}
+
+.lpm-wrap {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 0 20px;
+}
+
+.lpm-skip {
+	position: absolute;
+	left: -9999px;
+}
+
+.lpm-skip:focus {
+	left: 16px;
+	top: 16px;
+	z-index: 100;
+	padding: 8px 14px;
+	background: var(--lpm-bg);
+	color: var(--lpm-text);
+}
+
+/* Header */
+.lpm-header {
+	border-bottom: 1px solid var(--lpm-border);
+	background: var(--lpm-bg);
+}
+
+.lpm-header__inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	min-height: 72px;
+}
+
+.lpm-brand {
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.lpm-brand img {
+	display: block;
+	max-height: 48px;
+	width: auto;
+}
+
+.lpm-header__phone {
+	/* The client's colour may be dark, so text on the dark background keeps the text colour. */
+	color: var(--lpm-text);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+/* Buttons */
+.lpm-button {
+	display: inline-block;
+	min-height: 44px;
+	padding: 12px 26px;
+	border-radius: var(--lpm-radius);
+	background: var(--lpm-primary);
+	color: var(--lpm-on-primary);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.lpm-button:hover,
+.lpm-button:focus-visible {
+	filter: brightness(1.1);
+}
+
+.lpm-starter a:focus-visible {
+	outline: 3px solid var(--lpm-accent);
+	outline-offset: 2px;
+}
+
+/* Hero */
+.lpm-hero {
+	padding: 64px 0;
+	background: var(--lpm-surface);
+}
+
+.lpm-hero__inner {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 40px;
+	align-items: center;
+}
+
+.lpm-hero h1 {
+	margin: 0 0 16px;
+	font-size: clamp(30px, 5vw, 46px);
+	line-height: 1.15;
+}
+
+.lpm-hero__lead {
+	margin: 0 0 28px;
+	color: var(--lpm-muted);
+	font-size: 19px;
+}
+
+.lpm-hero__media img {
+	display: block;
+	width: 100%;
+	border-radius: var(--lpm-radius);
+}
+
+.lpm-hero {
+	text-align: center;
+}
+
+.lpm-hero__text {
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+.lpm-hero__media {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+/* Sections */
+.lpm-section {
+	padding: 56px 0;
+}
+
+.lpm-section__title {
+	margin: 0 0 24px;
+	font-size: clamp(24px, 3.5vw, 32px);
+	line-height: 1.2;
+}
+
+.lpm-prose {
+	max-width: 760px;
+}
+
+.lpm-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 20px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lpm-card {
+	padding: 24px;
+	border: 1px solid var(--lpm-border);
+	border-left: 4px solid var(--lpm-accent);
+	border-radius: var(--lpm-radius);
+	background: var(--lpm-surface);
+}
+
+.lpm-card h3 {
+	margin: 0 0 8px;
+	font-size: 19px;
+}
+
+.lpm-card p {
+	margin: 0;
+	color: var(--lpm-muted);
+}
+
+.lpm-about {
+	background: var(--lpm-surface);
+}
+
+.lpm-starter .lpm-prose a {
+	color: var(--lpm-accent);
+}
+
+.lpm-faq__item {
+	border-bottom: 1px solid var(--lpm-border);
+	padding: 14px 0;
+}
+
+.lpm-faq__item summary {
+	cursor: pointer;
+	font-weight: 700;
+}
+
+.lpm-contact {
+	background: var(--lpm-primary);
+	color: var(--lpm-on-primary);
+	text-align: center;
+}
+
+.lpm-contact .lpm-button {
+	background: var(--lpm-bg);
+	color: var(--lpm-primary);
+}
+
+.lpm-contact__address {
+	margin-top: 20px;
+	opacity: 0.9;
+}
+
+/* Footer and mobile call bar */
+.lpm-footer {
+	padding: 24px 0 88px;
+	color: var(--lpm-muted);
+	font-size: 14px;
+	text-align: center;
+}
+
+.lpm-callbar {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	left: 16px;
+	z-index: 50;
+	min-height: 48px;
+	padding: 12px;
+	border-radius: var(--lpm-radius);
+	background: var(--lpm-accent);
+	color: #1d2327;
+	font-weight: 700;
+	text-align: center;
+	text-decoration: none;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 800px) {
+	.lpm-callbar {
+		display: none;
+	}
+
+	.lpm-footer {
+		padding-bottom: 24px;
+	}
+}

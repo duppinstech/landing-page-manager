@@ -34,7 +34,7 @@ class Template_Loader {
          */
         $slug = sanitize_title( (string) apply_filters( 'lpmanager_template_for_post', $global, (int) $post_id ) );
         // Ignore a filtered slug whose template isn't installed, rather than 404ing the page.
-        if ( '' === $slug || ! file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'templates/' . $slug . '/single-landing_page.php' ) ) {
+        if ( '' === $slug || ! Template_Manager::template_exists( $slug ) ) {
             return $global;
         }
         return $slug;
@@ -52,7 +52,7 @@ class Template_Loader {
                 return sanitize_title( $global_template );
             }
         }
-        return 'whiterail-ai';
+        return Template_Manager::DEFAULT_TEMPLATE;
     }
 
     /**
@@ -115,29 +115,13 @@ class Template_Loader {
     public static function load_template_fields() {
         $template_slug = self::get_template_slug_for_admin_fields();
         if ( empty( $template_slug ) ) {
-            $template_slug = 'whiterail-ai';
+            $template_slug = Template_Manager::DEFAULT_TEMPLATE;
         }
         Template_Manager::set_current_template( $template_slug );
 
-        $templates_root = plugin_dir_path( dirname( __FILE__ ) ) . 'templates/';
-        $pattern        = $templates_root . '*/lib/fields/landing-page-fields.php';
-        $candidates     = glob( $pattern ) ?: array();
-
-        foreach ( $candidates as $fields_file ) {
-            $dir_slug = basename( dirname( dirname( dirname( $fields_file ) ) ) );
-            if ( sanitize_title( $dir_slug ) !== $template_slug ) {
-                continue;
-            }
-            if ( file_exists( $fields_file ) ) {
-                require_once $fields_file;
-            }
-            return;
-        }
-
-        // Fallback: direct path if glob failed (some hosts disable glob).
-        $fields_file = $templates_root . $template_slug . '/lib/fields/landing-page-fields.php';
-        if ( file_exists( $fields_file ) ) {
-            require_once $fields_file;
+        $template_dir = Template_Manager::get_template_dir( $template_slug );
+        if ( '' !== $template_dir && file_exists( $template_dir . 'lib/fields/landing-page-fields.php' ) ) {
+            require_once $template_dir . 'lib/fields/landing-page-fields.php';
         }
     }
 
@@ -147,15 +131,10 @@ class Template_Loader {
     public static function load_template( $template ) {
         if ( is_singular( 'landing_page' ) ) {
             $template_slug = Template_Manager::get_current_template();
-            if ( empty( $template_slug ) ) {
-                $template_slug = 'whiterail-ai';
-            }
+            $template_dir = Template_Manager::get_template_dir( $template_slug );
 
-            $template_dir  = plugin_dir_path( dirname( __FILE__ ) ) . 'templates/' . $template_slug . '/';
-            $template_file = $template_dir . 'single-landing_page.php';
-
-            return file_exists( $template_file )
-                ? $template_file
+            return '' !== $template_dir
+                ? $template_dir . 'single-landing_page.php'
                 : self::get_custom_404_template();
         }
 
@@ -167,12 +146,7 @@ class Template_Loader {
     }
 
     private static function get_custom_404_template() {
-        $template_slug = Template_Manager::get_current_template();
-        if ( empty( $template_slug ) ) {
-            $template_slug = 'whiterail-ai';
-        }
-        $template_dir = plugin_dir_path( dirname( __FILE__ ) ) . 'templates/' . $template_slug . '/';
-        $template_404 = $template_dir . '404.php';
-        return file_exists( $template_404 ) ? $template_404 : get_404_template();
+        $template_dir = Template_Manager::get_template_dir();
+        return '' !== $template_dir && file_exists( $template_dir . '404.php' ) ? $template_dir . '404.php' : get_404_template();
     }
 }

@@ -7,9 +7,9 @@
 		<meta name="format-detection" content="telephone=no">
 
 		<?php
-		$favicon_dir = LP_MANAGER_PLUGIN_PATH . 'includes/templates/whiterail-ai/css/images/favicons/';
+		$favicon_dir = __DIR__ . '/css/images/favicons/';
 		if ( file_exists( $favicon_dir . 'favicon-32x32.png' ) ) :
-			$favicon_url = LP_MANAGER_PLUGIN_URL . 'includes/templates/whiterail-ai/css/images/favicons/';
+			$favicon_url = \LPManager\templates\Template_Manager::get_template_url( 'css/images/favicons/' );
 		?>
 		<link rel="icon" type="image/png" sizes="32x32" href="<?php echo esc_url( $favicon_url . 'favicon-32x32.png' ); ?>" />
 		<link rel="icon" type="image/png" sizes="16x16" href="<?php echo esc_url( $favicon_url . 'favicon-16x16.png' ); ?>" />
