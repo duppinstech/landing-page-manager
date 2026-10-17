@@ -15,7 +15,8 @@ page platform**:
    and phone set on the client term. Core uses one site-wide template; choosing a
    template per client is a Pro feature (core exposes `lpmanager_template_for_post`).
 3. **Templates, not page building** — vetted, conversion-focused templates
-   (`whiterail-ai`, `whiterail-recruits`, `quicktow`, …) with template-specific fields.
+   with template-specific fields: two starter templates ship with the plugin, and custom
+   templates are installed in `wp-content/lpmanager-templates/`.
    Templates are reusable Duppins Technology products, not client-exclusive work.
 4. **Clean front end** — landing pages bypass the active theme and strip known
    page-builder assets so they load fast.

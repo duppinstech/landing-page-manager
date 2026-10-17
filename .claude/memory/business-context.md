@@ -18,7 +18,7 @@ Items marked _TBD_ are open questions for Odell. Agents must not fill them in by
 |---|---|---|---|
 | Core (free, GPL) | CPT, clients and keywords, one site-wide template, subdomain routing, GitHub updater. No analytics (Odell, 10-16). | _TBD_ | GitHub Releases (WordPress.org planned, PLAN.md P2) |
 | Pro add-on | All analytics (views, conversions, engagement, heatmaps, rage clicks, form analytics) and per-client template choice (separate private repo) | _TBD_ | _TBD_ |
-| Templates | Reusable Duppins products shipped in core (`whiterail-*`, `quicktow`). QuickTow is anonymized in shipped code (its `.html` mockups, in git but not shipped, still carry client names; PLAN: move mockups); the Whiterail names are an open question (DR 10-16c); clients pay for customization (Odell, 10-16) | _TBD (customization quote)_ | Shipped in core |
+| Templates | Starter One and Starter Two ship in core. Client templates (QuickTow, Whiterail AI, Whiterail Recruits) live in the private `landing-page-manager-templates` repo and are deployed per site to `wp-content/lpmanager-templates/` (Odell, 10-17); how they and their redeploys are billed is open (PLAN Decisions) | _TBD (customization quote)_ | Starters in core; client templates per site |
 
 - **Licensing model for Pro:** _TBD (per site? per agency? annual?)_
 - **What triggers an upgrade:** _TBD_

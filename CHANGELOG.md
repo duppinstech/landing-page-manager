@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Removed
+- **QuickTow, Whiterail AI and Whiterail Recruits no longer ship with the plugin.** They are client templates and are now maintained separately. Sites that ran 1.0.10 already have copies in `wp-content/lpmanager-templates/`, which this update doesn't touch.
+- The privacy-policy guide no longer mentions the Whiterail Recruits template's images.
+
+### Upgrade notes
+- **Install 1.0.10 before this version.** 1.0.10 copies those templates out of the plugin folder and won't update while a copy is missing. A site on 1.0.9 or earlier that installs this version directly loses them, and its landing pages show a 404. To recover, download the 1.0.10 ZIP from GitHub Releases, upload it under Plugins → Add New → Upload Plugin (replace the current version), open any admin page, check that no template notice appears, then update again. Templates you uploaded yourself aren't in the 1.0.10 ZIP; upload them again.
+- Sites that never saved the template setting stay on Whiterail AI, so its folder must be in `wp-content/lpmanager-templates/`.
 
 ## [1.0.10] - 2026-10-17
 ### Added
