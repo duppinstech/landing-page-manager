@@ -95,7 +95,7 @@ class Landing_Page_CPT {
 	
     public static function register_fields() {
         // Core fields shared by every template. Template-specific fields live in
-        // includes/templates/<slug>/lib/fields/landing-page-fields.php.
+        // <template folder>/lib/fields/landing-page-fields.php (see Template_Manager::get_template_dir()).
         $fields = [
 
                 Field::make( 'select', 'client', 'Client Name' )

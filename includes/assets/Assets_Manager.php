@@ -201,16 +201,13 @@ class Assets_Manager {
         }
 
         // --- ENQUEUE landing page local assets ---
-        $includes_dir = dirname(plugin_dir_path(__FILE__));
-        $includes_url = plugin_dir_url($includes_dir . '/dummy.php');
         $current_template = Template_Manager::get_current_template();
-
-        if ( empty( $current_template ) ) {
+        // Bundled starters, or wp-content/lpmanager-templates/ for custom and uploaded templates.
+        $template_dir = Template_Manager::get_template_dir( $current_template );
+        if ( '' === $template_dir ) {
             return;
         }
-
-        $template_dir = $includes_dir . '/templates/' . $current_template . '/';
-        $template_url = $includes_url . 'templates/' . $current_template . '/';
+        $template_url = Template_Manager::get_template_url( '', $current_template );
 
         if ( file_exists( $template_dir . 'lib/assets.php' ) ) {
             $this->enqueueTemplateManifest( $current_template, $template_dir, $template_url );
