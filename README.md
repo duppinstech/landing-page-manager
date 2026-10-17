@@ -51,7 +51,7 @@ Recommended release flow:
 2. Commit and push to `main`.
 3. Push a tag `vX.Y.Z` matching the version (e.g. `git tag v1.0.7 && git push origin v1.0.7`).
 4. The **Release** GitHub Action lints, checks the tag matches `Version`, builds `landing-page-manager.zip` (top-level folder `landing-page-manager/`, dev files excluded via `.distignore`), and creates the GitHub Release with the zip attached.
-5. On WordPress, open **Plugins** and click **Check for updates** under Landing Page Manager. (Dashboard → Updates → Check Again can show a result up to 6 hours old.)
+5. On WordPress, open **Dashboard → Updates** and click **Check again**. That skips the plugin's 6-hour release cache, so the new version shows up straight away.
 
 To build the zip locally: `bin/build-zip.sh` (uses `zip`, or Python if `zip` is missing). The zip is not committed.
 

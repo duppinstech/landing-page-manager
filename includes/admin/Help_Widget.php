@@ -313,7 +313,7 @@ class Help_Widget {
                 'title' => sprintf( '%1$s: %2$s', __( 'Settings', 'landing-page-manager' ), $tabs['updates'] ),
                 'notes' => [
                     __( 'Updates come from Duppins Technology\'s official GitHub releases and are checked automatically.', 'landing-page-manager' ),
-                    __( 'This tab has no update button. To check now, select Check for updates under Landing Page Manager on the Plugins screen.', 'landing-page-manager' ),
+                    __( 'This tab has no update button. To check now, go to Dashboard → Updates and select Check again.', 'landing-page-manager' ),
                 ],
             ],
         ];

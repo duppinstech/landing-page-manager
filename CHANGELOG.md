@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Settings, Help, Sponsor and Support links on the Plugins screen.** Settings and Help sit beside Deactivate; Sponsor follows the author, and Support (email) ends that line.
+
+### Changed
+- **Dashboard → Updates → Check again now finds a new release right away.** It skips the plugin's 6-hour release cache.
+- The Plugins screen shows the author as Duppins Technology.
+
+### Removed
+- **The "Check for updates" link on the Plugins screen.** Use Dashboard → Updates → Check again instead.
 
 ## [1.0.8] - 2026-10-16
 ### Added

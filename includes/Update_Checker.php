@@ -20,16 +20,15 @@ class Update_Checker {
     const REPO_URL        = 'https://github.com/duppinstech/landing-page-manager';
     const PLUGIN_SLUG     = 'landing-page-manager';
     const CACHE_KEY       = 'lpmanager_github_release';
+    const FORCED_KEY      = 'lpmanager_github_forced';
     // Keep in step with "Requires at least" / "Requires PHP" in landing-page-manager.php.
     const REQUIRES_WP     = '5.9';
     const REQUIRES_PHP    = '7.4';
 
     public static function init() {
         add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'inject_update' ], 10, 2 );
-        add_filter( 'plugin_action_links_' . self::get_plugin_basename(), [ __CLASS__, 'add_plugin_action_links' ] );
         add_filter( 'upgrader_source_selection', [ __CLASS__, 'normalize_install_source_dir' ], 10, 4 );
-        add_action( 'admin_init', [ __CLASS__, 'handle_manual_update_check' ] );
-        add_action( 'admin_notices', [ __CLASS__, 'render_manual_update_notice' ] );
+        add_action( 'load-update-core.php', [ __CLASS__, 'maybe_force_check' ], 9 );
     }
 
     /**
@@ -67,8 +66,42 @@ class Update_Checker {
             return $cached['release'];
         }
         $release = self::fetch_github_release();
-        set_site_transient( self::CACHE_KEY, [ 'release' => $release ], $release ? 6 * HOUR_IN_SECONDS : 30 * MINUTE_IN_SECONDS );
+        self::cache_release( $release );
         return $release;
+    }
+
+    /**
+     * Cache a fetched release (or a failed fetch, as null) for get_github_release().
+     */
+    private static function cache_release( $release ) {
+        set_site_transient( self::CACHE_KEY, [ 'release' => $release ], $release ? 6 * HOUR_IN_SECONDS : 30 * MINUTE_IN_SECONDS );
+    }
+
+    /**
+     * Dashboard → Updates → "Check again": fetch the latest release now, so a new
+     * version shows up right away without a custom button. Runs before core's
+     * wp_update_plugins (priority 10) and resets its last check, because core
+     * otherwise skips plugins checked in the last minute.
+     *
+     * A failed fetch keeps the previously cached release, so a GitHub rate limit or
+     * timeout can't hide a pending update. Forced fetches are limited to one a minute.
+     */
+    public static function maybe_force_check() {
+        if ( ! self::is_forced_check() || get_site_transient( self::FORCED_KEY ) ) {
+            return;
+        }
+        set_site_transient( self::FORCED_KEY, 1, MINUTE_IN_SECONDS );
+
+        $release = self::fetch_github_release();
+        if ( $release || ! is_array( get_site_transient( self::CACHE_KEY ) ) ) {
+            self::cache_release( $release );
+        }
+
+        $current = get_site_transient( 'update_plugins' );
+        if ( is_object( $current ) && isset( $current->last_checked ) ) {
+            $current->last_checked = 0;
+            set_site_transient( 'update_plugins', $current );
+        }
     }
 
     /**
@@ -183,60 +216,16 @@ class Update_Checker {
     }
 
     /**
-     * Add "Check for updates" action link on this plugin row.
+     * Whether this request is Dashboard → Updates → "Check again" by a user who can
+     * update plugins. Core doesn't nonce that link either; the worst a forged
+     * visit can do is one GitHub request a minute (see maybe_force_check()).
      */
-    public static function add_plugin_action_links( $links ) {
-        if ( ! current_user_can( 'update_plugins' ) ) {
-            return $links;
-        }
-        $url = wp_nonce_url(
-            add_query_arg(
-                [ 'lpmanager_check_updates' => '1' ],
-                admin_url( 'plugins.php' )
-            ),
-            'lpmanager_check_updates'
-        );
-        array_unshift(
-            $links,
-            '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Check for updates', 'landing-page-manager' ) . '</a>'
-        );
-        return $links;
-    }
-
-    /**
-     * Handle manual update check trigger from plugin action link.
-     */
-    public static function handle_manual_update_check() {
-        if ( ! is_admin() || ! current_user_can( 'update_plugins' ) ) {
-            return;
-        }
-        if ( empty( $_GET['lpmanager_check_updates'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            return;
-        }
-        check_admin_referer( 'lpmanager_check_updates' );
-
-        if ( ! function_exists( 'wp_update_plugins' ) ) {
-            require_once ABSPATH . 'wp-includes/update.php';
-        }
-
-        delete_site_transient( self::CACHE_KEY );
-        delete_site_transient( 'update_plugins' );
-        wp_update_plugins();
-
-        $redirect = admin_url( 'plugins.php' );
-        $redirect = add_query_arg( [ 'lpmanager_updates_checked' => '1' ], $redirect );
-        wp_safe_redirect( $redirect );
-        exit;
-    }
-
-    /**
-     * Admin notice after manual update check.
-     */
-    public static function render_manual_update_notice() {
-        if ( ! is_admin() || empty( $_GET['lpmanager_updates_checked'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            return;
-        }
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Landing Page Manager update check completed. Review available updates below.', 'landing-page-manager' ) . '</p></div>';
+    private static function is_forced_check() {
+        global $pagenow;
+        return is_admin()
+            && 'update-core.php' === $pagenow
+            && ! empty( $_GET['force-check'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only, mirrors core.
+            && current_user_can( 'update_plugins' );
     }
 
     /**
