@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Tracking menu item** under Landing Pages. With Landing Page Manager Pro 1.0.6 or later it holds Pro's tracking settings (what is tracked, whose visits are counted, consent). Without Pro it explains how to get conversion tracking.
+
+### Changed
+- **Analytics come from Landing Page Manager Pro.** The Analytics screen's dashboard (summary, charts and report tabs) now ships with Pro 1.0.6, which also adds a detail view for each landing page. Without Pro, Analytics explains how to get it, with a Get Pro button. With a Pro version before 1.0.6, Analytics and Tracking say where those features are until Pro is updated.
+
+### Removed
+- The **Conversion Tracking (Pro)** Settings tab, replaced by the Tracking menu item. (Sites running Pro before 1.0.4 still see their tracking options there.)
+- The analytics dashboard's script and styles, which now ship with Pro, including an unversioned copy of Chart.js loaded from a CDN.
+- The "Pro analytics is coming soon" banner no longer appears on the Analytics and Tracking screens, which carry their own Pro message.
+
+### Upgrade notes
+- **Update Landing Page Manager Pro to 1.0.6 at the same time.** With Pro 1.0.5 or earlier, the Analytics screen no longer shows charts: Analytics and Tracking say where Pro keeps those features until Pro is updated.
 
 ## [1.0.12] - 2026-10-17
 ### Removed

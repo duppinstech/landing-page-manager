@@ -98,7 +98,6 @@ class Plugin_Settings {
         }
 
         $is_premium = function_exists( 'lpmanager_is_premium' ) && lpmanager_is_premium();
-        $get_pro_url = apply_filters( 'lpmanager_get_pro_url', 'https://duppinstech.com/' );
 
         $tab_templates = [
             Field::make( 'html', 'template_selector_label', __( 'Select Landing Page Template', 'landing-page-manager' ) )
@@ -146,17 +145,6 @@ class Plugin_Settings {
                     ->set_default_value( true )
                     ->set_help_text( __( 'Track form focus, blur, and submit attempts. See form engagement and drop-off.', 'landing-page-manager' ) ),
             ];
-        } else {
-            $tab_conversion = [
-                Field::make( 'html', 'lpmanager_conversion_pro_locked', __( 'Unlock with Pro', 'landing-page-manager' ) )
-                    ->set_html(
-                        '<div class="lp-settings-pro-locked" style="background: #f0f6fc; border: 1px solid #c3c4c7; border-left: 4px solid #2271b1; padding: 16px 20px; margin: 0 0 16px 0;">' .
-                        '<p style="margin: 0 0 12px 0; font-size: 14px;"><strong>' . esc_html__( 'Pro analytics is coming soon', 'landing-page-manager' ) . '</strong></p>' .
-                        '<p style="margin: 0 0 14px 0; color: #50575e;">' . esc_html__( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics will be available in Landing Page Manager Pro. Contact Duppins Technology for early access.', 'landing-page-manager' ) . '</p>' .
-                        '<a href="' . esc_url( $get_pro_url ) . '" class="button button-primary" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact for early access', 'landing-page-manager' ) . '</a>' .
-                        '</div>'
-                    ),
-            ];
         }
 
         $tab_api = [
@@ -185,8 +173,10 @@ class Plugin_Settings {
             ->set_page_parent( 'lp_dashboard' )
             ->add_tab( __( 'Templates', 'landing-page-manager' ), $tab_templates );
         // Pro 1.0.4+ shows the tracking toggles on its own Settings screen (same stored options).
-        if ( ! function_exists( 'lpmanager_pro_tracking_options' ) ) {
-            $container->add_tab( $is_premium ? __( 'Conversion Tracking', 'landing-page-manager' ) : __( 'Conversion Tracking (Pro)', 'landing-page-manager' ), $tab_conversion );
+        // Only Pro before 1.0.4 keeps its tracking options here; later Pro versions have their own Tracking
+        // screen, and without Pro the Tracking menu item explains how to get it.
+        if ( $is_premium && ! function_exists( 'lpmanager_pro_tracking_options' ) ) {
+            $container->add_tab( __( 'Conversion Tracking', 'landing-page-manager' ), $tab_conversion );
         }
         $container
             ->add_tab( __( 'API Keys', 'landing-page-manager' ), $tab_api )

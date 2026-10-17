@@ -24,10 +24,11 @@ class Help_Widget {
     /** Admin page slugs this plugin owns (the `page` query argument). */
     const PAGE_DASHBOARD = 'lp_dashboard';
     const PAGE_ANALYTICS = 'lp_analytics';
+    const PAGE_TRACKING  = 'lp_tracking';
     const PAGE_SETTINGS  = 'crb_carbon_fields_container_settings.php';
 
     /** Screen ids of this plugin's admin pages contain one of these. */
-    const SCREEN_SLUGS = [ 'lp_dashboard', 'lp_analytics', 'crb_carbon_fields_container_settings' ];
+    const SCREEN_SLUGS = [ 'lp_dashboard', 'lp_analytics', 'lp_tracking', 'crb_carbon_fields_container_settings' ];
 
     /** Carbon Fields opens the Settings screen on its first tab. */
     const DEFAULT_SETTINGS_TAB = 'templates';
@@ -50,6 +51,7 @@ class Help_Widget {
         'keyword-list'                 => 'keywords',
         'keyword-edit'                 => 'keyword-editor',
         'lp_analytics'                 => 'analytics',
+        'lp_tracking'                  => 'tracking',
         'settings-templates'           => 'settings-templates',
         'settings-conversion-tracking' => 'settings-conversion-tracking',
         'settings-api-keys'            => 'settings-api-keys',
@@ -204,7 +206,7 @@ class Help_Widget {
         $key = '';
         if ( self::PAGE_SETTINGS === $page ) {
             $key = 'settings-' . ( isset( self::settings_tab_labels()[ $tab ] ) ? $tab : self::DEFAULT_SETTINGS_TAB );
-        } elseif ( self::PAGE_DASHBOARD === $page || self::PAGE_ANALYTICS === $page ) {
+        } elseif ( in_array( $page, [ self::PAGE_DASHBOARD, self::PAGE_ANALYTICS, self::PAGE_TRACKING ], true ) ) {
             $key = $page;
         } elseif ( in_array( $screen->taxonomy, [ 'client', 'keyword' ], true ) ) {
             $key = $screen->taxonomy . ( 'term' === $screen->base ? '-edit' : '-list' );
@@ -283,15 +285,35 @@ class Help_Widget {
             ],
             'lp_analytics'      => [
                 'title' => __( 'Analytics', 'landing-page-manager' ),
-                'notes' => $is_premium
+                'notes' => has_action( 'lpmanager_render_analytics_page' )
                     ? [
-                        __( 'Use the Client and Template filters to narrow the reports.', 'landing-page-manager' ),
-                        __( 'The report tabs show traffic, click-through rates, and campaign performance for your landing pages.', 'landing-page-manager' ),
+                        __( 'Use the Client and Template filters to narrow the reports. The tabs show traffic, conversions, link performance, engagement, the heatmap and rage clicks.', 'landing-page-manager' ),
+                        __( 'Under By Page, select a page title to see its numbers, scroll depth, top links and heatmap grid; Edit opens the page in the editor.', 'landing-page-manager' ),
                     ]
-                    : [
-                        __( 'Analytics needs the Landing Page Manager Pro add-on.', 'landing-page-manager' ),
-                        __( 'Without Pro, this screen shows a notice and no reports, and the plugin collects no analytics.', 'landing-page-manager' ),
-                    ],
+                    : ( $is_premium
+                        ? [ Admin_Dashboard::pro_has_own_screens()
+                            ? __( 'This version of Landing Page Manager Pro shows analytics under Landing Pages → Pro Analytics. Update Pro to 1.0.6 or later to see them here.', 'landing-page-manager' )
+                            : __( 'This version of Landing Page Manager Pro can\'t show analytics on this screen. Update Pro to 1.0.6 or later to see them here.', 'landing-page-manager' ) ]
+                        : [
+                            __( 'Analytics needs the Landing Page Manager Pro add-on.', 'landing-page-manager' ),
+                            __( 'Without Pro, this screen shows a notice and no reports, and the plugin collects no analytics.', 'landing-page-manager' ),
+                        ] ),
+            ],
+            'lp_tracking'       => [
+                'title' => __( 'Tracking', 'landing-page-manager' ),
+                'notes' => has_action( 'lpmanager_render_tracking_page' )
+                    ? [
+                        __( 'What is tracked turns each kind of tracking on or off; conversion tracking (phone and call-button clicks) is always on.', 'landing-page-manager' ),
+                        __( 'Who is tracked can exclude internal traffic and bots, honor Global Privacy Control and Do Not Track, and wait for visitor consent. Select Save Changes to apply.', 'landing-page-manager' ),
+                    ]
+                    : ( $is_premium
+                        ? [ Admin_Dashboard::pro_has_own_screens()
+                            ? __( 'This version of Landing Page Manager Pro keeps its tracking settings under Landing Pages → Pro Settings. Update Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
+                            : __( 'This version of Landing Page Manager Pro keeps its tracking options under Settings → Conversion Tracking. Update Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' ) ]
+                        : [
+                            __( 'Conversion tracking needs the Landing Page Manager Pro add-on.', 'landing-page-manager' ),
+                            __( 'Without Pro, this screen shows a notice, and the plugin tracks nothing.', 'landing-page-manager' ),
+                        ] ),
             ],
             'settings-templates' => [
                 'title' => sprintf( '%1$s: %2$s', __( 'Settings', 'landing-page-manager' ), $tabs['templates'] ),
@@ -321,15 +343,10 @@ class Help_Widget {
         if ( isset( $tabs['conversion-tracking'] ) ) {
             $notes['settings-conversion-tracking'] = [
                 'title' => sprintf( '%1$s: %2$s', __( 'Settings', 'landing-page-manager' ), $tabs['conversion-tracking'] ),
-                'notes' => $is_premium
-                    ? [
-                        __( 'Each checkbox turns on one kind of tracking, such as page views, link clicks, scroll depth, or form interactions.', 'landing-page-manager' ),
-                        __( 'Conversion Tracking ID (optional) holds an external ID such as Google Analytics. Internal conversion data is stored on your site either way.', 'landing-page-manager' ),
-                    ]
-                    : [
-                        __( 'Conversion tracking needs the Landing Page Manager Pro add-on. Without it, this tab shows a notice and the plugin collects no analytics.', 'landing-page-manager' ),
-                        __( 'Contact for early access opens the Pro enquiry link.', 'landing-page-manager' ),
-                    ],
+                'notes' => [
+                    __( 'Each checkbox turns on one kind of tracking, such as page views, link clicks, scroll depth, or form interactions.', 'landing-page-manager' ),
+                    __( 'Conversion Tracking ID (optional) holds an external ID such as Google Analytics. Internal conversion data is stored on your site either way.', 'landing-page-manager' ),
+                ],
             ];
         }
 
@@ -344,11 +361,9 @@ class Help_Widget {
      */
     private static function settings_tab_labels() {
         $tabs = [ 'templates' => __( 'Templates', 'landing-page-manager' ) ];
-        // Pro 1.0.4+ moves Conversion Tracking to its own Settings screen.
-        if ( ! function_exists( 'lpmanager_pro_tracking_options' ) ) {
-            $tabs['conversion-tracking'] = function_exists( 'lpmanager_is_premium' ) && lpmanager_is_premium()
-                ? __( 'Conversion Tracking', 'landing-page-manager' )
-                : __( 'Conversion Tracking (Pro)', 'landing-page-manager' );
+        // Only Pro before 1.0.4 keeps its tracking options in a Settings tab (see Plugin_Settings).
+        if ( function_exists( 'lpmanager_is_premium' ) && lpmanager_is_premium() && ! function_exists( 'lpmanager_pro_tracking_options' ) ) {
+            $tabs['conversion-tracking'] = __( 'Conversion Tracking', 'landing-page-manager' );
         }
         $tabs['api-keys'] = __( 'API Keys', 'landing-page-manager' );
         $tabs['updates']  = __( 'Updates', 'landing-page-manager' );

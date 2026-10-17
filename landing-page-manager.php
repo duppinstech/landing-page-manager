@@ -58,6 +58,20 @@ function lpmanager_google_server_api_key() {
 }
 
 /**
+ * Admin screens this plugin provides for Landing Page Manager Pro to fill (since 1.0.13). Pro 1.0.6+
+ * renders them through the lpmanager_render_analytics_page and lpmanager_render_tracking_page actions
+ * instead of adding its own menu items.
+ *
+ * @return array<string, string> Screen => admin page slug.
+ */
+function lpmanager_pro_screen_slots() {
+    return [
+        'analytics' => 'lp_analytics',
+        'tracking'  => 'lp_tracking',
+    ];
+}
+
+/**
  * Which conversion-tracking options are enabled (Pro + Settings). Used to gate tracking and UI.
  *
  * @return array{ track_page_views: bool, track_link_clicks: bool, enable_conversion_tracking: bool, track_time_on_page: bool, track_scroll_depth: bool, track_heatmap: bool, track_rage_clicks: bool, track_outbound_clicks: bool, track_cta_visibility: bool, track_form_interactions: bool }

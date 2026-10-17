@@ -11,8 +11,9 @@ Landing Page Manager is a WordPress plugin for creating and managing landing pag
 - **Keyword taxonomy** — Tag pages by keyword/campaign
 - **Templates** — Pick the site's template in Settings → Templates; each template brings its own page fields. Starter One (light) and Starter Two (dark) ship with the plugin, and you can add your own in `wp-content/lpmanager-templates/`, where plugin updates never remove them (see [Custom templates](#custom-templates))
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
-- **Analytics** (Pro) — Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Without Pro, this screen shows an upgrade prompt.
-- **Settings** — Templates, API keys (Google Maps browser key, Google Maps server key, Brandfetch), and (with Pro) conversion-tracking toggles
+- **Analytics** (Pro) — Page views, conversions, click tracking, heatmaps, rage clicks and form analytics, with a detail view for each landing page. Landing Page Manager Pro 1.0.6+ fills this screen; without Pro it shows how to get Pro.
+- **Tracking** (Pro) — What is tracked and whose visits are counted. Landing Page Manager Pro 1.0.6+ fills this screen; without Pro it shows how to get conversion tracking.
+- **Settings** — Templates and API keys (Google Maps browser key, Google Maps server key, Brandfetch). With Pro before 1.0.4, also its conversion-tracking toggles
 
 API keys are stored in **Settings** and are never hardcoded. Google and Brandfetch bill usage to the account that owns each key, so set quotas and budget alerts. All sensitive options are saved via the plugin’s settings UI only.
 
@@ -38,8 +39,9 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 - **Clients** — Add clients; optionally set logo, colors, and domain. The landing page template is chosen globally in **Settings → Templates**.
 - **Keywords** — Add keyword/campaign terms for organizing pages.
 - **Dashboard** — View counts and quick links.
-- **Analytics** (Pro) — View page views, conversions, engagement, heatmaps, rage clicks.
-- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps browser key (restrict it to your site and `https://*.yourdomain/*` for client subdomains), Google Maps server key (restrict it by IP; it needs the original Places API), Brandfetch API key, and Additional Scripts (printed at the bottom of every landing page; only administrators can change them, and they print only after an administrator saves or approves them). Conversion Tracking tab (Pro): enable/disable tracking options. **Updates tab**: shows where updates come from (GitHub Releases). Uploaded templates are stored in `wp-content/lpmanager-templates/`, which plugin updates don't touch.
+- **Analytics** (Pro) — View page views, conversions, engagement, heatmaps, rage clicks; under By Page, select a page for its detail view.
+- **Tracking** (Pro) — Choose what is tracked and whose visits are counted.
+- **Settings** — Templates tab: choose default template. API Keys tab: Google Maps browser key (restrict it to your site and `https://*.yourdomain/*` for client subdomains), Google Maps server key (restrict it by IP; it needs the original Places API), Brandfetch API key, and Additional Scripts (printed at the bottom of every landing page; only administrators can change them, and they print only after an administrator saves or approves them). **Updates tab**: shows where updates come from (GitHub Releases). Uploaded templates are stored in `wp-content/lpmanager-templates/`, which plugin updates don't touch.
 
 ## Custom templates
 
