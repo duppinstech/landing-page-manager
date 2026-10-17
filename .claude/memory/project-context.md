@@ -4,7 +4,7 @@ _Shared, committed memory. Keep it factual and current._
 
 - **Product:** Landing Page Manager, a WordPress plugin. Owner: Odell Duppins / Duppins Technology.
 - **Repo:** https://github.com/duppinstech/landing-page-manager (public, GPL-2.0-or-later). The Pro add-on is a separate private repo, `landing-page-manager-pro`.
-- **Current release:** v1.0.8 (2026-10-16). Releases are GitHub Releases with tag `vX.Y.Z` and a `landing-page-manager.zip` asset.
+- **Current release:** v1.0.9 (2026-10-17). Releases are GitHub Releases with tag `vX.Y.Z` and a `landing-page-manager.zip` asset.
 - **Distribution:** live sites self-update through `includes/Update_Checker.php`. A bad release reaches clients immediately.
 - **Templates:** `whiterail-ai`, `whiterail-recruits`, and `quicktow`. The active template comes from the global setting only.
 - **Key dependencies:** Carbon Fields 3.6, league/color-extractor, carbon-field-password (pinned to commit 80df427).
