@@ -574,7 +574,7 @@ class Plugin_Settings {
                 sprintf(
                     /* translators: %s: folder path */
                     __( 'Uploaded and custom templates are kept in %s, outside the plugin folder, so plugin updates don\'t remove them. You can also copy a template folder there yourself.', 'landing-page-manager' ),
-                    'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
+                    Template_Manager::display_path( Template_Manager::custom_dir() )
                 )
             )
             . '</p>';
