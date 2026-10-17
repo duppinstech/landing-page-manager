@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.10] - 2026-10-17
 ### Added
 - **Two starter templates, Starter One (light) and Starter Two (dark).** They ship with the plugin, appear first under Settings → Templates, and are the default for new sites. Each has a hero with a call button, highlights, about, FAQ and contact sections, and uses the client's logo, colors and phone number, with text colors chosen so any brand color stays readable. They load no external fonts, icons or scripts. Copy one to build your own template.
 
@@ -156,7 +158,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.9...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.10...HEAD
+[1.0.10]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.6...v1.0.7
