@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.9] - 2026-10-17
 ### Added
 - **Settings, Help, Sponsor and Support links on the Plugins screen.** Settings and Help sit beside Deactivate; Sponsor follows the author, and Support (email) ends that line.
 
@@ -146,7 +148,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.8...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.9...HEAD
+[1.0.9]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.5...v1.0.6
