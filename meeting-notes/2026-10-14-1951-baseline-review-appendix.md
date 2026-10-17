@@ -9,18 +9,18 @@ Text that depends on one of Odell's open decisions is marked **(pending decision
 ### Removed
 - **The "Landing Page Template" field is gone from the client screen.** It has been ignored since 1.0.6. Every landing page uses the template chosen in **Landing Pages → Settings → Templates**. Values already saved on clients stay in the database but are not used.
 ### Changed
-- **QuickTow "Style variant" has moved** from the "Landing Page Details" box to the new **Layout** tab of the "QuickTow" box. Saved styles are kept. The field only appears when QuickTow is the active template.
-- QuickTow's Style 3 label no longer names a client.
+- **Template A "Style variant" has moved** from the "Landing Page Details" box to the new **Layout** tab of the "Template A" box. Saved styles are kept. The field only appears when Template A is the active template.
+- Template A's Style 3 label no longer names a client.
 ```
-Correction for 1.0.6 line 28: `**QuickTow template** for towing and roadside services, with three layout styles (Style variant).`
+Correction for 1.0.6 line 28: `**Template A template** for towing and roadside services, with three layout styles (Style variant).`
 
 ## Upgrade note for the next release _(support)_
 > - **If you uploaded a template under Settings → Templates, keep its .zip before updating.** Updating replaces the plugin folder and deletes uploaded templates. Upload it again after the update.
 > - The "Landing Page Template" field has been removed from client screens. It has had no effect since 1.0.6.
-> - QuickTow sites: "Style variant" is now in the **QuickTow → Layout** tab. Your saved styles are unchanged.
+> - Template A sites: "Style variant" is now in the **Template A → Layout** tab. Your saved styles are unchanged.
 
 ## Release-note highlights for v1.0.6 / next _(marketing)_
-- New **QuickTow** template for towing and roadside services, with three layouts.
+- New **Template A** template for towing and roadside services, with three layouts.
 - Uploading a template from Settings → Templates now works, and it's locked down.
 - New clients get their brand colors and map location on first save.
 - Visitors no longer see a false "session expired" popup.
@@ -34,7 +34,7 @@ Correction for 1.0.6 line 28: `**QuickTow template** for towing and roadside ser
 - **Client Domain:** "The client's main website (e.g. example.com), used for Home links in the page header and footer. Do not add https://. This does not control the landing page URL; that comes from the client slug."
 - **Google key(s):** "Enable Maps JavaScript API, Geocoding API and Places API. Usage is billed to your Google Cloud account; set quotas and budget alerts." Once the key is split, the browser key text should also say "Restrict this key to your site's URLs", and the server key text "Restrict this key to your server's IP."
 - **Validator heading:** `esc_html__( 'This landing page was saved, but these required fields are empty. Fill them in and click Update, or the page may look incomplete:', 'landing-page-manager' )`
-- **QuickTow labels:**
+- **Template A labels:**
   - Standard footer option: "Standard (service area or services, plus a contact column)".
   - Heavy-duty footer note: "Use Heavy-duty with Style 3 for heavy-duty or equipment-transport pages."
   - Variant help text: "Changes the hero, trust bar and section layout. Style 3 pairs with the Heavy-duty footer (Footer tab)."
@@ -47,7 +47,7 @@ Correction for 1.0.6 line 28: `**QuickTow template** for towing and roadside ser
 ## README replacements _(support, marketing, legal)_
 - **Opening line:** "Launch fast, client-branded landing pages on subdomains for every service, keyword and city. Built for agencies running paid search and local-service campaigns. Not a page builder."
 - **Client taxonomy:** "One client per brand, with its logo, colors, address, phone and website. The client's slug becomes its subdomain."
-- **Templates:** "One site-wide template (Whiterail AI, Whiterail Recruits, QuickTow), each with its own fields. Chosen in Settings → Templates."
+- **Templates:** "One site-wide template (Template B, Template C, Template A), each with its own fields. Chosen in Settings → Templates."
 - **Analytics:** "**Analytics** (Pro): page views, conversions, link clicks, engagement, heatmaps and rage clicks. Without Pro, this screen shows an upgrade prompt." This matches the code today. Revisit it after the analytics decision.
 - **Install:** "Download `landing-page-manager.zip` from the latest GitHub Release and upload it under Plugins → Add New → Upload Plugin. `composer install` is only needed for development."
 - **Clients:** "Add a client with its logo, address, phone and website (all required). Colors, Place ID and coordinates are filled in automatically on save."
@@ -102,7 +102,7 @@ Restore the payform header: `/*! payform | (c) 2014 Stripe (jquery.payment), (c)
 ## FAQ and support macros _(support)_
 - **Can each client use a different template?** Not currently. One template applies to every landing page (Settings → Templates). The answer depends on the template decision.
 - **I changed the template and my pages are blank.** Each template has its own fields. Your old content is still saved, and switching back restores it.
-- **Where is QuickTow's Style variant?** Edit the page, open the "QuickTow" box, and go to the Layout tab. It only appears when QuickTow is the active template.
+- **Where is Template A's Style variant?** Edit the page, open the "Template A" box, and go to the Layout tab. It only appears when Template A is the active template.
 - **My landing page 404s or shows an SSL error.** Check four things:
   1. The page has a client assigned.
   2. A wildcard DNS record and a wildcard SSL certificate cover `*.your-domain`.
@@ -119,19 +119,19 @@ Restore the payform header: `/*! payform | (c) 2014 Stripe (jquery.payment), (c)
 ## Manual smoke test for the WIP _(ops)_
 Run this on a staging site with WP 5.9 and PHP 7.4, and `WP_DEBUG` + `WP_DEBUG_LOG` on.
 
-1. Install the v1.0.6 zip and set the global template to QuickTow.
+1. Install the v1.0.6 zip and set the global template to Template A.
 2. Create two clients. Give one of them a per-client template value.
-3. Create QuickTow pages saved as style_1, style_2 and style_3, plus a page on a client subdomain.
+3. Create Template A pages saved as style_1, style_2 and style_3, plus a page on a client subdomain.
 4. Build the branch zip (`bin/build-zip.sh`) and upload it with "Replace current with uploaded".
 5. Check that the debug log is clean and that the Landing Pages list, the editor, Clients, all four Settings tabs and the Dashboard load without JS console errors.
 6. On the client screen, check that the template field is gone and that the other client fields still save.
-7. Open each QuickTow page in the editor:
+7. Open each Template A page in the editor:
    - The Layout tab shows the saved style.
    - The core box no longer has Style Variant.
    - A new page publishes with style_1.
 8. On the front end, each subdomain page renders its own variant.
-9. Switch to WhiteRail AI. The QuickTow box disappears, and pages render with no fatal error or 404.
-10. Switch back to QuickTow and check that every page kept its style.
+9. Switch to Template B. The Template A box disappears, and pages render with no fatal error or 404.
+10. Switch back to Template A and check that every page kept its style.
 11. On the main domain, check that a normal page whose slug matches a landing page slug is still served.
 12. Click Plugins → "Check again". There should be no fatal error. Time the page load.
 13. Reinstall the v1.0.6 zip. The client template field shows its old value, and all pages render.

@@ -1,5 +1,5 @@
 # Department review: baseline (initial reports)
-**When:** 2026-10-14 19:51 EDT · **Scope:** the whole plugin, `main` at v1.0.6 (00d196f) plus the uncommitted WIP on `chore/template-field-cleanup` (per-client template field removed, QuickTow Style Variant moved into the template) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-14 19:51 EDT · **Scope:** the whole plugin, `main` at v1.0.6 (00d196f) plus the uncommitted WIP on `chore/template-field-cleanup` (per-client template field removed, Template A Style Variant moved into the template) · **Chair:** main session · **Owner:** Odell Duppins
 
 First meeting of the department reviewers. Each department reviewed the whole product, not just a diff, so the backlog would start from a full baseline.
 Drafted text (CHANGELOG, help text, README, privacy text, credits): [appendix](2026-10-14-1951-baseline-review-appendix.md).
@@ -47,9 +47,9 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
 - Pro behavioral trackers default to on, and there's no consent hook. **Outcome:** Forwarded → Odell (P1).
 - Client-named mockups (names, phone numbers, "© client") are in the public repo. **Outcome:** Forwarded → Odell (P1).
 - The zipball fallback would ship the mockups and `CLAUDE.md`. → Add `.gitattributes export-ignore`. **Outcome:** Approved → PLAN (P0).
-- QuickTow admin labels name clients. **Outcome:** Approved → PLAN (P1, merged).
-- Recruits default images are hotlinked and include a Jiffy Lube photo. **Outcome:** Forwarded → Odell (P1).
-- Recruits footer copyright is hardcoded, and the `pantusa` text domain suggests the code came from another project. **Outcome:** Forwarded → Odell (P1).
+- Template A admin labels name clients. **Outcome:** Approved → PLAN (P1, merged).
+- Template C default images are hotlinked and include a car-care brand photo. **Outcome:** Forwarded → Odell (P1).
+- Template C footer copyright is hardcoded, and the `client_g` text domain suggests the code came from another project. **Outcome:** Forwarded → Odell (P1).
 - No `CREDITS.md`, and payform has lost its MIT header. **Outcome:** Approved → PLAN (P1).
 - No README "External services" section. **Outcome:** Approved → PLAN (P1, in the README item).
 - Coordinates are kept forever, but Google's terms allow at most 30 days. **Outcome:** Approved → PLAN (P1, merged with the finance geocode item).
@@ -78,7 +78,7 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
 - Cross-client subdomain access and slug collisions. **Outcome:** Approved → PLAN (P1, merged).
 - Drafts can't be previewed on subdomains. **Outcome:** Approved → PLAN (P1).
 - WIP is complete but has no CHANGELOG entry or decision record. **Outcome:** Approved → PLAN (P0). Both P0 items are marked `[~]`.
-- Client names in QuickTow's rendered HTML, and its variant labels. **Outcome:** Approved → PLAN (P1, merged).
+- Client names in Template A's rendered HTML, and its variant labels. **Outcome:** Approved → PLAN (P1, merged).
 - Validator lists raw keys. **Outcome:** Approved → PLAN (P1). Keeping incomplete pages as drafts was forwarded (P2).
 - Get Pro goes to `#`. **Outcome:** Forwarded → Odell (P1, merged).
 - Analytics: core vs. Pro. **Outcome:** Forwarded → Odell (P1, merged).
@@ -89,15 +89,15 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
 - Free analytics claimed in four docs. **Outcome:** Forwarded → Odell. The README is corrected to "Analytics (Pro)" in the meantime (approved, P1).
 - Get Pro dead links. **Outcome:** Forwarded → Odell (P1).
 - Template previews are logos. **Outcome:** Approved → PLAN (P1).
-- CHANGELOG oversells QuickTow (it lists 4 variants; there are 3). **Outcome:** Approved → PLAN (P0, in the CHANGELOG item).
+- CHANGELOG oversells Template A (it lists 4 variants; there are 3). **Outcome:** Approved → PLAN (P0, in the CHANGELOG item).
 - New installs default to a client-branded template, and a neutral "Starter" template was suggested. **Outcome:** Forwarded → Odell (P1, merged).
-- Client names in QuickTow labels. **Outcome:** Approved → PLAN (P1, merged).
-- README lacks a story and QuickTow. **Outcome:** Approved → PLAN (P1, README item).
+- Client names in Template A labels. **Outcome:** Approved → PLAN (P1, merged).
+- README lacks a story and Template A. **Outcome:** Approved → PLAN (P1, README item).
 - WordPress.org listing blockers. **Outcome:** Forwarded → Odell (P2).
 - Thin plugin header. **Outcome:** Approved → PLAN (P1).
 - "Nimbata" label. **Outcome:** Approved → PLAN (P1, merged into the tracking-code item).
 - Naming and metadata inconsistencies. **Outcome:** Approved → PLAN (P2).
-- **Story:** the QuickTow template for towing and roadside, plus safer uploads and updates. The release-note draft is in the appendix.
+- **Story:** the Template A template for towing and roadside, plus safer uploads and updates. The release-note draft is in the appendix.
 
 ### Support / docs
 - `[Unreleased]` is empty. **Outcome:** Approved → PLAN (P0).
@@ -108,7 +108,7 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
 - README drift in seven places. **Outcome:** Approved → PLAN (P1).
 - No subdomain setup docs, and the Client Domain label is misleading. **Outcome:** Approved → PLAN (P1, merged).
 - Get Pro dead link. **Outcome:** Forwarded → Odell (merged).
-- QuickTow labels and CHANGELOG variant count. **Outcome:** Approved → PLAN (merged).
+- Template A labels and CHANGELOG variant count. **Outcome:** Approved → PLAN (merged).
 - Google key help text doesn't list the APIs it needs. **Outcome:** Approved → PLAN (P0, merged into the key split).
 - Core i18n gaps and the wrong text domain. **Outcome:** Already tracked (i18n pass), scope extended.
 - Developer-facing vendor notice and missing upload spinner. **Outcome:** Approved → PLAN (P2, admin polish).
@@ -131,8 +131,8 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
 - **Phone shown is not the phone dialed.** **Outcome:** Forwarded → Odell (P0, merged).
 - **Hero is hidden until JS runs, and reduced-motion is ignored.** **Outcome:** Approved → PLAN (P0).
 - Additional Scripts setting and footer hook. **Outcome:** Forwarded → Odell (P0, merged).
-- Contrast: the brightness cutoff isn't WCAG-based, the call button is hardcoded white, and QuickTow uses tiny low-contrast text. **Outcome:** Approved → PLAN (P1).
-- Recruits "Apply Now" is an image with empty alt text, hotlinked. **Outcome:** Alt text and empty-URL handling Approved → PLAN (P1). Hosting the image and turning it into an HTML button were Forwarded → Odell (image rights).
+- Contrast: the brightness cutoff isn't WCAG-based, the call button is hardcoded white, and Template A uses tiny low-contrast text. **Outcome:** Approved → PLAN (P1).
+- Template C "Apply Now" is an image with empty alt text, hotlinked. **Outcome:** Alt text and empty-URL handling Approved → PLAN (P1). Hosting the image and turning it into an HTML button were Forwarded → Odell (image rights).
 - Render-blocking fonts and CSS. **Outcome:** Approved → PLAN (P1, merged into local assets).
 - Images have no dimensions, lazy loading or priority hints. **Outcome:** Approved → PLAN (P1).
 - Maps loads eagerly and shows admin messages to the public. **Outcome:** Approved → PLAN (P1, merged).
@@ -140,8 +140,8 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
 - Focus outlines removed, and FAQ state isn't exposed. **Outcome:** Approved → PLAN (P1).
 - API-key masking may save asterisks over the real key. **Outcome:** Approved → PLAN (P1, merged). Needs testing on a WordPress site.
 - Admin template cards and upload aren't keyboard-accessible. **Outcome:** Approved → PLAN (P2).
-- QuickTow hamburger icon dials the phone. **Outcome:** Forwarded → Odell (P1, layout the client approved).
-- QuickTow ignores client colors. **Outcome:** Forwarded → Odell (P1).
+- Template A hamburger icon dials the phone. **Outcome:** Forwarded → Odell (P1, layout the client approved).
+- Template A ignores client colors. **Outcome:** Forwarded → Odell (P1).
 
 ## Decisions
 - **Approved into PLAN.md (36 new items after merging duplicates, plus 4 existing items updated):**
@@ -162,8 +162,8 @@ The verdicts cover the baseline. Every department said the WIP diff on its own i
   7. What is the Pro offer: URL, price, unit and channel?
   8. Client-named content and how client templates are packaged.
   9. Tracking privacy defaults.
-  10. Recruits image and code provenance.
-  11. QuickTow design choices.
+  10. Template C image and code provenance.
+  11. Template A design choices.
   12. API cost pass-through.
   13. Four smaller calls (P2).
 - **Declined:** WOW.js license concern. It was a false alarm, because v1.1.2 is MIT.

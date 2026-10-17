@@ -31,7 +31,7 @@ Seven departments re-reviewed. Finance was already ok at 10:34, and its area did
   - `post_updated_messages` for landing pages (P2).
 - **Forwarded → Odell:**
   - **Who can change Header Tracking Code: administrators only, or administrators and editors?** (P0)
-  - QuickTow brand fidelity vs. contrast. (P2)
+  - Template A brand fidelity vs. contrast. (P2)
 - **Declined:**
   - Capitalization of "Header Tracking Code": the label was kept lower-case to match the new descriptive label. Notices use the field's proper name.
   - Older-Safari `aspect-ratio` fallback: accepted as-is, because the share is tiny and the `height` attribute still applies.

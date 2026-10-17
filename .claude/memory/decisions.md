@@ -41,12 +41,12 @@ Append-only log. Format: `## YYYY-MM-DD — Title`, then Context / Decision / Co
 **Decision (Odell):** Close the gap now. Add `Update URI` and use GitHub Releases as the only update source. Plan for WordPress.org later: the free core goes on WordPress.org, and Pro stays the paid add-on. Revisit this decision when the listing is created.
 
 ## 2026-10-16 — Footer map: lazy-loaded Maps JS, not the Embed iframe
-**Decision:** The Whiterail AI footer map loads Maps JS when it comes within 300px of the viewport, not as the free Maps Embed iframe. Lazy-loading keeps the custom styling, marker and info window, and a load is billed only when a visitor gets near the footer.
+**Decision:** The Template B footer map loads Maps JS when it comes within 300px of the viewport, not as the free Maps Embed iframe. Lazy-loading keeps the custom styling, marker and info window, and a load is billed only when a visitor gets near the footer.
 **Consequences:** Short pages and tall screens still load it on every view. Revisit if Maps loads stay a top cost line (PLAN P2 "Map cost follow-up").
 
 ## 2026-10-16 — jQuery is a template dependency, not a global
 **Decision:** Templates with a manifest declare `jquery` as a script dependency when they need it. Core loads jQuery itself only for templates without a manifest (uploaded templates), when the client's Header Tracking Code looks like it uses jQuery or GTM, or when the `lpmanager_load_jquery` filter returns true.
-**Consequences:** QuickTow pages ship without jQuery for logged-out visitors. A jQuery tag inside GTM that detection can't see needs the filter. Logged-in users always get jQuery through heartbeat and wp-auth-check, so test this logged out.
+**Consequences:** Template A pages ship without jQuery for logged-out visitors. A jQuery tag inside GTM that detection can't see needs the filter. Logged-in users always get jQuery through heartbeat and wp-auth-check, so test this logged out.
 
 
 ## 2026-10-16 — Owner Q&A on outstanding decisions (Odell)
@@ -59,17 +59,17 @@ Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with ea
 - **Pro button (interim):** "coming soon — contact Duppins Technology for early access", linking to duppinstech.com. Price and licensing are still open.
 - **Client templates:** reusable Duppins products. Anonymize client names, bill only for customization, and ship a neutral default.
 - **Tracking defaults:** all trackers stay on by default. Legal's recommendation (behavioral trackers off, plus a consent hook) was declined.
-- **Recruits images:** rights confirmed, so they stay. The copyright line will come from the site or client name.
-- **QuickTow:** a phone icon on the mobile call button, and honor client colours.
+- **Template C images:** rights confirmed, so they stay. The copyright line will come from the site or client name.
+- **Template A:** a phone icon on the mobile call button, and honor client colours.
 - **API costs:** clients supply their own Google and Brandfetch keys.
-- **Live sites:** none use WordPress.org-only updates or uploaded templates. Some QuickTow clients use GTM or jQuery tags, so a per-client "Tracking tags need jQuery" checkbox will be added.
+- **Live sites:** none use WordPress.org-only updates or uploaded templates. Some Template A clients use GTM or jQuery tags, so a per-client "Tracking tags need jQuery" checkbox will be added.
 - **Places API (New):** migrate, after the attorney question.
 - **Vendored files:** delete the unused ones. `swiper.js` goes one release later.
 - **Iframes:** allow them in rich-text fields from a filterable host allowlist.
 - **Server-key warning:** dismissible per user for 30 days.
 - **Internal docs:** stay public.
 - **Smaller calls:** all yes. Incomplete pages stay drafts, landing pages get their own capability type, uninstall removes the orphaned template meta, and the v1.0.6 release notes get corrected.
-- **Still open:** Recruits mobile menu colours, the Pro price and licensing, and the attorney questions.
+- **Still open:** Template C mobile menu colours, the Pro price and licensing, and the attorney questions.
 
 ## 2026-10-16 — Raw-HTML fields need `unfiltered_html`, enforced in Carbon's save filters
 **Decision:** Additional Scripts and Header Tracking Code can only be changed or deleted by users with `unfiltered_html`. This is enforced in `carbon_fields_should_delete_field_value_on_save` and `carbon_fields_should_save_field_value`, which cover the settings form, the term screens and Carbon's REST route. The stored value is captured in the delete filter, because Carbon deletes before it saves.
@@ -89,13 +89,13 @@ Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with ea
 - the staging smoke test (steps 1–41), including the per-site phone audit (step 26) and the `DISALLOW_UNFILTERED_HTML` check (step 31);
 - two open P0 decisions, which ship as currently built and documented in the upgrade notes:
   - who can change Header Tracking Code: users with `unfiltered_html`, including Editors on a single site;
-  - QuickTow's generic fallback colours, which apply as client colours.
+  - Template A's generic fallback colours, which apply as client colours.
 
 All four batches passed department review with no `block`.
-**Consequences:** Live sites receive v1.0.7 through the updater. Check live QuickTow pages (colours and phone numbers) and Additional Scripts approval right after the update.
+**Consequences:** Live sites receive v1.0.7 through the updater. Check live Template A pages (colours and phone numbers) and Additional Scripts approval right after the update.
 
 ## 2026-10-16 — Release v1.0.8 (Help button) without department review (Odell)
-**Context:** v1.0.8 adds only the Help button on the plugin's admin screens. Open P0s in PLAN.md (QuickTow fallback colours, who can change Header Tracking Code, v1.0.7 post-release checks) concern behaviour already live in v1.0.7 and are not changed by it.
+**Context:** v1.0.8 adds only the Help button on the plugin's admin screens. Open P0s in PLAN.md (Template A fallback colours, who can change Header Tracking Code, v1.0.7 post-release checks) concern behaviour already live in v1.0.7 and are not changed by it.
 **Decision:** Odell asked to commit, push and release with no review. Department review was not run, and the open P0s were treated as waived for this release. The contextual Help tab (never committed) was dropped in favour of the button.
 **Consequences:** The Help button has not been checked in a live wp-admin. Check it on a live site after the update. The open P0s still apply to the next release.
 
@@ -105,11 +105,11 @@ All four batches passed department review with no `block`.
 **Consequences:** Core's link isn't nonced, so a forged visit can trigger at most one GitHub request a minute; the security reviewer said ok. Docs now point to Dashboard → Updates → Check again.
 
 ## 2026-10-17 — Client templates leave the public plugin; starters and an external templates folder (Odell)
-**Context:** QuickTow, Whiterail AI and Whiterail Recruits shipped in the public plugin and are live on client sites (whiterail.ai). Every plugin update replaced `includes/templates/`, so uploaded templates were deleted too.
+**Context:** Template A, Template B and Template C shipped in the public plugin and are live on client sites (client-b.example). Every plugin update replaced `includes/templates/`, so uploaded templates were deleted too.
 **Decision:** The three move to the private repo `duppinstech/landing-page-manager-templates` (with their history) and are delivered as plain folders in `wp-content/lpmanager-templates/`. Two generic starters, "Starter One" (light) and "Starter Two" (dark), ship with the plugin, list first, and are the default for new sites. Releases: 1.0.10 copies templates out (and blocks updating until it has), 1.0.11 removes them, only after every live site runs 1.0.10. The public repo's history is then rewritten to purge the template folders (procedure in PLAN.md).
 **Consequences:** Template fixes no longer reach sites through plugin updates; they are deployed from the private repo. A site that skips 1.0.10 loses its client templates until 1.0.10 is reinstalled. Old release zips still contain the templates (decision pending). Reviewed in `meeting-notes/2026-10-17-1306-external-templates-review.md`.
 
 ## 2026-10-17 — Custom templates stay in wp-content/lpmanager-templates/, not uploads (Odell asked; main session decided)
 **Context:** Odell asked whether the folder belongs in `wp-content/uploads/` (where backup plugins look) and left the choice to the session.
 **Decision:** keep `wp-content/lpmanager-templates/`. Templates are executable PHP; many hosts and security plugins block or flag PHP in `uploads` (it's where web shells are dropped), and media-style folders there hold non-executable files only. Backup and migration tools include all of `wp-content`. On multisite, `uploads` is per site, while templates are shared.
-**Consequences:** no move and no migration release. Back-ups must include `wp-content/lpmanager-templates/` (in the 1.0.10 upgrade notes). `LPMANAGER_TEMPLATES_DIR` stays a P2 for hosts that need another location. v1.0.10 and v1.0.11 were released the same day after both live sites (whiterail.ai, the QuickTow site) updated to 1.0.10.
+**Consequences:** no move and no migration release. Back-ups must include `wp-content/lpmanager-templates/` (in the 1.0.10 upgrade notes). `LPMANAGER_TEMPLATES_DIR` stays a P2 for hosts that need another location. v1.0.10 and v1.0.11 were released the same day after both live sites (client-b.example, the Template A site) updated to 1.0.10.

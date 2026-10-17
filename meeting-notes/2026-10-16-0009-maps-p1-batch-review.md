@@ -1,5 +1,5 @@
 # Department review: Maps lazy-load and P1 front-end batch (`perf/maps-lazy-load-p1-batch`)
-**When:** 2026-10-16 00:09 EDT · **Scope:** `git diff 24eb45e..7a8892a`, six commits stacked on `fix/review-p0-batch`. They cover the P0 Maps JS lazy-load and four P1s: no jQuery on QuickTow, Swiper only with reviews (minified), the Recruits mobile menu, and the empty-server-key notice. · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-16 00:09 EDT · **Scope:** `git diff 24eb45e..7a8892a`, six commits stacked on `fix/review-p0-batch`. They cover the P0 Maps JS lazy-load and four P1s: no jQuery on Template A, Swiper only with reviews (minified), the Template C mobile menu, and the empty-server-key notice. · **Chair:** main session · **Owner:** Odell Duppins
 
 ## Since the last meeting
 - **CI proof (P0) closed.** On throwaway draft PR #4, the branch passed lint on PHP 7.4, 8.1 and 8.3 as-is, then failed on all three with a deliberate parse error. The PR was closed and its branch deleted.
@@ -10,16 +10,16 @@
 |---|---|---|---|
 | Security | **ok** | 3 info | Nothing new. The key is safely encoded in the inline script, and the editor-only messages are escaped. Header Tracking Code lockdown is already tracked. |
 | Legal | **ok** | 5 Low | Swiper 5.3.0 is MIT with its banner kept. No Maps terms issue. Add both Swiper versions to CREDITS, and add the unused `swiper.js` to the deletion question. |
-| Finance | **ok** | 6 | Saves about $7 × (1 − r) per 1,000 Whiterail AI views above the free tier, where r is the share of visitors who reach the map. No pricing change. GTM jQuery tags are a risk to attribution. |
-| Product | fix-before-merge | 9 | The mobile "Services" link is dead. The smoke test must cover the whole stack. Found pre-existing Recruits debug logging and an early `return`. |
+| Finance | **ok** | 6 | Saves about $7 × (1 − r) per 1,000 Template B views above the free tier, where r is the share of visitors who reach the map. No pricing change. GTM jQuery tags are a risk to attribution. |
+| Product | fix-before-merge | 9 | The mobile "Services" link is dead. The smoke test must cover the whole stack. Found pre-existing Template C debug logging and an early `return`. |
 | Marketing | fix-before-merge | 9 | The same dead link. CHANGELOG claims and notice copy needed tightening. Release-note draft below. |
 | Support / docs | fix-before-merge | 6 | The same dead link. A jQuery upgrade note was missing. Clearer editor messages. FAQ drafted. |
 | Ops / release | fix-before-merge | 7 | The jQuery check misses GTM and `$.`. CI must run on the pushed branch. A skipped manifest entry could drop its dependents. Smoke steps 16–24 added. |
 | UX | fix-before-merge | 7 | The same dead link. The auto-opened info window may take focus. The 921px gap where neither header shows. A weak focus style. |
 
 ## Highlights
-- **Five departments independently caught the same bug.** The new mobile menu's "Services" link pointed at `#services`, and the page has no element with that id. It's fixed properly: both menus now list the client's other landing pages. Along the way, a pre-existing problem was removed: per-view `error_log()` calls, and an early `return` that cut the Recruits header short and showed "No client assigned" to visitors.
-- **The jQuery change can break tracking tags without anyone seeing an error.** Detection now also catches `$.` and GTM snippets. A new `lpmanager_load_jquery` filter lets a site force jQuery on, and the upgrade notes say so. Odell is asked to confirm whether any live QuickTow client uses GTM or jQuery tags.
+- **Five departments independently caught the same bug.** The new mobile menu's "Services" link pointed at `#services`, and the page has no element with that id. It's fixed properly: both menus now list the client's other landing pages. Along the way, a pre-existing problem was removed: per-view `error_log()` calls, and an early `return` that cut the Template C header short and showed "No client assigned" to visitors.
+- **The jQuery change can break tracking tags without anyone seeing an error.** Detection now also catches `$.` and GTM snippets. A new `lpmanager_load_jquery` filter lets a site force jQuery on, and the upgrade notes say so. Odell is asked to confirm whether any live Template A client uses GTM or jQuery tags.
 - **Security, legal and finance: ok.** No pricing change, and the new vendored Swiper build checks out (MIT, verified against npm).
 - **Nothing blocks.** Every fix-before-merge item was fixed on the branch the same night under the standing rule. The merge gate is now the staging smoke test for the whole stack.
 
@@ -49,8 +49,8 @@
 - The notice link says "API Keys" but opens the default tab. **Outcome:** Approved → fixed (the link now says "Go to Settings", and the text names the tab).
 - Should the server-key notice be dismissible? **Outcome:** Forwarded → Odell (P2).
 - The mobile panel stays open after resizing to desktop. **Outcome:** Approved → fixed.
-- Per-view `error_log()` and the early `return` in the Recruits header. **Outcome:** Approved → fixed.
-- Whiterail AI shows an empty Reviews section. **Outcome:** Approved → fixed.
+- Per-view `error_log()` and the early `return` in the Template C header. **Outcome:** Approved → fixed.
+- Template B shows an empty Reviews section. **Outcome:** Approved → fixed.
 - The `perf/` prefix isn't documented. **Outcome:** Approved → fixed (`pr.md` and CONTRIBUTING; this also closed the older CONTRIBUTING item).
 - Record the map and jQuery decisions. **Outcome:** Approved → done (`decisions.md`).
 
@@ -88,16 +88,16 @@
 
 ## Decisions
 - **Approved and fixed on the branch (5 commits):**
-  - `f019944`: Recruits menus and debug logging.
-  - `eb4efac`: Whiterail AI map focus, placeholder, and empty Reviews.
+  - `f019944`: Template C menus and debug logging.
+  - `eb4efac`: Template B map focus, placeholder, and empty Reviews.
   - `b8d8bf2`: jQuery filter, detection, and manifest dependencies.
   - `d5dccbc`: notice and privacy copy.
   - `8993159`: upgrade notes, filter docs, and the `perf/` prefix.
-- **Approved → PLAN (open):** the stack-wide smoke test (P0, extended); the map cost follow-up (P2); the Apply button in the Recruits mobile panel (P2); CREDITS entries for Swiper; the feature list for the WordPress.org listing.
+- **Approved → PLAN (open):** the stack-wide smoke test (P0, extended); the map cost follow-up (P2); the Apply button in the Template C mobile panel (P2); CREDITS entries for Swiper; the feature list for the WordPress.org listing.
 - **Forwarded to Odell:**
-  1. Do any live QuickTow clients use GTM or jQuery tags? (P1)
+  1. Do any live Template A clients use GTM or jQuery tags? (P1)
   2. Make the server-key warning dismissible? (P2)
-  3. Should the Recruits mobile menu use client colours? (P2)
+  3. Should the Template C mobile menu use client colours? (P2)
   4. Document a "needs jQuery" marker? (P2)
   5. Add `swiper.js` to the files-to-delete question (existing item).
 - **Declined:** two security informational notes. Browser keys are public by design, and the editor-message cache leak is cosmetic.

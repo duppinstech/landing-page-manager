@@ -17,7 +17,7 @@ All eight departments, in two combined passes.
 
 ## Outcomes
 - **The 1.0.10 branch passes every department.** All remaining items were Low and are fixed in this round: guard re-reads the pending list (no empty names) and treats a folder finished by another request as copied; the pause transient is written only when missing; one shared message (`pending_templates_message()`) with singular/plural forms, paths built from the real install (`display_path()`), and a line for incomplete folders; a separate message for uploads that use a starter's name; call-bar edge against both page colours; scaffold command line replaced.
-- **Removal branch:** conflict markers removed from `Privacy.php` (keeping the Starter One/Two tutorial line, dropping the Whiterail Recruits line), CHANGELOG says "privacy-policy guide", whole branch linted.
+- **Removal branch:** conflict markers removed from `Privacy.php` (keeping the Starter One/Two tutorial line, dropping the Template C line), CHANGELOG says "privacy-policy guide", whole branch linted.
 - **Private repo README:** Privacy note wording; where to move the old folder during a live update.
 - **Process note:** the rebase's conflict list was read with `head -10`, which hid `Privacy.php`. Conflicts are now checked with `git diff --name-only --diff-filter=U` and a marker search before continuing.
 - **Next:** a short check of this round's fixes only.
