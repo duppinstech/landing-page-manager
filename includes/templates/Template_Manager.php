@@ -227,7 +227,9 @@ class Template_Manager {
         if ( ! $copied ) {
             if ( ! wp_is_file_mod_allowed( 'lpmanager_copy_templates' ) ) {
                 // These sites deploy the plugin another way; the admin notice says to copy the folders by hand.
-                set_transient( 'lpmanager_templates_copy_retry', 1, DAY_IN_SECONDS );
+                if ( ! get_transient( 'lpmanager_templates_copy_retry' ) ) {
+                    set_transient( 'lpmanager_templates_copy_retry', 1, DAY_IN_SECONDS );
+                }
                 return;
             }
             require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -239,7 +241,9 @@ class Template_Manager {
             \WP_Upgrader::release_lock( 'lpmanager_templates_copy' );
             if ( ! $copied ) {
                 // For example, wp-content isn't writable: WP-Cron tries again in an hour, admin pages on every load.
-                set_transient( 'lpmanager_templates_copy_retry', 1, HOUR_IN_SECONDS );
+                if ( ! get_transient( 'lpmanager_templates_copy_retry' ) ) {
+                    set_transient( 'lpmanager_templates_copy_retry', 1, HOUR_IN_SECONDS );
+                }
             }
         }
         // Write only when the state changes.
@@ -307,15 +311,51 @@ class Template_Manager {
         if ( ! self::pending_templates() || self::move_bundled_custom_templates() ) {
             return null;
         }
+        // Another request may have finished the copy meanwhile.
+        $pending = array_keys( self::pending_templates() );
+        if ( ! $pending ) {
+            return null;
+        }
         return new \WP_Error(
             'lpmanager_templates_not_copied',
-            sprintf(
-                /* translators: 1: template folder names, 2: folder path */
-                __( 'Landing Page Manager was not updated: the templates %1$s are stored only inside the plugin folder, and updating would delete them. Make wp-content writable and try again, or copy those folders from wp-content/plugins/landing-page-manager/includes/templates/ to %2$s yourself.', 'landing-page-manager' ),
-                wp_sprintf_l( '%l', array_keys( self::pending_templates() ) ),
-                'wp-content/' . self::CUSTOM_DIR_NAME . '/'
-            )
+            __( 'Landing Page Manager was not updated.', 'landing-page-manager' ) . ' ' . self::pending_templates_message( $pending )
         );
+    }
+
+    /**
+     * What to do about templates that exist only inside the plugin folder (admin notice and update error).
+     *
+     * @param string[] $slugs Pending template slugs.
+     * @return string
+     */
+    public static function pending_templates_message( array $slugs ) {
+        $from = self::display_path( self::bundled_dir() );
+        $to   = self::display_path( self::custom_dir() );
+        if ( ! wp_is_file_mod_allowed( 'lpmanager_copy_templates' ) ) {
+            /* translators: 1: template folder names, 2: source folder, 3: destination folder */
+            $message = _n(
+                'The template %1$s is still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy it from %2$s into %3$s before you deploy the next plugin version, or that deploy deletes it.',
+                'The templates %1$s are still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy them from %2$s into %3$s before you deploy the next plugin version, or that deploy deletes them.',
+                count( $slugs ),
+                'landing-page-manager'
+            );
+        } else {
+            /* translators: 1: template folder names, 2: source folder, 3: destination folder */
+            $message = _n(
+                'The template %1$s is still stored only inside the plugin folder, where a plugin update would delete it, so updating the plugin is blocked. Make wp-content writable and reload this page, or copy it from %2$s into %3$s yourself. If a folder with that name is already in %3$s but incomplete, finish copying it or delete it.',
+                'The templates %1$s are still stored only inside the plugin folder, where a plugin update would delete them, so updating the plugin is blocked. Make wp-content writable and reload this page, or copy them from %2$s into %3$s yourself. If a folder with one of those names is already in %3$s but incomplete, finish copying it or delete it.',
+                count( $slugs ),
+                'landing-page-manager'
+            );
+        }
+        return sprintf( $message, wp_sprintf_l( '%l', $slugs ), $from, $to );
+    }
+
+    /** A folder path as admins see it: relative to the WordPress root when it is inside it. */
+    public static function display_path( $path ) {
+        $root = wp_normalize_path( untrailingslashit( ABSPATH ) ) . '/';
+        $path = wp_normalize_path( $path );
+        return 0 === strpos( $path, $root ) ? substr( $path, strlen( $root ) ) : $path;
     }
 
     /**
@@ -339,7 +379,8 @@ class Template_Manager {
             // A folder without single-landing_page.php is an interrupted copy, perhaps one made by hand:
             // never overwrite it. The admin notice lists the template until someone finishes it.
             if ( file_exists( self::custom_dir() . $slug ) ) {
-                $ok = false;
+                // Unless another request finished it in the meantime.
+                $ok = $ok && file_exists( self::custom_dir() . $slug . '/single-landing_page.php' );
                 continue;
             }
             $staging = self::custom_dir() . '.staging-' . wp_generate_password( 12, false );
@@ -534,6 +575,17 @@ class Template_Manager {
             __( 'A template named "%s" is already installed. To update it, replace its folder in wp-content/lpmanager-templates/.', 'landing-page-manager' ),
             $slug
         );
+        if ( in_array( $slug, self::STARTER_TEMPLATES, true ) ) {
+            $cleanup();
+            wp_send_json_error(
+                sprintf(
+                    /* translators: %s: template slug */
+                    __( 'The name "%s" belongs to a starter template. Rename your template\'s folder and upload it again.', 'landing-page-manager' ),
+                    $slug
+                ),
+                409
+            );
+        }
         // Also refuse starter slugs and templates still inside the plugin folder.
         if ( file_exists( $destination ) || self::template_exists( $slug ) ) {
             $cleanup();
