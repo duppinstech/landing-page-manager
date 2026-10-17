@@ -126,6 +126,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 
 ## P0 — before the next release
 
+- [ ] **Post-release checks for v1.0.9:** on a site still running v1.0.8, open Dashboard → Updates and select Check again within a minute of opening the page. v1.0.9 should be offered. Then check the Plugins row: Settings | Help | Deactivate, and Version | By Duppins Technology | Sponsor | Visit plugin site | Support. _(security reviewer asked for the manual Check again run, 10-17)_
 - [ ] **Post-release checks for v1.0.8:** on a live site, open the Help button on the Dashboard, Landing Pages list and editor, Clients, Keywords, Analytics and each Settings tab. Check that the notes match the selected Settings tab, Escape closes it, the guide link opens the right section, and the panel fits on a phone. Rewrite `marketing/guide/help-button.md`, which still describes the removed Help tab. _(Odell waived review, 10-16)_
 - [ ] **Post-release checks for v1.0.7 on each live site** (the smoke test was waived): Template A colours and phone numbers (run smoke step 26's phone audit), approve Additional Scripts, check Header Tracking Code, purge page caches, and look for 404s and console errors. _(Odell waiver, 10-16)_
 
