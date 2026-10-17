@@ -334,8 +334,8 @@ class Template_Manager {
         if ( ! wp_is_file_mod_allowed( 'lpmanager_copy_templates' ) ) {
             /* translators: 1: template folder names, 2: source folder, 3: destination folder */
             $message = _n(
-                'The template %1$s is still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy it from %2$s into %3$s before you deploy the next plugin version, or that deploy deletes it.',
-                'The templates %1$s are still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy them from %2$s into %3$s before you deploy the next plugin version, or that deploy deletes them.',
+                'The template %1$s is still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy it from %2$s into %3$s before you deploy the next plugin version, or that deploy deletes it. If a folder with that name is already in %3$s but incomplete, finish copying it or delete it.',
+                'The templates %1$s are still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy them from %2$s into %3$s before you deploy the next plugin version, or that deploy deletes them. If a folder with one of those names is already in %3$s but incomplete, finish copying it or delete it.',
                 count( $slugs ),
                 'landing-page-manager'
             );
@@ -519,7 +519,7 @@ class Template_Manager {
                 sprintf(
                     /* translators: %s: folder path, e.g. wp-content/lpmanager-templates */
                     __( 'Could not create or write to the %s folder. Ask your host to make wp-content writable, or copy the template folder there yourself.', 'landing-page-manager' ),
-                    'wp-content/' . self::CUSTOM_DIR_NAME
+                    self::display_path( self::custom_dir() )
                 ),
                 500
             );
@@ -571,9 +571,10 @@ class Template_Manager {
 
         $destination = $templates_dir . $slug;
         $exists_msg  = sprintf(
-            /* translators: %s: template slug */
-            __( 'A template named "%s" is already installed. To update it, replace its folder in wp-content/lpmanager-templates/.', 'landing-page-manager' ),
-            $slug
+            /* translators: 1: template slug, 2: folder path */
+            __( 'A template named "%1$s" is already installed. To update it, replace its folder in %2$s.', 'landing-page-manager' ),
+            $slug,
+            self::display_path( self::custom_dir() )
         );
         if ( in_array( $slug, self::STARTER_TEMPLATES, true ) ) {
             $cleanup();
@@ -586,7 +587,7 @@ class Template_Manager {
                 409
             );
         }
-        // Also refuse starter slugs and templates still inside the plugin folder.
+        // Also refuse templates still inside the plugin folder.
         if ( file_exists( $destination ) || self::template_exists( $slug ) ) {
             $cleanup();
             wp_send_json_error( $exists_msg, 409 );
