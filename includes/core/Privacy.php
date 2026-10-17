@@ -37,7 +37,7 @@ final class Privacy {
         ];
 
         $suggested = [
-            __( 'Landing pages on this site load fonts and icons from Google Fonts (Google LLC) and cdnjs (Cloudflare, Inc.). When a page shows a map, it loads Google Maps (Google LLC) when the map comes into view. Some page designs also load images or videos from other websites, such as YouTube or Vimeo videos and Google Maps embeds, which may also set cookies. These providers receive your IP address and browser details when the page loads, and handle that data under their own privacy policies.', 'landing-page-manager' ),
+            __( 'Some landing page designs on this site load fonts and icons from Google Fonts (Google LLC) and cdnjs (Cloudflare, Inc.). When a page shows a map, it loads Google Maps (Google LLC) when the map comes into view. Some page designs also load images or videos from other websites, such as YouTube or Vimeo videos and Google Maps embeds, which may also set cookies. These providers receive your IP address and browser details when the page loads, and handle that data under their own privacy policies.', 'landing-page-manager' ),
             __( 'A landing page may also include tracking, advertising, chat or call-tracking code added by the site operator, either for a specific client or on all landing pages. Those services receive your IP address, browser details and how you use the page, under their own privacy policies.', 'landing-page-manager' ),
         ];
 

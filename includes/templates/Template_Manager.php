@@ -18,17 +18,28 @@ class Template_Manager {
      */
     const CUSTOM_DIR_NAME = 'lpmanager-templates';
 
-    /** Stores HOUSEKEEPING_VERSION once the one-time template housekeeping has run. */
-    const HOUSEKEEPING_OPTION = 'lpmanager_templates_housekeeping';
+    /** Set once every template that was inside the plugin folder has a copy in the custom folder. */
+    const COPIED_OPTION = 'lpmanager_templates_copied';
 
-    /** Bump to run maybe_run_housekeeping() again on every site. */
-    const HOUSEKEEPING_VERSION = 1;
+    /** Set once pin_legacy_default_template() has run. */
+    const PIN_OPTION = 'lpmanager_templates_default_checked';
+
+    /** WP-Cron event that copies templates out of the plugin folder. */
+    const COPY_EVENT = 'lpmanager_copy_templates';
 
     public static function init() {
         add_action( 'wp_ajax_lpmanager_upload_template', [ __CLASS__, 'handle_upload' ] );
         add_action( 'admin_init', [ __CLASS__, 'remove_legacy_upload_dir' ] );
-        // Before template_redirect, so the first landing page request after an update already uses the copies.
-        add_action( 'init', [ __CLASS__, 'maybe_run_housekeeping' ], 1 );
+        // Before Carbon Fields registers fields (init, priority 0), so even the first request after an
+        // update registers the fields of the template it renders.
+        add_action( 'init', [ __CLASS__, 'pin_legacy_default_template' ], -1 );
+        // Templates are copied in WP-Cron and on admin pages, never while a visitor waits. Until then,
+        // get_template_dir() keeps using the copy inside the plugin folder.
+        add_action( 'init', [ __CLASS__, 'maybe_schedule_copy' ] );
+        add_action( self::COPY_EVENT, [ __CLASS__, 'copy_pending_templates' ] );
+        // Every admin page re-checks, so a restored site or another server gets its copies too.
+        add_action( 'admin_init', [ __CLASS__, 'copy_pending_templates' ] );
+        add_filter( 'upgrader_pre_install', [ __CLASS__, 'block_update_while_templates_at_risk' ], 10, 2 );
         // Template_Loader::load_template (priority 99) handles landing page template; no duplicate filter needed.
     }
 
@@ -176,35 +187,82 @@ class Template_Manager {
     }
 
     /**
-     * Once per site: copy templates out of the plugin folder before an update can delete them.
+     * Once per site: before 1.0.10 the template setting defaulted to template-b. A site that has
+     * landing pages but never saved the setting relied on that default, so store it, and the new
+     * default (a starter) doesn't switch its pages to another design.
      */
-    public static function maybe_run_housekeeping() {
-        if ( (int) get_option( self::HOUSEKEEPING_OPTION ) >= self::HOUSEKEEPING_VERSION || get_transient( 'lpmanager_templates_housekeeping_retry' ) ) {
+    public static function pin_legacy_default_template() {
+        if ( get_option( self::PIN_OPTION ) ) {
             return;
         }
-        self::pin_legacy_default_template();
-        if ( self::move_bundled_custom_templates() ) {
-            update_option( self::HOUSEKEEPING_OPTION, self::HOUSEKEEPING_VERSION, true );
-        } else {
-            // Copying failed (for example, wp-content isn't writable): retry later, not on every request.
-            set_transient( 'lpmanager_templates_housekeeping_retry', 1, HOUR_IN_SECONDS );
+        // Carbon Fields stores theme options as "_<field name>". Post types aren't registered this
+        // early, so check the posts table directly.
+        global $wpdb;
+        if ( false === get_option( '_lpmanager_active_template' )
+            && $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s LIMIT 1", 'landing_page' ) ) ) {
+            add_option( '_lpmanager_active_template', 'template-b' );
+        }
+        update_option( self::PIN_OPTION, 1, true );
+    }
+
+    /** Queue the copy in WP-Cron until it has succeeded once. */
+    public static function maybe_schedule_copy() {
+        if ( get_option( self::COPIED_OPTION ) || get_transient( 'lpmanager_templates_copy_retry' ) || wp_next_scheduled( self::COPY_EVENT ) ) {
+            return;
+        }
+        wp_schedule_single_event( time(), self::COPY_EVENT );
+    }
+
+    /**
+     * Copy templates out of the plugin folder before an update can delete them (WP-Cron and admin pages).
+     */
+    public static function copy_pending_templates() {
+        // Hardened sites that don't allow file changes can't update plugins either; the admin notice explains.
+        if ( ! wp_is_file_mod_allowed( 'lpmanager_copy_templates' ) ) {
+            return;
+        }
+        // One copy at a time. add_option() fails if the lock exists; a lock older than ten minutes is stale.
+        $lock = 'lpmanager_templates_copy_lock';
+        if ( ! add_option( $lock, time(), '', false ) ) {
+            if ( (int) get_option( $lock ) > time() - 10 * MINUTE_IN_SECONDS ) {
+                return;
+            }
+            update_option( $lock, time(), false );
+        }
+        $copied = self::move_bundled_custom_templates();
+        delete_option( $lock );
+
+        update_option( self::COPIED_OPTION, $copied ? 1 : 0, true );
+        if ( ! $copied ) {
+            // For example, wp-content isn't writable: WP-Cron tries again in an hour, admin pages on every load.
+            set_transient( 'lpmanager_templates_copy_retry', 1, HOUR_IN_SECONDS );
         }
     }
 
     /**
-     * Before 1.0.10 the template setting defaulted to template-b. A site that has landing pages but
-     * never saved the setting relied on that default, so store it, and the new default (a starter)
-     * doesn't switch its pages to another design.
+     * Stop a plugin update (manual or automatic) while a template exists only inside the plugin
+     * folder, because the update deletes that folder. Tries the copy first.
+     *
+     * @param bool|\WP_Error $response   Installation response.
+     * @param array          $hook_extra Extra arguments passed to hooked filters.
+     * @return bool|\WP_Error
      */
-    private static function pin_legacy_default_template() {
-        // Carbon Fields stores theme options as "_<field name>".
-        if ( false !== get_option( '_lpmanager_active_template' ) ) {
-            return;
+    public static function block_update_while_templates_at_risk( $response, $hook_extra ) {
+        if ( is_wp_error( $response ) || empty( $hook_extra['plugin'] )
+            || plugin_basename( LP_MANAGER_PLUGIN_PATH . 'landing-page-manager.php' ) !== $hook_extra['plugin'] ) {
+            return $response;
         }
-        $has_pages = get_posts( [ 'post_type' => 'landing_page', 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids', 'no_found_rows' => true ] );
-        if ( $has_pages ) {
-            add_option( '_lpmanager_active_template', 'template-b' );
+        if ( self::move_bundled_custom_templates() ) {
+            return $response;
         }
+        return new \WP_Error(
+            'lpmanager_templates_not_copied',
+            sprintf(
+                /* translators: %s: folder path */
+                __( 'Landing Page Manager was not updated: some templates are stored only inside the plugin folder, and updating would delete them. Make %s writable or copy the template folders there, then update again.', 'landing-page-manager' ),
+                'wp-content/' . self::CUSTOM_DIR_NAME . '/'
+            )
+        );
     }
 
     /**
@@ -234,6 +292,8 @@ class Template_Manager {
         $ok = true;
         foreach ( $pending as $slug => $dir ) {
             $staging = self::custom_dir() . '.staging-' . wp_generate_password( 12, false );
+            // A fatal error or timeout mid-copy must not leave a partial PHP tree behind.
+            register_shutdown_function( [ __CLASS__, 'delete_dir' ], $staging );
             // Copy into a hidden folder and rename(), so a half-copied template is never used.
             if ( ! self::copy_dir( $dir, $staging ) || ! @rename( $staging, self::custom_dir() . $slug ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
                 self::delete_dir( $staging );
@@ -244,19 +304,32 @@ class Template_Manager {
         return $ok;
     }
 
-    /** Create the custom templates folder, with an index.php so the folder can't be listed. */
+    /**
+     * Create the custom templates folder, with an index.php and an .htaccess so its folders can't be listed.
+     */
     private static function ensure_custom_dir() {
         $dir = self::custom_dir();
-        if ( ! wp_mkdir_p( $dir ) ) {
+        if ( ! wp_mkdir_p( $dir ) || ! wp_is_writable( $dir ) ) {
             return false;
         }
-        if ( ! file_exists( $dir . 'index.php' ) ) {
-            file_put_contents( $dir . 'index.php', "<?php\n// Silence is golden.\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+        $guards = [
+            'index.php' => "<?php\n// Silence is golden.\n",
+            '.htaccess' => "Options -Indexes\n",
+        ];
+        foreach ( $guards as $file => $contents ) {
+            if ( ! file_exists( $dir . $file ) && false !== @file_put_contents( $dir . $file, $contents ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions, WordPress.PHP.NoSilencedErrors
+                @chmod( $dir . $file, self::file_mode() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+            }
         }
-        return is_writable( $dir );
+        return true;
     }
 
-    /** Recursive copy with native functions, so it also works on front-end requests. */
+    /** Permissions WordPress uses for files it writes (FS_CHMOD_FILE). */
+    private static function file_mode() {
+        return defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : ( ( fileperms( ABSPATH . 'index.php' ) & 0777 ) | 0644 );
+    }
+
+    /** Recursive copy with native functions, so it also works without filesystem credentials (WP-Cron). */
     private static function copy_dir( $from, $to ) {
         if ( ! wp_mkdir_p( $to ) ) {
             return false;
@@ -271,14 +344,17 @@ class Template_Manager {
                 if ( ! wp_mkdir_p( $target ) ) {
                     return false;
                 }
-            } elseif ( ! copy( $item->getPathname(), $target ) ) {
+            } elseif ( ! @copy( $item->getPathname(), $target ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- reported through the return value and the admin notice.
                 return false;
+            } else {
+                @chmod( $target, self::file_mode() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
             }
         }
         return true;
     }
 
-    private static function delete_dir( $dir ) {
+    /** Delete a folder tree. Public only so register_shutdown_function() can call it. */
+    public static function delete_dir( $dir ) {
         if ( ! is_dir( $dir ) ) {
             return;
         }
@@ -335,7 +411,7 @@ class Template_Manager {
             wp_send_json_error(
                 sprintf(
                     /* translators: %s: folder path, e.g. wp-content/lpmanager-templates */
-                    __( 'Could not create or write to the %s folder.', 'landing-page-manager' ),
+                    __( 'Could not create or write to the %s folder. Ask your host to make wp-content writable, or copy the template folder there yourself.', 'landing-page-manager' ),
                     'wp-content/' . self::CUSTOM_DIR_NAME
                 ),
                 500

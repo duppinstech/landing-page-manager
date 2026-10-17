@@ -19,7 +19,7 @@ $lpm_meta    = function ( $key ) use ( $lpm_post_id ) {
 
 $lpm_data = array(
 	'name'               => get_bloginfo( 'name' ),
-	'logo_url'           => '',
+	'logo_id'            => 0,
 	'address'            => '',
 	'primary'            => '',
 	'secondary'          => '',
@@ -43,8 +43,7 @@ $lpm_terms = get_the_terms( $lpm_post_id, 'client' );
 if ( ! empty( $lpm_terms ) && ! is_wp_error( $lpm_terms ) && function_exists( 'carbon_get_term_meta' ) ) {
 	$lpm_term             = $lpm_terms[0];
 	$lpm_data['name']     = $lpm_term->name;
-	$lpm_logo_id          = (int) carbon_get_term_meta( $lpm_term->term_id, 'client_logo' );
-	$lpm_data['logo_url'] = $lpm_logo_id ? (string) wp_get_attachment_image_url( $lpm_logo_id, 'medium' ) : '';
+	$lpm_data['logo_id']  = (int) carbon_get_term_meta( $lpm_term->term_id, 'client_logo' );
 	$lpm_data['address']  = (string) carbon_get_term_meta( $lpm_term->term_id, 'client_address' );
 	$lpm_primary          = (string) sanitize_hex_color( (string) carbon_get_term_meta( $lpm_term->term_id, 'client_primary_color' ) );
 	$lpm_secondary        = (string) sanitize_hex_color( (string) carbon_get_term_meta( $lpm_term->term_id, 'client_secondary_color' ) );
@@ -101,16 +100,52 @@ if ( '' === trim( $lpm_data['cta_url'] ) && '' !== $lpm_data['phone'] ) {
 	$lpm_data['cta_url'] = 'tel:' . $lpm_data['phone_digits'];
 }
 
-// Client colours override the stylesheet's defaults through custom properties.
+// Client colours override the stylesheet's defaults through custom properties. Every text colour
+// is chosen with the WCAG contrast formula, so any brand colour stays readable (4.5:1 for text,
+// 3:1 for a button's edge). These match the page colours in css/main.css.
+$lpm_page_bg      = '#ffffff';
+$lpm_page_surface = '#f4f6f8';
+$lpm_page_text    = '#1d2327';
+
+$lpm_luminance = function ( $hex ) {
+	$hex = ltrim( $hex, '#' );
+	if ( 3 === strlen( $hex ) ) {
+		$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+	}
+	$channels = array();
+	foreach ( str_split( $hex, 2 ) as $lpm_part ) {
+		$lpm_c      = hexdec( $lpm_part ) / 255;
+		$channels[] = $lpm_c <= 0.03928 ? $lpm_c / 12.92 : pow( ( $lpm_c + 0.055 ) / 1.055, 2.4 );
+	}
+	return 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+};
+$lpm_contrast = function ( $a, $b ) use ( $lpm_luminance ) {
+	$la = $lpm_luminance( $a );
+	$lb = $lpm_luminance( $b );
+	return ( max( $la, $lb ) + 0.05 ) / ( min( $la, $lb ) + 0.05 );
+};
+// Black or white, whichever reads better on the colour.
+$lpm_on = function ( $hex ) use ( $lpm_contrast ) {
+	return $lpm_contrast( $hex, '#000000' ) >= $lpm_contrast( $hex, '#ffffff' ) ? '#000000' : '#ffffff';
+};
+
 $lpm_data['style'] = '';
 if ( $lpm_data['primary'] ) {
-	$lpm_data['style'] .= '--lpm-primary:' . $lpm_data['primary'] . ';';
-	if ( class_exists( '\LPManager\assets\Assets_Manager' ) && method_exists( '\LPManager\assets\Assets_Manager', 'get_contrast_text_color' ) ) {
-		$lpm_data['style'] .= '--lpm-on-primary:' . \LPManager\assets\Assets_Manager::get_contrast_text_color( $lpm_data['primary'] ) . ';';
+	$lpm_primary        = $lpm_data['primary'];
+	$lpm_data['style'] .= '--lpm-primary:' . $lpm_primary . ';--lpm-on-primary:' . $lpm_on( $lpm_primary ) . ';';
+	// The primary colour as text on the page (header phone, contact button), or the text colour.
+	$lpm_data['style'] .= '--lpm-primary-text:' . ( $lpm_contrast( $lpm_primary, $lpm_page_bg ) >= 4.5 ? $lpm_primary : $lpm_page_text ) . ';';
+	// A primary-coloured button needs a visible edge where it barely differs from the page.
+	if ( min( $lpm_contrast( $lpm_primary, $lpm_page_bg ), $lpm_contrast( $lpm_primary, $lpm_page_surface ) ) < 3 ) {
+		$lpm_data['style'] .= '--lpm-button-border:' . $lpm_page_text . ';';
 	}
 }
 if ( $lpm_data['secondary'] ) {
-	$lpm_data['style'] .= '--lpm-accent:' . $lpm_data['secondary'] . ';';
+	$lpm_accent         = $lpm_data['secondary'];
+	$lpm_data['style'] .= '--lpm-accent:' . $lpm_accent . ';--lpm-on-accent:' . $lpm_on( $lpm_accent ) . ';';
+	$lpm_data['style'] .= '--lpm-accent-text:' . ( $lpm_contrast( $lpm_accent, $lpm_page_bg ) >= 4.5 ? $lpm_accent : $lpm_page_text ) . ';';
 }
+
+$lpm_data['show_contact'] = '' !== $lpm_data['phone'] || '' !== trim( $lpm_data['contact_text'] ) || '' !== trim( $lpm_data['address'] );
 
 return $lpm_data;

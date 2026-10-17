@@ -9,7 +9,7 @@ Landing Page Manager is a WordPress plugin for creating and managing landing pag
 - **Landing Page post type** — Dedicated content type for landing pages
 - **Client taxonomy** — One client per brand, with its logo, colors, address, phone and website. The client's slug becomes its subdomain. A landing page's own "Page phone" overrides the client's phone on that page.
 - **Keyword taxonomy** — Tag pages by keyword/campaign
-- **Templates** — One site-wide template, each with its own fields, chosen in Settings → Templates. Two starter templates ship with the plugin; custom templates live in `wp-content/lpmanager-templates/` (see [Custom templates](#custom-templates))
+- **Templates** — Pick the site's template in Settings → Templates; each template brings its own page fields. Starter One (light) and Starter Two (dark) ship with the plugin, and you can add your own in `wp-content/lpmanager-templates/` (see [Custom templates](#custom-templates))
 - **Dashboard** — Overview, quick stats, and links to Clients, Keywords, and Analytics
 - **Analytics** (Pro) — Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Without Pro, this screen shows an upgrade prompt.
 - **Settings** — Templates, API keys (Google Maps browser key, Google Maps server key, Brandfetch), and (with Pro) conversion-tracking toggles
@@ -45,7 +45,7 @@ If you use the Pro add-on, install and activate it in a separate plugin director
 
 Landing Page Manager looks for templates in two places:
 
-- **Starter templates** (Starter One and Starter Two) ship inside the plugin, in `includes/templates/`. Their names are reserved.
+- **Starter templates** (Starter One and Starter Two) ship inside the plugin, in `includes/templates/`. Their folder names (`starter-one`, `starter-two`) are reserved. Updates replace them, so don't edit them in place.
 - **Custom templates** live in `wp-content/lpmanager-templates/<slug>/`. Plugin updates replace the plugin folder but never touch this folder, so templates kept here survive updates.
 
 To add a custom template, either upload a .zip under **Settings → Templates → Upload New Template**, or copy the template folder into `wp-content/lpmanager-templates/` yourself (SFTP, your host's file manager, or a deploy from a private repository). A template folder needs:
@@ -54,7 +54,7 @@ To add a custom template, either upload a .zip under **Settings → Templates �
 - `screenshot.png` (1200×900 works well) for its tile,
 - optionally `lib/fields/landing-page-fields.php` (its Carbon Fields), `lib/assets.php` (its stylesheets and scripts), and `404.php`.
 
-The easiest start is to copy `includes/templates/starter-one/` to `wp-content/lpmanager-templates/my-template/` and change its `Template Name`. In a template, use `\LPManager\templates\Template_Manager::get_template_url( 'css/file.css' )` for file URLs and `__DIR__` for file paths, never paths inside the plugin folder.
+The easiest start is to copy `wp-content/plugins/landing-page-manager/includes/templates/starter-one/` to `wp-content/lpmanager-templates/my-template/`, then change the `Template Name` header in `single-landing_page.php` and the field box title in `lib/fields/landing-page-fields.php`. The starter templates are GPL-2.0-or-later, like the plugin; a template built from one is a derivative and, if you distribute it, must use a GPL-compatible licence. In a template, use `\LPManager\templates\Template_Manager::get_template_url( 'css/file.css' )` for file URLs and `__DIR__` for file paths, never paths inside the plugin folder.
 
 ## Updates from GitHub
 
@@ -72,7 +72,7 @@ To build the zip locally: `bin/build-zip.sh` (uses `zip`, or Python if `zip` is 
 
 ## Uninstalling
 
-Deleting the plugin removes its settings. Landing pages, clients and keywords are kept. To delete those too, add `define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );` to `wp-config.php` before deleting.
+Deleting the plugin removes its settings. Landing pages, clients and keywords are kept, and so are the templates in `wp-content/lpmanager-templates/`; delete that folder yourself if you no longer need it. To delete those too, add `define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );` to `wp-config.php` before deleting.
 
 ## Developer hooks
 

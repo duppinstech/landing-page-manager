@@ -5,7 +5,11 @@
 .lpm-starter {
 	--lpm-primary: #3fb68b;
 	--lpm-on-primary: #0f1720;
+	--lpm-primary-text: #3fb68b;
+	--lpm-button-border: transparent;
 	--lpm-accent: #f2c14e;
+	--lpm-on-accent: #0f1720;
+	--lpm-accent-text: #f2c14e;
 	--lpm-bg: #0f1720;
 	--lpm-surface: #18222e;
 	--lpm-text: #f1f4f7;
@@ -77,7 +81,9 @@
 }
 
 .lpm-header__phone {
-	/* The client's colour may be dark, so text on the dark background keeps the text colour. */
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
 	color: var(--lpm-text);
 	font-weight: 700;
 	text-decoration: none;
@@ -88,6 +94,7 @@
 	display: inline-block;
 	min-height: 44px;
 	padding: 12px 26px;
+	border: 2px solid var(--lpm-button-border);
 	border-radius: var(--lpm-radius);
 	background: var(--lpm-primary);
 	color: var(--lpm-on-primary);
@@ -95,14 +102,22 @@
 	text-decoration: none;
 }
 
-.lpm-button:hover,
-.lpm-button:focus-visible {
-	filter: brightness(1.1);
+.lpm-button:hover {
+	text-decoration: underline;
+	text-underline-offset: 3px;
 }
 
-.lpm-starter a:focus-visible {
-	outline: 3px solid var(--lpm-accent);
+/* Two-tone focus ring: visible on light and dark backgrounds and with any client colour. */
+.lpm-starter a:focus-visible,
+.lpm-starter summary:focus-visible {
+	outline: 3px solid var(--lpm-text);
 	outline-offset: 2px;
+	box-shadow: 0 0 0 2px var(--lpm-bg);
+}
+
+.lpm-contact a:focus-visible {
+	outline-color: var(--lpm-on-primary);
+	box-shadow: 0 0 0 2px var(--lpm-primary);
 }
 
 /* Hero */
@@ -197,7 +212,7 @@
 }
 
 .lpm-starter .lpm-prose a {
-	color: var(--lpm-accent);
+	color: var(--lpm-accent-text);
 }
 
 .lpm-faq__item {
@@ -217,8 +232,9 @@
 }
 
 .lpm-contact .lpm-button {
+	border-color: transparent;
 	background: var(--lpm-bg);
-	color: var(--lpm-primary);
+	color: var(--lpm-primary-text);
 }
 
 .lpm-contact__address {
@@ -228,7 +244,8 @@
 
 /* Footer and mobile call bar */
 .lpm-footer {
-	padding: 24px 0 88px;
+	/* Room for the mobile call bar, even when its label wraps to two lines. */
+	padding: 24px 0 128px;
 	color: var(--lpm-muted);
 	font-size: 14px;
 	text-align: center;
@@ -244,11 +261,18 @@
 	padding: 12px;
 	border-radius: var(--lpm-radius);
 	background: var(--lpm-accent);
-	color: #1d2327;
+	color: var(--lpm-on-accent);
 	font-weight: 700;
 	text-align: center;
 	text-decoration: none;
 	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 799px) {
+	/* Keyboard focus never lands behind the call bar. */
+	html {
+		scroll-padding-bottom: 128px;
+	}
 }
 
 @media (min-width: 800px) {

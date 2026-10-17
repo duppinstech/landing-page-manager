@@ -10,7 +10,6 @@
 
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
-use LPManager\core\Required_Fields_Registry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -79,5 +78,3 @@ Container::make( 'post_meta', __( 'Starter One', 'landing-page-manager' ) )
 				->set_rows( 2 ),
 		)
 	);
-
-Required_Fields_Registry::register( 'starter-one', array( 'starter_hero_heading' ) );
