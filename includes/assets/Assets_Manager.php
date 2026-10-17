@@ -194,7 +194,7 @@ class Assets_Manager {
         // into the template's reviews field instead (Reviews_Ajax).
 
         // jQuery is not loaded for every page: manifest templates pull it in through their script
-        // dependencies (Template A doesn't need it). Keep it when the client's tracking code looks like
+        // dependencies (the starter templates don't need it). Keep it when the client's tracking code looks like
         // it uses jQuery.
         /**
          * Filters whether landing pages load jQuery even if the template doesn't need it.

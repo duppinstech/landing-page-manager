@@ -32,7 +32,6 @@ final class Privacy {
 
         $tutorial = [
             __( 'Landing Page Manager suggests the text below. Edit it to match the templates and services your landing pages use, and have it reviewed by your own legal adviser.', 'landing-page-manager' ),
-            __( 'If you use the Template C template, its default images load from client-c.example.', 'landing-page-manager' ),
             __( 'Starter One and Starter Two load no fonts or icons from other websites. If your landing pages use only those templates, you can remove the first sentence below.', 'landing-page-manager' ),
             __( 'If scripts you add under Additional Scripts or in a client\'s Header Tracking Code set cookies or track visitors, you may need visitors\' consent before they load.', 'landing-page-manager' ),
         ];

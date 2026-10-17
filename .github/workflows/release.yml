@@ -45,6 +45,9 @@ jobs:
           for f in landing-page-manager.php vendor/autoload.php includes/Plugin.php includes/templates/starter-one/single-landing_page.php includes/templates/starter-two/single-landing_page.php; do
             grep -qx "landing-page-manager/$f" zip-list.txt || { echo "::error::Missing $f in zip"; exit 1; }
           done
+          # Only the starter templates ship; client templates live in a private repository.
+          extra="$(grep -E '^landing-page-manager/includes/templates/[^/]+/' zip-list.txt | grep -vE '^landing-page-manager/includes/templates/(starter-one|starter-two)/' || true)"
+          [ -z "$extra" ] || { echo "::error::Templates other than the starters in zip:"; echo "$extra"; exit 1; }
 
       - name: Extract changelog section
         run: |

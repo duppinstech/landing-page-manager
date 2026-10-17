@@ -6,7 +6,7 @@ labels: bug
 
 **Plugin version:**  
 **WordPress / PHP version:**  
-**Template:** (template-b / template-c / template_a / other)  
+**Template:** (starter-one / starter-two / custom: name)  
 **Pro active?** yes / no
 
 ### What happened
