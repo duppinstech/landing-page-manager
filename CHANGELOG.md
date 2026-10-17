@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Removed
+- The one-time step from 1.0.10 that saved the previous default template for sites that had never saved the template setting. Every site that needed it has run it. A site updating straight from 1.0.9 or earlier without having saved the setting starts on Starter One.
 
 ## [1.0.11] - 2026-10-17
 ### Removed
