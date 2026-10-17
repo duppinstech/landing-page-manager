@@ -21,18 +21,12 @@ class Template_Manager {
     /** Set once every template that was inside the plugin folder has a copy in the custom folder. */
     const COPIED_OPTION = 'lpmanager_templates_copied';
 
-    /** Set once pin_legacy_default_template() has run. */
-    const PIN_OPTION = 'lpmanager_templates_default_checked';
-
     /** WP-Cron event that copies templates out of the plugin folder. */
     const COPY_EVENT = 'lpmanager_copy_templates';
 
     public static function init() {
         add_action( 'wp_ajax_lpmanager_upload_template', [ __CLASS__, 'handle_upload' ] );
         add_action( 'admin_init', [ __CLASS__, 'remove_legacy_upload_dir' ] );
-        // Before Carbon Fields registers fields (init, priority 0), so even the first request after an
-        // update registers the fields of the template it renders.
-        add_action( 'init', [ __CLASS__, 'pin_legacy_default_template' ], -1 );
         // Templates are copied in WP-Cron and on admin pages, never while a visitor waits. Until then,
         // get_template_dir() keeps using the copy inside the plugin folder.
         add_action( 'init', [ __CLASS__, 'maybe_schedule_copy' ] );
@@ -181,25 +175,6 @@ class Template_Manager {
         } );
 
         return $starters + $others;
-    }
-
-    /**
-     * Once per site: before 1.0.10 the template setting defaulted to template-b. A site that has
-     * landing pages but never saved the setting relied on that default, so store it, and the new
-     * default (a starter) doesn't switch its pages to another design.
-     */
-    public static function pin_legacy_default_template() {
-        if ( get_option( self::PIN_OPTION ) ) {
-            return;
-        }
-        // Carbon Fields stores theme options as "_<field name>". Post types aren't registered this
-        // early, so check the posts table directly.
-        global $wpdb;
-        if ( false === get_option( '_lpmanager_active_template' )
-            && $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s LIMIT 1", 'landing_page' ) ) ) {
-            add_option( '_lpmanager_active_template', 'template-b' );
-        }
-        update_option( self::PIN_OPTION, 1, true );
     }
 
     /** Queue the copy in WP-Cron until it has succeeded once. */

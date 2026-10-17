@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Removed
+- The one-time step from 1.0.10 that saved the previous default template for sites that had never saved the template setting. Every site that needed it has run it. A site updating straight from 1.0.9 or earlier without having saved the setting starts on Starter One.
 
 ## [1.0.11] - 2026-10-17
 ### Removed
@@ -29,7 +31,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **Template A, Template B and Template C will be removed from the plugin in the next release.** This update copies them to `wp-content/lpmanager-templates/`, and your landing pages keep using them. Update to this version before any later one, open Landing Pages → Settings, and check that no template notice appears.
 - Sites that never saved the template setting stay on Template B, the previous default. New sites start with Starter One.
 - Back-ups and staging-to-live copies must now include `wp-content/lpmanager-templates/`. Uninstalling the plugin keeps that folder.
-- **Sites that deploy the plugin without the WordPress updater** (`DISALLOW_FILE_MODS`, Composer or Git): copy `template_a`, `template-b` and `template-c` (and any template you uploaded) from the plugin's `includes/templates/` to `wp-content/lpmanager-templates/` yourself before deploying the next version. The admin notice reminds you.
+- **Sites that deploy the plugin without the WordPress updater** (`DISALLOW_FILE_MODS`, Composer or Git): copy every template folder except `starter-one` and `starter-two` (including any template you uploaded) from the plugin's `includes/templates/` to `wp-content/lpmanager-templates/` yourself before deploying the next version. The admin notice reminds you.
 - If the copy can't run (for example, WordPress can't write to `wp-content`), automatic updates of this plugin fail, and WordPress emails a failure notice each time it retries, until the copy succeeds or you copy the folders yourself. Your pages keep working meanwhile.
 - Rolling back to 1.0.9 keeps the client templates working, but 1.0.9 can't see `wp-content/lpmanager-templates/` or the starter templates: pages that use a starter or a template uploaded in 1.0.10 show a 404 until you update again.
 
@@ -63,10 +65,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **Phone numbers can change on live pages.** A page's own phone (now labelled "Page phone (optional)") overrides the client's Contact Phone in every template, both the number shown and the number dialled. Template A used to prefer the client's number. Before updating, check pages whose page phone differs from the client's Contact Phone, and clear the page field wherever the client's number should be used. (A developer can list those pages with smoke step 26 in `meeting-notes/2026-10-16-1034-owner-decisions-review-appendix.md`.)
 - **Template A pages change to each client's colors.** Template A now uses the client's Primary and Secondary colors, which are often filled in automatically from the logo, so most Template A pages will look different after updating. Preview your Template A clients on staging. To keep the old look, set Primary to `#002868` and Secondary to `#b22234` on that client.
 - **Additional Scripts start printing once an administrator approves them.** They never printed before. Before you click Approve (the notice appears on the plugin's screens), remove old tags and any tag that is already in a client's Header Tracking Code, or conversions are counted twice.
-- **Embeds in rich-text fields are filtered.** In Template B's services intro and Reviews field, and in Template C' "More" content, only YouTube, Vimeo and Google Maps embeds are kept, and only on WordPress 6.2 or later. Script-based review widgets and iframes from other sites are removed, including code that 1.0.6 printed unfiltered. Check these pages after updating.
+- **Embeds in rich-text fields are filtered.** In Template B's services intro and Reviews field, and in Template C's "More" content, only YouTube, Vimeo and Google Maps embeds are kept, and only on WordPress 6.2 or later. Script-based review widgets and iframes from other sites are removed, including code that 1.0.6 printed unfiltered. Check these pages after updating.
 - **Custom CSS against Template A class names must be updated.** Client-named class names, handles and the layout stylesheet were renamed to neutral names: `layout1`, `layout2` and `layout-3` (the mix of `layout2` and `layout-3` is intentional), with the stylesheet now `style-2-layout.css`. Ask Duppins Technology (support@duppinstech.com) for the full old-to-new list.
 - **Sites that set `DISALLOW_UNFILTERED_HTML`:** nobody, administrators included, can then save or approve Additional Scripts or change a client's Header Tracking Code. Header tracking code that is already saved keeps printing. Additional Scripts therefore never print on these sites, and no approval notice appears. Have a developer print the tags with the `lpmanager_landing_page_footer` action instead.
-- **If you roll back to 1.0.6,** Additional Scripts stop printing, and Template B pages that rely only on the client's phone lose their call buttons. Custom CSS already moved to the new `template_a--layout*` class names stops matching, and Template A goes back to its built-in navy and red. Purge the page cache again.
+- **If you roll back to 1.0.6,** Additional Scripts stop printing, and Template B pages that rely only on the client's phone lose their call buttons. Custom CSS already moved to the new `--layout1`, `--layout2` and `--layout-3` class names stops matching, and Template A goes back to its built-in navy and red. Purge the page cache again.
 - Apart from approving Additional Scripts, no settings re-save, permalink flush or database step is needed.
 
 ### Security
@@ -90,8 +92,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **Template A keeps text readable on any client color.** Navy areas are darkened enough for their lighter text, stat labels are larger and brighter, and the mobile call button has a 44px tap target.
 - **Approving Additional Scripts is clearer.** The notice shows the pending code, appears on the plugin's screens and the WordPress Dashboard to administrators, and confirms once the scripts are live.
 - **For early-access Pro users:** when Pro 1.0.4 or later is active, the tracking toggles live on Pro's Settings screen, and the free plugin's Conversion Tracking tab is hidden. The stored settings are unchanged, so nothing needs re-saving.
-- **Template A no longer exposes client names** in its CSS classes, stylesheet and file names or admin labels. Styles are now named by number (for example the `template_a--layout2` body class and `style-2-layout.css`). Pages keep their saved style. If you wrote custom CSS against the old Template A class names, update it.
-- **Video and map embeds are kept** in Template B's services intro and Reviews fields and in Template C' "More" content, from YouTube, Vimeo and Google Maps embed links (https only, WordPress 6.2 or later). Iframes from other sites, and styling or permissions on embeds, are removed. Developers can add providers with the `lpmanager_iframe_src_patterns` filter.
+- **Template A no longer exposes client names** in its CSS classes, stylesheet and file names or admin labels. Styles are now named by number (for example the `--layout2` body class modifier and `style-2-layout.css`). Pages keep their saved style. If you wrote custom CSS against the old Template A class names, update it.
+- **Video and map embeds are kept** in Template B's services intro and Reviews fields and in Template C's "More" content, from YouTube, Vimeo and Google Maps embed links (https only, WordPress 6.2 or later). Iframes from other sites, and styling or permissions on embeds, are removed. Developers can add providers with the `lpmanager_iframe_src_patterns` filter.
 - **Incomplete landing pages stay drafts.** Publishing a page that's missing required fields now saves it as a draft and says why. Editing a page that's already live never unpublishes it.
 - **Template A uses the client's colors.** The client's primary color replaces Template A's navy, and the secondary color replaces its red, on all three styles. Darker and lighter shades are derived from them, and a color too light for white text is darkened until white text on it reaches at least 4.5:1 contrast. Clients that use the default red and navy look the same as before.
 - Template A's mobile call button shows a phone icon instead of three "menu" bars, because it dials the phone.
@@ -131,7 +133,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ### Fixed
 - The first save of a new client now geocodes the address and extracts brand colors. These ran before Carbon Fields had saved the client's fields.
 - Landing pages no longer show a false "session expired" dialog.
-- Client B maps fall back to classic markers when no Map ID is set, and marker clicks work with both marker types.
+- Template B and Template C maps fall back to classic markers when no Map ID is set, and marker clicks work with both marker types.
 - Template upload from **Settings → Templates** works. The JS and PHP handler had drifted apart, so every upload failed.
 ### Changed
 - **The template is now chosen only by the global setting** (Settings → Templates). The per-client and per-page template choices are ignored.
