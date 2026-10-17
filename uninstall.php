@@ -11,6 +11,10 @@
  *
  *     define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );
  *
+ * Templates in wp-content/lpmanager-templates/ are always kept: they are site content shared by
+ * every site on a network, and a reinstall uses them again. Delete that folder yourself if you
+ * no longer need it.
+ *
  * @package LandingPageManager
  * @author  Odell Duppins / Duppins Technology
  */
@@ -79,6 +83,8 @@ function lpmanager_uninstall_site() {
             $wpdb->esc_like( '_transient_timeout_lpmanager_reviews_' ) . '%'
         )
     );
+    delete_transient( 'lpmanager_templates_copy_retry' );
+    wp_clear_scheduled_hook( 'lpmanager_copy_templates' );
 
     if ( defined( 'LPMANAGER_UNINSTALL_DELETE_CONTENT' ) && LPMANAGER_UNINSTALL_DELETE_CONTENT ) {
         // Direct query: get_posts( 'any' ) skips trash and auto-draft.

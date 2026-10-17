@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Two starter templates, Starter One (light) and Starter Two (dark).** They ship with the plugin, appear first under Settings → Templates, and are the default for new sites. Each has a hero with a call button, highlights, about, FAQ and contact sections, and uses the client's logo, colors and phone number, with text colors chosen so any brand color stays readable. They load no external fonts, icons or scripts. Copy one to build your own template.
+
+### Changed
+- **Uploaded and custom templates are kept outside the plugin folder**, in `wp-content/lpmanager-templates/`, so plugin updates no longer delete them. You can also copy a template folder there yourself.
+- **Templates still inside the plugin folder are copied there automatically** (Template A, Template B, Template C, and any template you uploaded earlier), shortly after updating or when an administrator next opens an admin page. While any template is still only inside the plugin folder, an admin notice names it and **updating the plugin is blocked**, including uploading a plugin ZIP over it, so the next update can't delete it.
+- The template tiles list the starter templates first, then other templates by name, then **Upload New Template**.
+- The notice for a missing template now says where to put it, and the in-plugin Help no longer says that updates remove uploaded templates.
+- The suggested privacy-policy text now says that *some* landing page designs load Google Fonts and cdnjs: the starter templates don't.
+
+### Upgrade notes
+- **Template A, Template B and Template C will be removed from the plugin in the next release.** This update copies them to `wp-content/lpmanager-templates/`, and your landing pages keep using them. Update to this version before any later one, open Landing Pages → Settings, and check that no template notice appears.
+- Sites that never saved the template setting stay on Template B, the previous default. New sites start with Starter One.
+- Back-ups and staging-to-live copies must now include `wp-content/lpmanager-templates/`. Uninstalling the plugin keeps that folder.
+- **Sites that deploy the plugin without the WordPress updater** (`DISALLOW_FILE_MODS`, Composer or Git): copy `template_a`, `template-b` and `template-c` (and any template you uploaded) from the plugin's `includes/templates/` to `wp-content/lpmanager-templates/` yourself before deploying the next version. The admin notice reminds you.
+- If the copy can't run (for example, WordPress can't write to `wp-content`), automatic updates of this plugin fail, and WordPress emails a failure notice each time it retries, until the copy succeeds or you copy the folders yourself. Your pages keep working meanwhile.
+- Rolling back to 1.0.9 keeps the client templates working, but 1.0.9 can't see `wp-content/lpmanager-templates/` or the starter templates: pages that use a starter or a template uploaded in 1.0.10 show a 404 until you update again.
 
 ## [1.0.9] - 2026-10-17
 ### Added
@@ -36,16 +53,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **Template A pages change to each client's colors.** Template A now uses the client's Primary and Secondary colors, which are often filled in automatically from the logo, so most Template A pages will look different after updating. Preview your Template A clients on staging. To keep the old look, set Primary to `#002868` and Secondary to `#b22234` on that client.
 - **Additional Scripts start printing once an administrator approves them.** They never printed before. Before you click Approve (the notice appears on the plugin's screens), remove old tags and any tag that is already in a client's Header Tracking Code, or conversions are counted twice.
 - **Embeds in rich-text fields are filtered.** In Template B's services intro and Reviews field, and in Template C' "More" content, only YouTube, Vimeo and Google Maps embeds are kept, and only on WordPress 6.2 or later. Script-based review widgets and iframes from other sites are removed, including code that 1.0.6 printed unfiltered. Check these pages after updating.
-- **Custom CSS against Template A class names must be updated.** The old names map to the new ones as follows (the mix of `layout2` and `layout-3` is intentional):
-  - `template_a--layout1` → `template_a--layout1`
-  - `template_a--client_d` → `template_a--layout2`
-  - `template_a--layout-3` → `template_a--layout-3`
-  - `hero--layout1` → `hero--layout1`
-  - `hero-fade--layout1` → `hero-fade--layout1`
-  - `hero--layout-3`, `hero-inner--layout-3`, `trust-bar--layout-3`, `complex-grid--layout-3` → `…--layout-3`
-  - `qt-client_d-ft*`, `qt-client_d-sections`, `qt-client_d-palette` → `qt-layout2-…`
-  - `qt-layout-3-ft` → `qt-layout-3-ft`
-  - `client_d-layout.css` → `style-2-layout.css`
+- **Custom CSS against Template A class names must be updated.** Client-named class names, handles and the layout stylesheet were renamed to neutral names: `layout1`, `layout2` and `layout-3` (the mix of `layout2` and `layout-3` is intentional), with the stylesheet now `style-2-layout.css`. Ask Duppins Technology (support@duppinstech.com) for the full old-to-new list.
 - **Sites that set `DISALLOW_UNFILTERED_HTML`:** nobody, administrators included, can then save or approve Additional Scripts or change a client's Header Tracking Code. Header tracking code that is already saved keeps printing. Additional Scripts therefore never print on these sites, and no approval notice appears. Have a developer print the tags with the `lpmanager_landing_page_footer` action instead.
 - **If you roll back to 1.0.6,** Additional Scripts stop printing, and Template B pages that rely only on the client's phone lose their call buttons. Custom CSS already moved to the new `template_a--layout*` class names stops matching, and Template A goes back to its built-in navy and red. Purge the page cache again.
 - Apart from approving Additional Scripts, no settings re-save, permalink flush or database step is needed.
