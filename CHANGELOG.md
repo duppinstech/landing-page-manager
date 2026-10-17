@@ -16,6 +16,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - The analytics dashboard's script and styles, which now ship with Pro, including an unversioned copy of Chart.js loaded from a CDN.
 - The "Pro analytics is coming soon" banner no longer appears on the Analytics and Tracking screens, which carry their own Pro message.
 
+### Security
+- Removing the analytics dashboard script also removes a cross-site scripting issue in it: a landing page title containing quotes, written by a user who can publish landing pages, could run script on an administrator's Analytics screen. Pro 1.0.6 ships the dashboard with the fix.
+
 ### Upgrade notes
 - **Update Landing Page Manager Pro to 1.0.6 at the same time.** With Pro 1.0.5 or earlier, the Analytics screen no longer shows charts: Analytics and Tracking say where Pro keeps those features until Pro is updated.
 
