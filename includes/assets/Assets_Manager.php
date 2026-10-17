@@ -163,22 +163,31 @@ class Assets_Manager {
             wp_enqueue_script('wp-auth-check');
         }
 
-        global $wp_styles;
-        $fa_found = false;
+        // The template's asset manifest, read once: it also decides whether the CDN fonts and icons load.
+        $current_template = Template_Manager::get_current_template();
+        // Bundled starters, or wp-content/lpmanager-templates/ for custom and uploaded templates.
+        $template_dir = Template_Manager::get_template_dir( $current_template );
+        $manifest     = ( '' !== $template_dir && file_exists( $template_dir . 'lib/assets.php' ) ) ? include $template_dir . 'lib/assets.php' : null;
 
-        foreach ( $wp_styles->queue as $handle ) {
-            if ( strpos( $handle, 'fontawesome' ) !== false || strpos( $handle, 'font-awesome' ) !== false ) {
-                wp_deregister_style( $handle );
+        // Font Awesome and Google Fonts load unless the template's lib/assets.php sets 'cdn_assets' => false
+        // (the starter templates use system fonts and no icons, so visitors' browsers don't contact those CDNs).
+        if ( ! ( is_array( $manifest ) && isset( $manifest['cdn_assets'] ) && false === $manifest['cdn_assets'] ) ) {
+            global $wp_styles;
+
+            foreach ( $wp_styles->queue as $handle ) {
+                if ( strpos( $handle, 'fontawesome' ) !== false || strpos( $handle, 'font-awesome' ) !== false ) {
+                    wp_deregister_style( $handle );
+                }
             }
+            // Enqueue your preferred FA version
+            wp_enqueue_style('my-font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', [], '5.15.4');
+
+            // Optional: enqueue v4 compatibility shims if you need them
+            wp_enqueue_style('my-font-awesome-v4-shims', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/v4-shims.min.css', ['my-font-awesome'], '5.15.4');
+
+            // --- ENQUEUE external fonts ---
+            wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Bebas+Neue&family=Roboto:wght@300;400;500;700&display=swap', [], null);
         }
-        // Enqueue your preferred FA version
-        wp_enqueue_style('my-font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', [], '5.15.4');
-
-        // Optional: enqueue v4 compatibility shims if you need them
-        wp_enqueue_style('my-font-awesome-v4-shims', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/v4-shims.min.css', ['my-font-awesome'], '5.15.4');
-
-        // --- ENQUEUE external fonts ---
-        wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Bebas+Neue&family=Roboto:wght@300;400;500;700&display=swap', [], null);
         // Swiper is not loaded from a CDN: the templates that use it ship their own copy (see lib/assets.php).
         // assets/js/reviews.js is intentionally not loaded: no template renders #reviews-container, and
         // each call was a billed Google Places request. Reviews are fetched from the editor and saved
@@ -201,19 +210,13 @@ class Assets_Manager {
         }
 
         // --- ENQUEUE landing page local assets ---
-        $includes_dir = dirname(plugin_dir_path(__FILE__));
-        $includes_url = plugin_dir_url($includes_dir . '/dummy.php');
-        $current_template = Template_Manager::get_current_template();
-
-        if ( empty( $current_template ) ) {
+        if ( '' === $template_dir ) {
             return;
         }
+        $template_url = Template_Manager::get_template_url( '', $current_template );
 
-        $template_dir = $includes_dir . '/templates/' . $current_template . '/';
-        $template_url = $includes_url . 'templates/' . $current_template . '/';
-
-        if ( file_exists( $template_dir . 'lib/assets.php' ) ) {
-            $this->enqueueTemplateManifest( $current_template, $template_dir, $template_url );
+        if ( null !== $manifest ) {
+            $this->enqueueTemplateManifest( $current_template, $template_dir, $template_url, $manifest );
         } else {
             // Templates without a manifest (e.g. uploaded ones) keep the old behaviour: jQuery plus every file.
             wp_enqueue_script('jquery');
@@ -263,8 +266,10 @@ class Assets_Manager {
      * Loading every file in css/ and js/ pulled in duplicate and unused libraries
      * (two Bootstraps, a second jQuery that replaced WordPress's own, payform, jQuery UI).
      */
-    private function enqueueTemplateManifest($slug, $template_dir, $template_url) {
-        $manifest = include $template_dir . 'lib/assets.php';
+    private function enqueueTemplateManifest($slug, $template_dir, $template_url, $manifest = null) {
+        if ( null === $manifest ) {
+            $manifest = include $template_dir . 'lib/assets.php';
+        }
         if ( ! is_array( $manifest ) ) {
             return;
         }

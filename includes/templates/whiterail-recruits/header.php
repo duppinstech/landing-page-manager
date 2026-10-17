@@ -10,8 +10,8 @@
         <meta name="HandheldFriendly" content="true" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         
-        <link rel="icon" type="image/png" href="<?php echo esc_url( plugins_url('css/images/favicons/favicon-32x32.png', __FILE__) ); ?>" sizes="32x32" />
-		<link rel="icon" type="image/png" href="<?php echo esc_url( plugins_url('css/images/favicons/favicon-16x16.png', __FILE__) ); ?>" sizes="16x16" />
+        <link rel="icon" type="image/png" href="<?php echo esc_url( \LPManager\templates\Template_Manager::get_template_url( 'css/images/favicons/favicon-32x32.png' ) ); ?>" sizes="32x32" />
+		<link rel="icon" type="image/png" href="<?php echo esc_url( \LPManager\templates\Template_Manager::get_template_url( 'css/images/favicons/favicon-16x16.png' ) ); ?>" sizes="16x16" />
         
         <?php do_action( 'wp_head' ); ?>
     </head>

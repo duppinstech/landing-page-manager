@@ -298,7 +298,7 @@ class Help_Widget {
                 'notes' => [
                     __( 'Select one card under Landing Page Templates to set the layout for every landing page on this site, then select Save Changes.', 'landing-page-manager' ),
                     __( 'Upload New Template installs a template ZIP that contains single-landing_page.php and screenshot.png.', 'landing-page-manager' ),
-                    __( 'Plugin updates remove uploaded templates, so keep the ZIP to upload it again.', 'landing-page-manager' ),
+                    __( 'Uploaded and custom templates are kept in wp-content/lpmanager-templates/, so plugin updates do not remove them. You can also copy a template folder there yourself.', 'landing-page-manager' ),
                 ],
             ],
             'settings-api-keys' => [

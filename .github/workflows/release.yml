@@ -42,7 +42,7 @@ jobs:
           unzip -Z1 landing-page-manager.zip > zip-list.txt
           bad="$(grep -v '^landing-page-manager/' zip-list.txt || true)"
           [ -z "$bad" ] || { echo "::error::Unexpected paths in zip:"; echo "$bad"; exit 1; }
-          for f in landing-page-manager.php vendor/autoload.php includes/Plugin.php; do
+          for f in landing-page-manager.php vendor/autoload.php includes/Plugin.php includes/templates/starter-one/single-landing_page.php includes/templates/starter-two/single-landing_page.php; do
             grep -qx "landing-page-manager/$f" zip-list.txt || { echo "::error::Missing $f in zip"; exit 1; }
           done
 
