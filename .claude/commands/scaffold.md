@@ -15,7 +15,7 @@ Copy `includes/templates/starter-one/` to `wp-content/lpmanager-templates/<slug>
 - `css/main.css` (and `js/` only if needed), optionally `404.php`
 - File URLs through `Template_Manager::get_template_url()`, file paths through `__DIR__`
 
-Do **not** copy the vendored bootstrap, swiper, or jquery files unless the template needs them (PLAN.md P2 tracks consolidating them).
+Load third-party libraries only if the template needs them, and list them in `lib/assets.php`.
 
 ## `module <dir>/<Class_Name>`
 - Create `includes/<dir>/<Class_Name>.php` with namespace `LPManager\<dir>` and a `public static function init()` that only registers hooks.

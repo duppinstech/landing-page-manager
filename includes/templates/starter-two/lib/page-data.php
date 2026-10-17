@@ -149,7 +149,7 @@ if ( $lpm_data['secondary'] ) {
 	$lpm_data['style'] .= '--lpm-accent:' . $lpm_accent . ';--lpm-on-accent:' . $lpm_on( $lpm_accent ) . ';';
 	$lpm_data['style'] .= '--lpm-accent-text:' . ( min( $lpm_contrast( $lpm_accent, $lpm_page_bg ), $lpm_contrast( $lpm_accent, $lpm_page_surface ) ) >= 4.5 ? $lpm_accent : $lpm_page_text ) . ';';
 	// The mobile call bar (accent colour) needs a visible edge where it barely differs from the page.
-	if ( $lpm_contrast( $lpm_accent, $lpm_page_bg ) < 3 ) {
+	if ( min( $lpm_contrast( $lpm_accent, $lpm_page_bg ), $lpm_contrast( $lpm_accent, $lpm_page_surface ) ) < 3 ) {
 		$lpm_data['style'] .= '--lpm-callbar-border:' . $lpm_page_text . ';';
 	}
 }

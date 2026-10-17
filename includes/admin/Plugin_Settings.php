@@ -237,29 +237,13 @@ class Plugin_Settings {
                     /* translators: 1: template slug, 2: folder path */
                     __( 'Landing Page Manager: the active template "%1$s" is missing, so landing pages are showing a 404. Put its folder in %2$s (as %2$s%1$s/), upload it again, or choose another template.', 'landing-page-manager' ),
                     $slug,
-                    'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
+                    Template_Manager::display_path( Template_Manager::custom_dir() )
                 ),
             ];
         }
         $pending = array_keys( Template_Manager::pending_templates() );
         if ( $pending ) {
-            $names = wp_sprintf_l( '%l', $pending );
-            $notices[] = [
-                'notice-warning',
-                wp_is_file_mod_allowed( 'lpmanager_copy_templates' )
-                    ? sprintf(
-                        /* translators: 1: template folder names, 2: folder path */
-                        __( 'Landing Page Manager: the templates %1$s are still stored only inside the plugin folder, where a plugin update would delete them, so updating the plugin is blocked. Landing Page Manager could not copy them to %2$s. Make wp-content writable and reload this page, or copy those folders from wp-content/plugins/landing-page-manager/includes/templates/ into %2$s yourself.', 'landing-page-manager' ),
-                        $names,
-                        'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
-                    )
-                    : sprintf(
-                        /* translators: 1: template folder names, 2: folder path */
-                        __( 'Landing Page Manager: the templates %1$s are still stored only inside the plugin folder. This site does not allow file changes from WordPress, so copy those folders from wp-content/plugins/landing-page-manager/includes/templates/ into %2$s before you deploy the next plugin version, or that deploy deletes them.', 'landing-page-manager' ),
-                        $names,
-                        'wp-content/' . Template_Manager::CUSTOM_DIR_NAME . '/'
-                    ),
-            ];
+            $notices[] = [ 'notice-warning', 'Landing Page Manager: ' . Template_Manager::pending_templates_message( $pending ) ];
         }
         foreach ( $notices as $notice ) {
             printf(
