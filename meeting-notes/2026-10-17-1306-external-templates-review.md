@@ -1,0 +1,31 @@
+# Department review: custom templates outside the plugin, starter templates, client templates removed (`feature/external-templates`)
+**When:** 2026-10-17 13:06 EDT · **Scope:** `git diff 5811788..82e3de6`: `a714c86` (planned 1.0.10) and `82e3de6` (planned 1.0.11), plus the private repo `duppinstech/landing-page-manager-templates` · **Chair:** main session (landing-page-manager-pro session, with the core session's agreement) · **Owner:** Odell Duppins
+
+Odell asked (2026-10-17) to take the client templates out of the public plugin into a private repository, ship two generic starter templates, and make sure plugin updates never delete the live sites' templates. His choices: plain folder delivery to `wp-content/lpmanager-templates/`, a private repo created now, a git history rewrite, and the names "Starter One / Starter Two".
+
+## Attendance and verdicts
+| Department | Verdict | Summary |
+|---|---|---|
+| Security | fix-before-merge | No High. Medium: the one-time copy runs on any visitor request with no lock and no staging cleanup. Low: ignores `DISALLOW_FILE_MODS`, umask permissions, a front-end copy warning, folder listing. |
+| Legal | fix-before-merge | The 1.0.7 CHANGELOG still names a client ("charmeck"). Starters load Google Fonts and cdnjs for nothing. **For Odell:** the private repo's licence, what the history purge should cover, employer-IP terms (attorney review). |
+| Finance | **ok** | No price change; uploads surviving updates is a value gain. **For Odell:** how client templates and their redeploys are billed; the live-site inventory that gates 1.0.11. |
+| Product | fix-before-merge | Meets the request: tile order, upgrade path and defaults are right. Required Headline contradicts its help text; call bar and contact button contrast. **For Odell:** how template fixes reach live sites after 1.0.10. |
+| Marketing | fix-before-merge | The in-plugin Help still says updates delete uploads; the [Unreleased] CHANGELOG mixes both releases. Drafted release notes. |
+| Support / docs | fix-before-merge | Same Help and CHANGELOG points; Headline help; notice and error next steps; README copy and uninstall line. The untracked user guide in the main checkout is stale (see Outcomes). |
+| Ops / release | fix-before-merge | **High: force-pushing rewritten tags re-runs the Release workflow and replaces every old release zip.** Medium: the legacy default pin runs after Carbon Fields registers fields; copy "done" is per database, not per server; no update guard; CHANGELOG split. |
+| UX | fix-before-merge | High: with some client colours the call buttons, mobile call bar and focus ring fail WCAG AA; the button text colour helper isn't WCAG-based. Low: hero image priority, logo size, call bar overlap, tap target. **For Odell:** template tiles aren't keyboard accessible (existed before). |
+
+## Highlights
+- No `block`. Every department confirmed the core design: starters always from the plugin, other templates from `wp-content/lpmanager-templates/` first, a copy step in 1.0.10, removal in 1.0.11.
+- **Release found that the planned history rewrite would silently rebuild every old release zip** (the tag-push trigger in `release.yml`), which would break rollback and the 1.0.10 bridge. The procedure now disables the workflow first.
+- **Release found a real first-request bug:** the whiterail-ai pin ran after Carbon Fields had registered Starter One's fields.
+- **A site that skips 1.0.10 and installs 1.0.11 loses its client templates** (an update deletes the plugin folder before new code runs). 1.0.10 now refuses to be updated while a template exists only inside the plugin, and support has a recovery step (reinstall 1.0.10, which copies them again).
+
+## Outcomes
+- **Approved, fixed in this round** (details in the follow-up commits):
+  - Copy step: off visitor requests (WP-Cron plus admin pages), an `add_option` lock with a stale timeout, shutdown cleanup of staging folders, `wp_is_file_mod_allowed()`, WordPress file permissions, no warnings on failure, `Options -Indexes` in the folder; the legacy pin moved before Carbon Fields registers fields; admin pages re-check every load, so restored or extra servers get copies; `upgrader_pre_install` refuses the plugin update while a template exists only inside the plugin.
+  - Starters: WCAG-based text colours for every client-colour pairing, a two-tone focus ring (FAQ included), hero `fetchpriority`/`sizes`, logo via `wp_get_attachment_image()`, call bar spacing and `scroll-padding-bottom`, 44px header phone target, Headline no longer required, Contact section hidden when it has nothing to show, no Google Fonts or Font Awesome (`lib/assets.php` `'cdn_assets' => false`).
+  - Text: Help widget note, notice and upload error next steps, CHANGELOG split (1.0.10 notes stay as written; the 1.0.11 notes are added separately and name 1.0.10), "charmeck" removed from the 1.0.7 entries, README copy, privacy guide wording, uninstall transient and docs, contributor docs and `decisions.md`, `release.yml` zip checks.
+- **Approved → PLAN:** deploy procedure for the private repo; a "stored in" signal per template to confirm the 1.0.10 rollout; `LPMANAGER_TEMPLATES_DIR` for hosts where wp-content isn't writable; move the client-template backlog items to the private repo after 1.0.11; CREDITS split.
+- **For Odell (Decisions needed):** private repo licence (legal recommends GPL-2.0-or-later); history purge scope (code only, or also client names in PLAN, meeting notes, memory and CHANGELOG) plus a GitHub Support cache purge; employer-IP check for the ownership wording (attorney review); billing for client templates and their redeploys; live-site inventory before 1.0.11; pin behaviour when whiterail-ai is missing (404 with a notice, or fall back to Starter One); delete `wp-content/lpmanager-templates/` on uninstall (default: keep); keyboard-accessible template tiles now or later; old release zips (already listed).
+- **Not changed:** the user guide in `marketing/` is untracked in the main checkout and belongs to neither working session. Stale there: `guide/settings-templates.md` (bundled names; "uploads are removed on update"), `guide/settings-updates.md` (keep-the-ZIP sentence), `guide/landing-page-editor.md`, `quick-guide.md`, `social.md`, `website.md`, and `screenshots/admin/templates.jpg`.

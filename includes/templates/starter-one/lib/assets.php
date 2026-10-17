@@ -2,7 +2,9 @@
 /**
  * Front-end assets for the Starter One template, in load order.
  *
- * Keys become handles (lpm-starter-one-<key>). The starter needs no JavaScript.
+ * Keys become handles (lpm-starter-one-<key>). The starter needs no JavaScript, and
+ * 'cdn_assets' => false stops the plugin loading Google Fonts and Font Awesome: the
+ * starter uses system fonts and no icons.
  *
  * @package Landing_Page_Manager
  */
@@ -12,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 return array(
+	'cdn_assets' => false,
 	'styles'  => array(
 		'main' => array( 'css/main.css' ),
 	),

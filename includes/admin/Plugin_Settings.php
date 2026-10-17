@@ -240,7 +240,7 @@ class Plugin_Settings {
         } elseif ( Template_Manager::is_at_risk( $slug ) ) {
             $class   = 'notice-warning';
             /* translators: 1: template slug, 2: folder path */
-            $message = __( 'Landing Page Manager: the active template "%1$s" is still stored inside the plugin folder, and a future plugin update will remove it. Landing Page Manager could not copy it to %2$s. Make that folder writable or copy the template there yourself before you update.', 'landing-page-manager' );
+            $message = __( 'Landing Page Manager: the active template "%1$s" is still stored inside the plugin folder, and a future plugin update will remove it. Landing Page Manager could not copy it to %2$s. Make wp-content writable and reload this page, or copy the template folder there yourself. Until then, updating the plugin is blocked so the template is not deleted.', 'landing-page-manager' );
         } else {
             return;
         }

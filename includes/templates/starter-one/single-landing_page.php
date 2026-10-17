@@ -32,8 +32,8 @@ $lpm_starter = require __DIR__ . '/lib/page-data.php';
 <header class="lpm-header">
 	<div class="lpm-wrap lpm-header__inner">
 		<span class="lpm-brand">
-			<?php if ( $lpm_starter['logo_url'] ) : ?>
-				<img src="<?php echo esc_url( $lpm_starter['logo_url'] ); ?>" alt="<?php echo esc_attr( $lpm_starter['name'] ); ?>" />
+			<?php if ( $lpm_starter['logo_id'] && wp_get_attachment_image_url( $lpm_starter['logo_id'], 'medium' ) ) : ?>
+				<?php echo wp_get_attachment_image( $lpm_starter['logo_id'], 'medium', false, array( 'alt' => $lpm_starter['name'] ) ); ?>
 			<?php else : ?>
 				<?php echo esc_html( $lpm_starter['name'] ); ?>
 			<?php endif; ?>
@@ -57,7 +57,7 @@ $lpm_starter = require __DIR__ . '/lib/page-data.php';
 				<?php endif; ?>
 			</div>
 			<?php if ( $lpm_starter['hero_image'] ) : ?>
-				<div class="lpm-hero__media"><?php echo wp_get_attachment_image( $lpm_starter['hero_image'], 'large', false, array( 'loading' => 'eager' ) ); ?></div>
+				<div class="lpm-hero__media"><?php echo wp_get_attachment_image( $lpm_starter['hero_image'], 'large', false, array( 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(min-width: 800px) 520px, 100vw' ) ); ?></div>
 			<?php endif; ?>
 		</div>
 	</section>
@@ -103,6 +103,7 @@ $lpm_starter = require __DIR__ . '/lib/page-data.php';
 		</section>
 	<?php endif; ?>
 
+	<?php if ( $lpm_starter['show_contact'] ) : ?>
 	<section class="lpm-section lpm-contact" aria-labelledby="lpm-contact-heading">
 		<div class="lpm-wrap lpm-contact__inner">
 			<h2 id="lpm-contact-heading" class="lpm-section__title"><?php echo esc_html( $lpm_starter['contact_heading'] ); ?></h2>
@@ -122,6 +123,7 @@ $lpm_starter = require __DIR__ . '/lib/page-data.php';
 			<?php endif; ?>
 		</div>
 	</section>
+	<?php endif; ?>
 </main>
 
 <footer class="lpm-footer">
