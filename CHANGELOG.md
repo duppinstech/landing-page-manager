@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.11] - 2026-10-17
 ### Removed
 - **Template A, Template B and Template C no longer ship with the plugin.** They are client templates and are now maintained separately. Sites that ran 1.0.10 already have copies in `wp-content/lpmanager-templates/`, which this update doesn't touch.
 - The privacy-policy guide no longer mentions the Template C template's images.
@@ -165,7 +167,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.10...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.11...HEAD
+[1.0.11]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.9...v1.0.10
 [1.0.9]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.7...v1.0.8
