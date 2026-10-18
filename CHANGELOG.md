@@ -5,6 +5,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [1.0.14] - 2026-10-17
+### Fixed
+- **"Update now" works again.** Since 1.0.6, every update failed with "A directory could not be read" and the site stayed on its old version: the updater deleted the downloaded update because its folder was already named `landing-page-manager` (as every release zip is). If a downloaded update can't be moved into place, the update now stops with an error instead of installing into a misnamed folder.
+
+### Upgrade notes
+- **Sites on 1.0.13 or earlier: install 1.0.14 once by hand.** Download **`landing-page-manager.zip`** from the [1.0.14 release](https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.14) (not "Source code (zip)"), then go to **Plugins → Add New Plugin → Upload Plugin**, choose the file, and select **Replace current with uploaded**. Later updates install normally.
+- This also brings the 1.0.13 changes, including its security fix, to sites that couldn't update to 1.0.13.
+
 ## [1.0.13] - 2026-10-17
 ### Added
 - **Tracking menu item** under Landing Pages. With Landing Page Manager Pro 1.0.6 or later it holds Pro's tracking settings (what is tracked, whose visits are counted, consent). Without Pro it explains how to get conversion tracking.
@@ -190,7 +198,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.12...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.14...HEAD
+[1.0.14]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.9...v1.0.10

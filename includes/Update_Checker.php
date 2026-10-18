@@ -231,23 +231,35 @@ class Update_Checker {
     /**
      * Normalize GitHub zipball extraction folder to plugin slug.
      * Prevents installs into repo/hash-style directories.
+     *
+     * WordPress passes $source with a trailing slash, so paths are compared without it. Before 1.0.14
+     * they weren't: a package already unpacked into landing-page-manager/ (every release asset) was
+     * taken for a misnamed folder and deleted, and "Update now" failed with "A directory could not
+     * be read".
      */
     public static function normalize_install_source_dir( $source, $remote_source, $upgrader, $hook_extra ) {
-        if ( empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== self::get_plugin_basename() ) {
+        if ( is_wp_error( $source ) || empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== self::get_plugin_basename() ) {
             return $source;
         }
         $desired = trailingslashit( $remote_source ) . self::PLUGIN_SLUG;
-        if ( wp_normalize_path( $source ) === wp_normalize_path( $desired ) ) {
+        // Same folder, ignoring letter case too: on case-insensitive file systems deleting $desired
+        // would delete $source.
+        if ( strtolower( untrailingslashit( wp_normalize_path( $source ) ) ) === strtolower( untrailingslashit( wp_normalize_path( $desired ) ) ) ) {
             return $source;
         }
         global $wp_filesystem;
         if ( ! $wp_filesystem || ! $wp_filesystem->exists( $source ) ) {
             return $source;
         }
+        // A different folder already named like the plugin (never $source itself, checked above).
         if ( $wp_filesystem->exists( $desired ) ) {
             $wp_filesystem->delete( $desired, true );
         }
-        $moved = $wp_filesystem->move( $source, $desired );
-        return $moved ? $desired : $source;
+        if ( ! $wp_filesystem->move( $source, $desired ) ) {
+            // Stop here rather than install into a misnamed folder (which would leave the plugin inactive).
+            return new \WP_Error( 'lpmanager_update_rename_failed', __( 'The update could not be moved into the landing-page-manager folder.', 'landing-page-manager' ) );
+        }
+        // With the trailing slash WordPress expects (its package check globs "{$source}*.php").
+        return trailingslashit( $desired );
     }
 }
