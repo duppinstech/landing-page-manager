@@ -242,7 +242,9 @@ class Update_Checker {
             return $source;
         }
         $desired = trailingslashit( $remote_source ) . self::PLUGIN_SLUG;
-        if ( untrailingslashit( wp_normalize_path( $source ) ) === untrailingslashit( wp_normalize_path( $desired ) ) ) {
+        // Same folder, ignoring letter case too: on case-insensitive file systems deleting $desired
+        // would delete $source.
+        if ( strtolower( untrailingslashit( wp_normalize_path( $source ) ) ) === strtolower( untrailingslashit( wp_normalize_path( $desired ) ) ) ) {
             return $source;
         }
         global $wp_filesystem;
@@ -253,7 +255,11 @@ class Update_Checker {
         if ( $wp_filesystem->exists( $desired ) ) {
             $wp_filesystem->delete( $desired, true );
         }
-        $moved = $wp_filesystem->move( $source, $desired );
-        return $moved ? trailingslashit( $desired ) : $source;
+        if ( ! $wp_filesystem->move( $source, $desired ) ) {
+            // Stop here rather than install into a misnamed folder (which would leave the plugin inactive).
+            return new \WP_Error( 'lpmanager_update_rename_failed', __( 'The update could not be moved into the landing-page-manager folder.', 'landing-page-manager' ) );
+        }
+        // With the trailing slash WordPress expects (its package check globs "{$source}*.php").
+        return trailingslashit( $desired );
     }
 }
