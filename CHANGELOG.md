@@ -5,6 +5,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [1.0.14] - 2026-10-17
+### Fixed
+- **"Update now" works again.** Since 1.0.6 the updater deleted the downloaded update when its folder was already named `landing-page-manager` (as every release zip is), so updates failed with "A directory could not be read" and the site stayed on its old version. Sites on 1.0.13 or earlier need to install this version once by hand (**Plugins → Add New → Upload Plugin**, then **Replace current with uploaded**); later updates install normally.
+
 ## [1.0.13] - 2026-10-17
 ### Added
 - **Tracking menu item** under Landing Pages. With Landing Page Manager Pro 1.0.6 or later it holds Pro's tracking settings (what is tracked, whose visits are counted, consent). Without Pro it explains how to get conversion tracking.

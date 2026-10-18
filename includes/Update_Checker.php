@@ -231,23 +231,29 @@ class Update_Checker {
     /**
      * Normalize GitHub zipball extraction folder to plugin slug.
      * Prevents installs into repo/hash-style directories.
+     *
+     * WordPress passes $source with a trailing slash, so paths are compared without it. Before 1.0.14
+     * they weren't: a package already unpacked into landing-page-manager/ (every release asset) was
+     * taken for a misnamed folder and deleted, and "Update now" failed with "A directory could not
+     * be read".
      */
     public static function normalize_install_source_dir( $source, $remote_source, $upgrader, $hook_extra ) {
-        if ( empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== self::get_plugin_basename() ) {
+        if ( is_wp_error( $source ) || empty( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== self::get_plugin_basename() ) {
             return $source;
         }
         $desired = trailingslashit( $remote_source ) . self::PLUGIN_SLUG;
-        if ( wp_normalize_path( $source ) === wp_normalize_path( $desired ) ) {
+        if ( untrailingslashit( wp_normalize_path( $source ) ) === untrailingslashit( wp_normalize_path( $desired ) ) ) {
             return $source;
         }
         global $wp_filesystem;
         if ( ! $wp_filesystem || ! $wp_filesystem->exists( $source ) ) {
             return $source;
         }
+        // A different folder already named like the plugin (never $source itself, checked above).
         if ( $wp_filesystem->exists( $desired ) ) {
             $wp_filesystem->delete( $desired, true );
         }
         $moved = $wp_filesystem->move( $source, $desired );
-        return $moved ? $desired : $source;
+        return $moved ? trailingslashit( $desired ) : $source;
     }
 }

@@ -3,7 +3,7 @@
  * Plugin Name: Landing Page Manager
  * Plugin URI: https://github.com/duppinstech/landing-page-manager
  * Description: Launch fast, client-branded landing pages on subdomains for every service, keyword and city.
- * Version: 1.0.13
+ * Version: 1.0.14
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Author: Duppins Technology
