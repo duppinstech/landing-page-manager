@@ -26,6 +26,10 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **Live-site inventory before 1.0.11.** **Answered (Odell, 10-17): two sites, client-b.example and a Template A site; both updated to 1.0.10 and their templates copied.** Release 1.0.11 once client-b.example runs 1.0.10 and Landing Pages → Settings shows no template notice. _2026-10-17_
 - [ ] **When the pinned template-b template is missing.** Today the pages show a 404 with an admin notice. Alternative: fall back to Starter One (pages stay up with a different design and empty fields). Product recommends the 404. [2026-10-17 13:06 review](meeting-notes/2026-10-17-1306-external-templates-review.md)
 - [ ] **Delete `wp-content/lpmanager-templates/` on uninstall?** Default: keep it (documented in `uninstall.php` and the README). Option: delete it when `LPMANAGER_UNINSTALL_DELETE_CONTENT` is set. [2026-10-17 13:06 review](meeting-notes/2026-10-17-1306-external-templates-review.md)
+- [x] **Release 1.0.13 promptly (security).** **Approved (Odell, 10-17):** released with Pro 1.0.6. 1.0.12 and earlier have a cross-site scripting issue in the Analytics dashboard script; 1.0.13 removes the script. _2026-10-17_
+- [x] **Pro wording.** **Decided (Odell, 10-17): "Get Pro" everywhere.** The banner, the Analytics and Tracking screens and the README now say Get Pro. _2026-10-17_
+- [ ] **User guide sections for the Help widget.** **Later (Odell, 10-17).** The Help widget's Analytics and Tracking links open the guide at `#analytics` and `#tracking`; both sections need to exist when the guide is published.
+- [ ] **Where Get Pro leads.** **Odell is working out Pro distribution (10-17).** Until then the `lpmanager_get_pro_url` default stays https://duppinstech.com/.
 - [ ] **Keyboard-accessible template tiles** (now or later). The tiles are clickable `div`s and the upload input is `display:none`, so neither is reachable by keyboard. Existed before 1.0.10. [2026-10-17 13:06 review](meeting-notes/2026-10-17-1306-external-templates-review.md)
 
 - [x] **P0 — Stop WordPress.org from offering updates for this plugin.** **Decided (Odell, 10-14): yes.** Updates come from GitHub only until the free core is listed on WordPress.org, and Pro stays the paid add-on. _(done on `fix/review-p0-batch`, 10-14)_
@@ -215,6 +219,9 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [x] **Stop loading Maps JS on every page view (template-b footer).** This is now the biggest per-view Google cost (about $7 per 1,000 loads after the free 10,000), so it moved up from P1. See the P1 entry below for the fix. _(DR 10-14b)_ _(fin)_ **Done 10-16** (`perf/maps-lazy-load-p1-batch`): Maps JS loads when the map is within 300px of the viewport, the map has an accessible region name, and setup messages show to editors only.
 
 ## P1 — deployment and quality
+- [x] **One Analytics screen and a Tracking screen, both Pro-only** (Odell, 10-17: revert the separate Pro Analytics screen; rename Pro Settings to Tracking; show a Pro message without Pro). Landing Page Manager 1.0.13 always registers Landing Pages → Analytics (`lp_analytics`) and → Tracking (`lp_tracking`) and advertises them with `lpmanager_pro_screen_slots()`; Pro 1.0.6+ renders them through the `lpmanager_render_analytics_page` and `lpmanager_render_tracking_page` actions. Without Pro both show how to get it (Get Pro button); with Pro before 1.0.6 they say where the feature is until Pro updates. The analytics dashboard (markup, `analytics.js`, `analytics.css`) moved to Pro; the Conversion Tracking (Pro) Settings tab is gone (kept only for Pro before 1.0.4); Help widget notes cover both screens. On `feature/analytics-tracking-slots`. _2026-10-17_
+  - Review fixes ([19:25 review](meeting-notes/2026-10-17-1925-analytics-tracking-review.md)): no "coming soon" banner on these two screens; "update Pro" wording for Pro before 1.0.4 (Settings → Conversion Tracking) separate from 1.0.4–1.0.5 (Pro Analytics / Pro Settings); "(opens in a new tab)" for screen readers only; upgrade note to update Pro at the same time. Release Pro 1.0.6 before or with 1.0.13.
+
 
 - [ ] **Draft-on-publish polish.**
   - Validate a page when it is scheduled, not when it goes live.
@@ -378,6 +385,8 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [ ] **Accessibility and Core Web Vitals audit** of each template on mobile, with a Lighthouse baseline. Moved from P2 to P1; the 10-14 UX report is the first pass. _(prod, ux · DR 10-14)_
 
 ## P2 — later
+
+- [ ] **Remove unused dashboard code:** `Admin_Dashboard::enqueue_assets()` (depends on a `chart-js-handle` script that no longer exists), `assets/js/dashboard.js` and `views/admin-dashboard.php`. Check each is unused before removing. Keep `get_dashboard_data()`: it serves the `lpmanager/v1/dashboard-data` REST route and its `lpmanager_dashboard_data` filter, which Pro hooks. `assets/js/tracking.js` is not part of this: Pro 1.0.1–1.0.2 still load it (see the analytics item above). _(prod · [DR 10-17 19:25](meeting-notes/2026-10-17-1925-analytics-tracking-review.md))_
 
 - [ ] **Register `post_updated_messages` for `landing_page`**, so editors see "Landing page draft updated" and "Landing page published" instead of the generic "Post …" messages. _(prod · DR 10-16c re-review)_
 

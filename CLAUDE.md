@@ -23,7 +23,7 @@ Open action items: [PLAN.md](PLAN.md). Agent roster: [AGENTS.md](AGENTS.md).
 - `includes/cpt/` — `landing_page` CPT, list-table enhancements, subdomain rewrite rules.
 - `includes/taxonomy/` — `client` (branding, domain, template, Brandfetch) and `keyword`.
 - `includes/templates/` — `Template_Manager` (registry + zip upload), `Template_Loader` (template_include at priority 99), and the starter templates (`starter-one`, `starter-two`). Custom and uploaded templates live in `wp-content/lpmanager-templates/<slug>/`, outside the plugin; client templates are kept in the private `landing-page-manager-templates` repository, never here. Resolve template paths with `Template_Manager::get_template_dir()` / `get_template_url()`. Each template has `single-landing_page.php` and `screenshot.png`, and usually `lib/fields/landing-page-fields.php` and `lib/assets.php` (the starters also have `lib/page-data.php`).
-- `includes/admin/` — dashboard, stats, settings (tabs: Templates, API Keys, Conversion Tracking, Updates).
+- `includes/admin/` — dashboard, stats, settings (tabs: Templates, API Keys, Updates; Conversion Tracking only with Pro before 1.0.4), the Analytics and Tracking screens that Pro 1.0.6+ fills (`lpmanager_pro_screen_slots()`), and the Help widget.
 - `includes/core/` — validator, required-field registry, Google Maps helpers.
 - `includes/Update_Checker.php` — GitHub-release updater; normalizes zipball folder name.
 - Pro add-on lives in a **separate repo** (`landing-page-manager-pro`, gitignored here). Never put Pro logic in this repo; gate with `lpmanager_is_premium()`.

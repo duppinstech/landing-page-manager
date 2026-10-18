@@ -3,7 +3,7 @@
  * Plugin Name: Landing Page Manager
  * Plugin URI: https://github.com/duppinstech/landing-page-manager
  * Description: Launch fast, client-branded landing pages on subdomains for every service, keyword and city.
- * Version: 1.0.12
+ * Version: 1.0.13
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Author: Duppins Technology
@@ -55,6 +55,20 @@ function lpmanager_google_server_api_key() {
         $key = trim( (string) carbon_get_theme_option( 'lpmanager_google_maps_api_key' ) );
     }
     return $key;
+}
+
+/**
+ * Admin screens this plugin provides for Landing Page Manager Pro to fill (since 1.0.13). Pro 1.0.6+
+ * renders them through the lpmanager_render_analytics_page and lpmanager_render_tracking_page actions
+ * instead of adding its own menu items.
+ *
+ * @return array<string, string> Screen => admin page slug.
+ */
+function lpmanager_pro_screen_slots() {
+    return [
+        'analytics' => 'lp_analytics',
+        'tracking'  => 'lp_tracking',
+    ];
 }
 
 /**

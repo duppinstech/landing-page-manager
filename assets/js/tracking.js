@@ -1,6 +1,7 @@
 /**
  * Landing Page Manager – front-end tracking.
- * Only runs features enabled via lpmanagerTracking (Settings → Conversion Tracking).
+ * Only runs features enabled via lpmanagerTracking. Pro 1.0.3+ ships its own copy; Pro 1.0.1–1.0.2
+ * still load this file from here, so it stays until every site runs Pro 1.0.3 or later (see PLAN).
  * - Page views: counted server-side on template_redirect.
  * - Link clicks: sent via AJAX for CTR / link performance.
  * - Conversions: phone/call button clicks.

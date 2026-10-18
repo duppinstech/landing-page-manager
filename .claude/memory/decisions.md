@@ -56,7 +56,7 @@ Answered in one Q&A session; PLAN.md "Decisions needed" items are marked with ea
 - **Templates:** core stays global-only. Per-client template choice is a Pro feature, through an `lpmanager_template_for_post` filter.
 - **Reviews (interim):** a timestamp-only lock replaces the 12-hour content cache. Storage and the 4–5★ filter wait for the attorney.
 - **Analytics:** Pro-only. Fix the docs and move `tracking.js` and the toggles to Pro.
-- **Pro button (interim):** "coming soon — contact Duppins Technology for early access", linking to duppinstech.com. Price and licensing are still open.
+- **Pro button (interim):** "coming soon — contact Duppins Technology for early access", linking to duppinstech.com. Price and licensing are still open. *Superseded 10-17: "Get Pro" everywhere.*
 - **Client templates:** reusable Duppins products. Anonymize client names, bill only for customization, and ship a neutral default.
 - **Tracking defaults:** all trackers stay on by default. Legal's recommendation (behavioral trackers off, plus a consent hook) was declined.
 - **Template C images:** rights confirmed, so they stay. The copyright line will come from the site or client name.
@@ -113,3 +113,9 @@ All four batches passed department review with no `block`.
 **Context:** Odell asked whether the folder belongs in `wp-content/uploads/` (where backup plugins look) and left the choice to the session.
 **Decision:** keep `wp-content/lpmanager-templates/`. Templates are executable PHP; many hosts and security plugins block or flag PHP in `uploads` (it's where web shells are dropped), and media-style folders there hold non-executable files only. Backup and migration tools include all of `wp-content`. On multisite, `uploads` is per site, while templates are shared.
 **Consequences:** no move and no migration release. Back-ups must include `wp-content/lpmanager-templates/` (in the 1.0.10 upgrade notes). `LPMANAGER_TEMPLATES_DIR` stays a P2 for hosts that need another location. v1.0.10 and v1.0.11 were released the same day after both live sites (client-b.example, the Template A site) updated to 1.0.10.
+
+## 2026-10-17 — Analytics and Tracking screens (Odell)
+- **Analytics:** Pro-only, one Analytics screen (the original dashboard plus Pro's per-page detail view); Pro Settings renamed **Tracking**. Without Pro, both screens show a Get Pro message.
+- **Pro wording:** "Get Pro" everywhere (replaces "coming soon — contact for early access"). Where Get Pro leads (Pro distribution) is Odell's to work out; the link stays duppinstech.com until then.
+- **Release:** 1.0.13 with Pro 1.0.6, which also fixes the dashboard XSS from 1.0.12 and earlier.
+- **Later:** user guide sections for the Help widget (`#analytics`, `#tracking`).

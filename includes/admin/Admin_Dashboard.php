@@ -36,18 +36,22 @@ class Admin_Dashboard {
         if ( ! $screen ) {
             return;
         }
-        $on_lp_pages = ( strpos( $screen->id, 'lp_dashboard' ) !== false || strpos( $screen->id, 'lp_analytics' ) !== false || strpos( $screen->id, 'crb_carbon_fields' ) !== false || ( isset( $screen->parent_base ) && $screen->parent_base === 'lp_dashboard' ) );
+        // The Analytics and Tracking screens carry their own Pro message.
+        if ( strpos( $screen->id, 'lp_analytics' ) !== false || strpos( $screen->id, 'lp_tracking' ) !== false ) {
+            return;
+        }
+        $on_lp_pages = ( strpos( $screen->id, 'lp_dashboard' ) !== false || strpos( $screen->id, 'crb_carbon_fields' ) !== false || ( isset( $screen->parent_base ) && $screen->parent_base === 'lp_dashboard' ) );
         if ( ! $on_lp_pages ) {
             return;
         }
-        // Until the Pro offer is public, point to Duppins Technology for early access (Odell, 10-16).
+        // "Get Pro" everywhere (Odell, 10-17); where it leads is the lpmanager_get_pro_url default.
         $get_pro_url = apply_filters( 'lpmanager_get_pro_url', 'https://duppinstech.com/' );
         ?>
         <div class="notice lp-pro-banner" style="margin: 0 0 20px 0; padding: 12px 20px; border-left-color: #2271b1; background: #f0f6fc; border-left-width: 4px;">
             <p style="margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
-                <strong><?php esc_html_e( 'Pro analytics is coming soon', 'landing-page-manager' ); ?></strong>
-                <span style="color: #50575e;">— <?php esc_html_e( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Contact Duppins Technology for early access.', 'landing-page-manager' ); ?></span>
-                <a href="<?php echo esc_url( $get_pro_url ); ?>" class="button button-primary" style="margin-left: auto;" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Contact for early access', 'landing-page-manager' ); ?></a>
+                <strong><?php esc_html_e( 'Analytics and conversion tracking are part of Landing Page Manager Pro', 'landing-page-manager' ); ?></strong>
+                <span style="color: #50575e;">— <?php esc_html_e( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics.', 'landing-page-manager' ); ?></span>
+                <a href="<?php echo esc_url( $get_pro_url ); ?>" class="button button-primary" style="margin-left: auto;" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Pro', 'landing-page-manager' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'landing-page-manager' ); ?></span></a>
             </p>
         </div>
         <?php
@@ -80,40 +84,15 @@ class Admin_Dashboard {
             '2.1.0'
         );
 
-        if ( ! lpmanager_is_premium() && ( $is_dashboard || $is_analytics || strpos( $hook, 'crb_carbon_fields' ) !== false ) ) {
+        if ( ! lpmanager_is_premium() && ( $is_dashboard || $is_analytics || strpos( $hook, 'lp_tracking' ) !== false || strpos( $hook, 'crb_carbon_fields' ) !== false ) ) {
             wp_add_inline_style( 'lp-dashboard-css', '
-                .toplevel_page_lp_dashboard .wp-submenu a[href*="page=lp_analytics"]::after { content: " — Pro"; color: #d63638; font-weight: 600; font-size: 11px; }
+                .toplevel_page_lp_dashboard .wp-submenu a[href*="page=lp_analytics"]::after,
+                .toplevel_page_lp_dashboard .wp-submenu a[href*="page=lp_tracking"]::after { content: " — Pro"; color: #d63638; font-weight: 600; font-size: 11px; }
             ' );
         }
-
-        if ( $is_analytics ) {
-            wp_enqueue_style(
-                'lp-analytics-css',
-                LP_MANAGER_PLUGIN_URL . 'assets/css/analytics.css',
-                [ 'lp-dashboard-css' ],
-                '2.1.0'
-            );
-            if ( lpmanager_is_premium() ) {
-                wp_enqueue_script( 'chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], '4.4.1', true );
-                wp_enqueue_script(
-                    'lp-analytics-js',
-                    LP_MANAGER_PLUGIN_URL . 'assets/js/analytics.js',
-                    [ 'chartjs' ],
-                    '2.1.0',
-                    true
-                );
-                wp_localize_script( 'lp-analytics-js', 'lpmanagerAnalytics', [
-                    'apiUrl'        => rest_url( 'lpmanager/v1/analytics-data' ),
-                    'nonce'         => wp_create_nonce( 'wp_rest' ),
-                    'clientId'      => isset( $_GET['client_id'] ) ? absint( $_GET['client_id'] ) : 0,
-                    'templateFilter'=> isset( $_GET['template'] ) ? sanitize_text_field( wp_unslash( $_GET['template'] ) ) : '',
-                    'editBase'       => admin_url( 'post.php?post=REPLACE_ID&action=edit' ),
-                    'adminUrl'       => admin_url( 'admin.php' ),
-                ] );
-            }
-        }
+        // The Analytics and Tracking screens, their scripts and styles belong to Landing Page Manager Pro.
     }
-    
+
     public static function get_dashboard_data( $request ) {
         // Landing page counts
         $counts = wp_count_posts( 'landing_page' );
@@ -206,7 +185,8 @@ class Admin_Dashboard {
             'edit-tags.php?taxonomy=keyword&post_type=landing_page'
         );
 
-        // Submenu: Analytics (all users; Pro unlocks data; free shows CTA and "Get Pro" in menu)
+        // Analytics and Tracking are Pro features. The menu items are always here: Pro 1.0.6+ fills the
+        // screens (see lpmanager_pro_screen_slots()); without Pro they show how to get it.
         add_submenu_page(
             'lp_dashboard',
             __( 'Analytics', 'landing-page-manager' ),
@@ -214,6 +194,14 @@ class Admin_Dashboard {
             'manage_options',
             'lp_analytics',
             [ __CLASS__, 'render_analytics_page' ]
+        );
+        add_submenu_page(
+            'lp_dashboard',
+            __( 'Tracking', 'landing-page-manager' ),
+            __( 'Tracking', 'landing-page-manager' ),
+            'manage_options',
+            'lp_tracking',
+            [ __CLASS__, 'render_tracking_page' ]
         );
     }
 
@@ -476,104 +464,67 @@ class Admin_Dashboard {
     }
 
     public static function render_analytics_page() {
-        if ( ! lpmanager_is_premium() ) {
-            ?>
-            <div class="wrap lp-analytics lp-analytics--upgrade">
-                <div class="lp-upgrade-cta">
-                    <h1 class="lp-upgrade-cta__title"><?php esc_html_e( 'Analytics', 'landing-page-manager' ); ?></h1>
-                    <p class="lp-upgrade-cta__message"><?php esc_html_e( 'Analytics and conversion tracking are part of Landing Page Manager Pro. Upgrade to see page views, link clicks, conversion rates, and campaign performance.', 'landing-page-manager' ); ?></p>
-                    <p class="lp-upgrade-cta__hint"><?php esc_html_e( 'Install and activate the Pro add-on to unlock this feature.', 'landing-page-manager' ); ?></p>
-                </div>
-            </div>
-            <?php
+        self::render_pro_screen(
+            'lpmanager_render_analytics_page',
+            __( 'Analytics', 'landing-page-manager' ),
+            __( 'Analytics are part of Landing Page Manager Pro. Upgrade to see page views, link clicks, conversion rates, engagement, heatmaps and campaign performance for your landing pages.', 'landing-page-manager' ),
+            self::pro_has_own_screens()
+                ? __( 'Landing Page Manager Pro is active, but this version shows its analytics under Landing Pages → Pro Analytics. Update Landing Page Manager Pro to 1.0.6 or later to see them here.', 'landing-page-manager' )
+                : __( 'Landing Page Manager Pro is active, but this version can\'t show analytics on this screen. Update Landing Page Manager Pro to 1.0.6 or later to see them here.', 'landing-page-manager' )
+        );
+    }
+
+    public static function render_tracking_page() {
+        self::render_pro_screen(
+            'lpmanager_render_tracking_page',
+            __( 'Tracking', 'landing-page-manager' ),
+            __( 'Conversion tracking is part of Landing Page Manager Pro. Install Pro to track page views, phone and call-button conversions, link clicks, scroll depth and form use on your landing pages, and to choose whose visits are counted.', 'landing-page-manager' ),
+            self::pro_has_own_screens()
+                ? __( 'Landing Page Manager Pro is active, but this version keeps its tracking settings under Landing Pages → Pro Settings. Update Landing Page Manager Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
+                : __( 'Landing Page Manager Pro is active, but this version keeps its tracking options under Settings → Conversion Tracking (and, in Pro 1.0.3, Landing Pages → Pro Settings). Update Landing Page Manager Pro to 1.0.6 or later to manage them here.', 'landing-page-manager' )
+        );
+    }
+
+    /**
+     * Whether the active Pro is 1.0.4 or later. When Pro doesn't fill the Analytics and Tracking
+     * screens (1.0.4–1.0.5), this means it has its own Pro Analytics and Pro Settings screens; Pro
+     * before 1.0.4 keeps its tracking options in Settings → Conversion Tracking instead.
+     */
+    public static function pro_has_own_screens() {
+        return function_exists( 'lpmanager_pro_tracking_options' );
+    }
+
+    /**
+     * A screen that Landing Page Manager Pro fills through $action. Without Pro it explains how to get
+     * it; with a Pro version that predates these screens, it says where the feature is until Pro updates.
+     *
+     * @param string $action          Action Pro hooks to render the screen.
+     * @param string $title           Screen title.
+     * @param string $upgrade_message Shown when Pro isn't active.
+     * @param string $update_message  Shown when an older Pro is active.
+     */
+    private static function render_pro_screen( $action, $title, $upgrade_message, $update_message ) {
+        if ( ! current_user_can( 'manage_options' ) ) {
             return;
         }
-        $client_id = isset( $_GET['client_id'] ) ? absint( $_GET['client_id'] ) : 0;
-        $clients = get_terms( [ 'taxonomy' => 'client', 'hide_empty' => false ] );
-        if ( is_wp_error( $clients ) ) $clients = [];
+        if ( has_action( $action ) ) {
+            /**
+             * Renders a Landing Page Manager Pro screen (Analytics or Tracking).
+             */
+            do_action( $action );
+            return;
+        }
+        $is_premium = lpmanager_is_premium();
         ?>
-        <div class="wrap lp-analytics" id="lp-analytics-root">
-            <header class="lp-analytics__header">
-                <h1 class="lp-analytics__title"><?php esc_html_e( 'Analytics', 'landing-page-manager' ); ?></h1>
-                <p class="lp-analytics__subtitle"><?php esc_html_e( 'Traffic, click-through rates, and campaign performance.', 'landing-page-manager' ); ?></p>
-                <div class="lp-analytics__filters">
-                    <?php if ( ! empty( $clients ) ) : ?>
-                        <div class="lp-analytics__filter">
-                            <label for="lp-client-filter"><?php esc_html_e( 'Client', 'landing-page-manager' ); ?></label>
-                            <select id="lp-client-filter" class="lp-select">
-                                <option value="0"><?php esc_html_e( 'All clients', 'landing-page-manager' ); ?></option>
-                                <?php foreach ( $clients as $c ) : ?>
-                                    <option value="<?php echo esc_attr( $c->term_id ); ?>" <?php selected( $client_id, $c->term_id ); ?>><?php echo esc_html( $c->name ); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    <?php endif; ?>
-                    <div class="lp-analytics__filter">
-                        <label for="lp-template-filter"><?php esc_html_e( 'Template', 'landing-page-manager' ); ?></label>
-                        <select id="lp-template-filter" class="lp-select">
-                            <option value=""><?php esc_html_e( 'All templates', 'landing-page-manager' ); ?></option>
-                        </select>
-                    </div>
-                </div>
-            </header>
-
-            <div class="lp-tabs" role="tablist">
-                <button type="button" class="lp-tabs__tab lp-tabs__tab--active" role="tab" id="tab-overview" aria-selected="true" aria-controls="panel-overview" data-tab="overview"><?php esc_html_e( 'Overview', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-clients" aria-selected="false" aria-controls="panel-clients" data-tab="clients"><?php esc_html_e( 'By Client', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-pages" aria-selected="false" aria-controls="panel-pages" data-tab="pages"><?php esc_html_e( 'By Page', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-template" aria-selected="false" aria-controls="panel-template" data-tab="template"><?php esc_html_e( 'By Template', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-links" aria-selected="false" aria-controls="panel-links" data-tab="links"><?php esc_html_e( 'Link Performance', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-engagement" aria-selected="false" aria-controls="panel-engagement" data-tab="engagement"><?php esc_html_e( 'Engagement', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-heatmap" aria-selected="false" aria-controls="panel-heatmap" data-tab="heatmap"><?php esc_html_e( 'Heatmap', 'landing-page-manager' ); ?></button>
-                <button type="button" class="lp-tabs__tab" role="tab" id="tab-rage" aria-selected="false" aria-controls="panel-rage" data-tab="rage"><?php esc_html_e( 'Rage Clicks', 'landing-page-manager' ); ?></button>
+        <div class="wrap lp-analytics lp-analytics--upgrade">
+            <div class="lp-upgrade-cta">
+                <h1 class="lp-upgrade-cta__title"><?php echo esc_html( $title ); ?></h1>
+                <p class="lp-upgrade-cta__message"><?php echo esc_html( $is_premium ? $update_message : $upgrade_message ); ?></p>
+                <?php if ( ! $is_premium ) : ?>
+                    <p class="lp-upgrade-cta__hint"><?php esc_html_e( 'Install and activate the Pro add-on to unlock this feature.', 'landing-page-manager' ); ?></p>
+                    <p><a class="button button-primary" href="<?php echo esc_url( apply_filters( 'lpmanager_get_pro_url', 'https://duppinstech.com/' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Pro', 'landing-page-manager' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'landing-page-manager' ); ?></span></a></p>
+                <?php endif; ?>
             </div>
-
-            <div id="panel-overview" class="lp-tab-panel lp-tab-panel--active" role="tabpanel" aria-labelledby="tab-overview">
-                <div class="lp-stats lp-stats--hero lp-analytics-summary" id="lp-summary-cards"></div>
-                <div class="lp-charts lp-charts--overview">
-                    <div class="lp-chart-card"><canvas id="lp-chart-daily-visits"></canvas></div>
-                    <div class="lp-chart-card"><canvas id="lp-chart-daily-conversions"></canvas></div>
-                </div>
-            </div>
-            <div id="panel-clients" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-clients" hidden>
-                <div class="lp-table-wrapper">
-                    <table class="lp-table" id="lp-table-clients">
-                        <thead><tr><th><?php esc_html_e( 'Client', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Pages', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Views', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Conversions', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Clicks', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Conv. rate', 'landing-page-manager' ); ?></th></tr></thead>
-                        <tbody id="lp-tbody-clients"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="panel-pages" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-pages" hidden>
-                <div class="lp-table-wrapper">
-                    <table class="lp-table" id="lp-table-pages">
-                        <thead><tr><th><?php esc_html_e( 'Page', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Client', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Template', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Views', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Conversions', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Clicks', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Conv. rate', 'landing-page-manager' ); ?></th></tr></thead>
-                        <tbody id="lp-tbody-pages"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="panel-template" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-template" hidden>
-                <div class="lp-table-wrapper">
-                    <table class="lp-table" id="lp-table-template">
-                        <thead><tr><th><?php esc_html_e( 'Template', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Pages', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Views', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Conversions', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Clicks', 'landing-page-manager' ); ?></th><th><?php esc_html_e( 'Conv. rate', 'landing-page-manager' ); ?></th></tr></thead>
-                        <tbody id="lp-tbody-template"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="panel-links" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-links" hidden>
-                <div id="lp-link-performance"></div>
-            </div>
-            <div id="panel-engagement" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-engagement" hidden>
-                <div id="lp-engagement-content"></div>
-            </div>
-            <div id="panel-heatmap" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-heatmap" hidden>
-                <div id="lp-heatmap-content"></div>
-            </div>
-            <div id="panel-rage" class="lp-tab-panel" role="tabpanel" aria-labelledby="tab-rage" hidden>
-                <div id="lp-rage-content"></div>
-            </div>
-
-            <div class="lp-analytics-loading" id="lp-analytics-loading"><?php esc_html_e( 'Loading…', 'landing-page-manager' ); ?></div>
-            <div class="lp-analytics-error" id="lp-analytics-error" hidden></div>
         </div>
         <?php
     }

@@ -5,6 +5,25 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [1.0.13] - 2026-10-17
+### Added
+- **Tracking menu item** under Landing Pages. With Landing Page Manager Pro 1.0.6 or later it holds Pro's tracking settings (what is tracked, whose visits are counted, consent). Without Pro it explains how to get conversion tracking.
+- For developers: `lpmanager_pro_screen_slots()` names the Analytics and Tracking screens, and the `lpmanager_render_analytics_page` and `lpmanager_render_tracking_page` actions render them. Anything hooking these actions must check the user's capabilities itself.
+
+### Changed
+- **Analytics come from Landing Page Manager Pro.** The Analytics screen's dashboard (summary, charts and report tabs) now ships with Pro 1.0.6, which also adds a detail view for each landing page. Without Pro, Analytics explains how to get it, with a Get Pro button. With a Pro version before 1.0.6, Analytics and Tracking say where those features are until Pro is updated.
+
+### Removed
+- The **Conversion Tracking (Pro)** Settings tab, replaced by the Tracking menu item. (Sites running Pro before 1.0.4 still see their tracking options there.)
+- The analytics dashboard's script and styles, which now ship with Pro, including an unversioned copy of Chart.js loaded from a CDN.
+- The Pro banner on the other Landing Pages screens now says **Get Pro**, like the Analytics and Tracking screens, instead of "coming soon, contact for early access". It no longer appears on Analytics and Tracking, which carry their own Pro message.
+
+### Security
+- Removing the analytics dashboard script also removes a cross-site scripting issue in it: a landing page title containing quotes, written by a user who can publish landing pages, could run script on an administrator's Analytics screen. Pro 1.0.6 ships the dashboard with the fix.
+
+### Upgrade notes
+- **Update Landing Page Manager Pro to 1.0.6 at the same time.** With Pro 1.0.5 or earlier, the Analytics screen no longer shows charts: Analytics and Tracking say where Pro keeps those features until Pro is updated.
+
 ## [1.0.12] - 2026-10-17
 ### Removed
 - The one-time step from 1.0.10 that saved the previous default template for sites that had never saved the template setting. Every site that needed it has run it. A site updating straight from 1.0.9 or earlier without having saved the setting starts on Starter One.
