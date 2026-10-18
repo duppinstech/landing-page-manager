@@ -22,7 +22,7 @@ API keys are stored in **Settings** and are never hardcoded. Google and Brandfet
 - WordPress 5.9+
 - PHP 7.4+
 - [Composer](https://getcomposer.org/) (for development)
-- Optional: Landing Page Manager Pro (analytics and conversion tracking) is coming soon. Contact [Duppins Technology](https://duppinstech.com/) for early access.
+- Optional: [Landing Page Manager Pro](https://duppinstech.com/) for analytics and conversion tracking.
 
 ## Installation
 

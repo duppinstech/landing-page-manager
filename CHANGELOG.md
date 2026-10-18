@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.13] - 2026-10-17
 ### Added
 - **Tracking menu item** under Landing Pages. With Landing Page Manager Pro 1.0.6 or later it holds Pro's tracking settings (what is tracked, whose visits are counted, consent). Without Pro it explains how to get conversion tracking.
 - For developers: `lpmanager_pro_screen_slots()` names the Analytics and Tracking screens, and the `lpmanager_render_analytics_page` and `lpmanager_render_tracking_page` actions render them. Anything hooking these actions must check the user's capabilities itself.
@@ -14,7 +16,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ### Removed
 - The **Conversion Tracking (Pro)** Settings tab, replaced by the Tracking menu item. (Sites running Pro before 1.0.4 still see their tracking options there.)
 - The analytics dashboard's script and styles, which now ship with Pro, including an unversioned copy of Chart.js loaded from a CDN.
-- The "Pro analytics is coming soon" banner no longer appears on the Analytics and Tracking screens, which carry their own Pro message.
+- The Pro banner on the other Landing Pages screens now says **Get Pro**, like the Analytics and Tracking screens, instead of "coming soon, contact for early access". It no longer appears on Analytics and Tracking, which carry their own Pro message.
 
 ### Security
 - Removing the analytics dashboard script also removes a cross-site scripting issue in it: a landing page title containing quotes, written by a user who can publish landing pages, could run script on an administrator's Analytics screen. Pro 1.0.6 ships the dashboard with the fix.

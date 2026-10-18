@@ -44,14 +44,14 @@ class Admin_Dashboard {
         if ( ! $on_lp_pages ) {
             return;
         }
-        // Until the Pro offer is public, point to Duppins Technology for early access (Odell, 10-16).
+        // "Get Pro" everywhere (Odell, 10-17); where it leads is the lpmanager_get_pro_url default.
         $get_pro_url = apply_filters( 'lpmanager_get_pro_url', 'https://duppinstech.com/' );
         ?>
         <div class="notice lp-pro-banner" style="margin: 0 0 20px 0; padding: 12px 20px; border-left-color: #2271b1; background: #f0f6fc; border-left-width: 4px;">
             <p style="margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
-                <strong><?php esc_html_e( 'Pro analytics is coming soon', 'landing-page-manager' ); ?></strong>
-                <span style="color: #50575e;">— <?php esc_html_e( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics. Contact Duppins Technology for early access.', 'landing-page-manager' ); ?></span>
-                <a href="<?php echo esc_url( $get_pro_url ); ?>" class="button button-primary" style="margin-left: auto;" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Contact for early access', 'landing-page-manager' ); ?></a>
+                <strong><?php esc_html_e( 'Analytics and conversion tracking are part of Landing Page Manager Pro', 'landing-page-manager' ); ?></strong>
+                <span style="color: #50575e;">— <?php esc_html_e( 'Page views, conversions, click tracking, heatmaps, rage clicks and form analytics.', 'landing-page-manager' ); ?></span>
+                <a href="<?php echo esc_url( $get_pro_url ); ?>" class="button button-primary" style="margin-left: auto;" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Pro', 'landing-page-manager' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'landing-page-manager' ); ?></span></a>
             </p>
         </div>
         <?php
