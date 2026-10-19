@@ -119,3 +119,8 @@ All four batches passed department review with no `block`.
 - **Pro wording:** "Get Pro" everywhere (replaces "coming soon — contact for early access"). Where Get Pro leads (Pro distribution) is Odell's to work out; the link stays duppinstech.com until then.
 - **Release:** 1.0.13 with Pro 1.0.6, which also fixes the dashboard XSS from 1.0.12 and earlier.
 - **Later:** user guide sections for the Help widget (`#analytics`, `#tracking`).
+
+## 2026-10-19: Attribute everything to Duppins Technology
+**Context:** Author lines mixed "Odell Duppins / Duppins Technology", "Odell Duppins Jr (d/b/a Duppins Technology)" and plain "Duppins Technology", and OWNERSHIP.md contradicted itself.
+**Decision (owner):** Every author, owner and copyright attribution in this repo names **Duppins Technology** and no person. That covers the plugin header, `@author` and `@copyright` tags, LICENSE, README, OWNERSHIP.md, CONTRIBUTING, CLAUDE.md, reviewer agents and meeting-note Owner headers. Shipped code comments use "(owner decision, …)".
+**Consequences:** New files and notices use Duppins Technology. Decision-log mentions in PLAN.md, memory and meeting notes were left as written, pending the owner's call.
