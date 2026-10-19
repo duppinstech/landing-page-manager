@@ -28,9 +28,9 @@ Complete the hosting/DNS prerequisite first so client subdomains can reach WordP
 | Landing Pages → Keywords | `keywords.jpg` | Add and manage page keywords. |
 | Landing Pages list | `landing-pages.jpg` | Open an editor, inspect the generated URL, or use Export CSV. |
 | Landing Page editor | `landing-page-editor.jpg` | Set title, Client Name, optional Page phone, Keyword, and template-specific fields. |
-| Landing Pages → Analytics | — | See the Analytics screen; core shows the Pro availability prompt. |
+| Landing Pages → Analytics | `analytics.jpg` | See the Analytics screen; core shows the Get Pro prompt. |
+| Landing Pages → Tracking | `tracking.jpg` | See the Tracking screen; core shows the Get Pro prompt. |
 | Settings → Templates | `templates.jpg` | Choose the global template or upload a template archive. |
-| Settings → Conversion Tracking (Pro) | `conversion-tracking.jpg` | See the Pro analytics availability prompt in core. |
 | Settings → API Keys | `api-keys.jpg` | Configure optional Google Maps and Brandfetch keys and Additional Scripts. |
 | Settings → Updates | `updates.jpg` | Read the GitHub update-source information. |
 

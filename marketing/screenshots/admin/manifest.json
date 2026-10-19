@@ -158,21 +158,25 @@
       }
     ]
   },
+  "tracking": {
+    "file": "tracking.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Select Tracking in the Landing Pages menu to open this screen."
+      },
+      {
+        "n": 2,
+        "text": "Get Pro opens the page about Landing Page Manager Pro."
+      }
+    ]
+  },
   "settings-templates": {
     "file": "templates.jpg",
     "callouts": [
       {
         "n": 1,
         "text": "Select a template card to choose the site-wide template."
-      }
-    ]
-  },
-  "settings-conversion-tracking": {
-    "file": "conversion-tracking.jpg",
-    "callouts": [
-      {
-        "n": 1,
-        "text": "Contact for early access opens the plugin's configured Pro enquiry link."
       }
     ]
   },

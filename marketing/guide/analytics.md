@@ -17,4 +17,4 @@
 
 ## Next
 
-[Conversion Tracking](settings-conversion-tracking)
+[Tracking](tracking)

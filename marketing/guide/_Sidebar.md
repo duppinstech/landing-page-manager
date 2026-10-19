@@ -19,11 +19,11 @@
 ** After publish
 
 * [Analytics](analytics)
+* [Tracking](tracking)
 
 ** Settings and recovery
 
 * [Templates](settings-templates)
-* [Conversion Tracking](settings-conversion-tracking)
 * [API Keys](settings-api-keys)
 * [Updates](settings-updates)
 * [Logs and failures](logs)

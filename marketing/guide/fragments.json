@@ -8,9 +8,9 @@
   "edit-keyword": "keywords",
   "keyword": "keyword-editor",
   "landing-pages_page_lp_analytics": "analytics",
+  "landing-pages_page_lp_tracking": "tracking",
   "landing-pages_page_crb_carbon_fields_container_settings": "settings-templates",
   "settings-tab-templates": "settings-templates",
-  "settings-tab-conversion-tracking": "settings-conversion-tracking",
   "settings-tab-api-keys": "settings-api-keys",
   "settings-tab-updates": "settings-updates"
 }
