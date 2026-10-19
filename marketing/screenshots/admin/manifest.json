@@ -1,0 +1,210 @@
+{
+  "install": {
+    "file": "install.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Choose File selects the release ZIP landing-page-manager.zip from your computer."
+      },
+      {
+        "n": 2,
+        "text": "Select Install Now after choosing the ZIP to install it."
+      }
+    ]
+  },
+  "help-button": {
+    "file": "help-button.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Help, at the bottom right of every Landing Page Manager screen, opens notes for that screen."
+      },
+      {
+        "n": 2,
+        "text": "Open the user guide opens this screen's section of the guide in a new tab."
+      }
+    ]
+  },
+  "dashboard": {
+    "file": "dashboard.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Add Landing Page opens the landing-page editor."
+      },
+      {
+        "n": 2,
+        "text": "All Landing Pages opens the page list."
+      },
+      {
+        "n": 3,
+        "text": "Clients opens the client list."
+      }
+    ]
+  },
+  "dashboard-widgets": {
+    "file": "dashboard-widgets.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Open Dashboard opens the plugin dashboard."
+      },
+      {
+        "n": 2,
+        "text": "Add Landing Page opens the landing-page editor."
+      },
+      {
+        "n": 3,
+        "text": "Collapse or expand the Landing Page Manager Stats widget."
+      }
+    ]
+  },
+  "clients": {
+    "file": "clients.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Enter a client name in Name."
+      }
+    ]
+  },
+  "client-editor": {
+    "file": "client-editor.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Open Branding & Identity."
+      },
+      {
+        "n": 2,
+        "text": "Open Contact Info."
+      },
+      {
+        "n": 3,
+        "text": "Open Tracking & Integration."
+      },
+      {
+        "n": 4,
+        "text": "Open Social Media."
+      }
+    ]
+  },
+  "keywords": {
+    "file": "keywords.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Enter a keyword in Name."
+      },
+      {
+        "n": 2,
+        "text": "Select Add New Keyword to add it to the list."
+      }
+    ]
+  },
+  "keyword-editor": {
+    "file": "keyword-editor.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Name changes the keyword label."
+      },
+      {
+        "n": 2,
+        "text": "Update saves the edited keyword."
+      }
+    ]
+  },
+  "landing-pages": {
+    "file": "landing-pages.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Add New Landing Page opens the page editor."
+      },
+      {
+        "n": 2,
+        "text": "The All Clients dropdown filters the page list by client."
+      },
+      {
+        "n": 3,
+        "text": "Export CSV downloads the filtered list for administrators."
+      }
+    ]
+  },
+  "landing-page-editor": {
+    "file": "landing-page-editor.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Title supplies the page's path slug."
+      },
+      {
+        "n": 2,
+        "text": "Client Name assigns the page to a client."
+      },
+      {
+        "n": 3,
+        "text": "Keyword assigns the campaign or search term."
+      }
+    ]
+  },
+  "analytics": {
+    "file": "analytics.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Select Analytics in the Landing Pages menu to open this Pro-gated screen."
+      }
+    ]
+  },
+  "settings-templates": {
+    "file": "templates.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Select a template card to choose the site-wide template."
+      }
+    ]
+  },
+  "settings-conversion-tracking": {
+    "file": "conversion-tracking.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Contact for early access opens the plugin's configured Pro enquiry link."
+      }
+    ]
+  },
+  "settings-api-keys": {
+    "file": "api-keys.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Google Maps browser key is visible in page source and should be restricted to your site and client subdomains."
+      },
+      {
+        "n": 2,
+        "text": "Google Maps server key is used for server-side lookups and should be restricted by server IP."
+      }
+    ]
+  },
+  "settings-updates": {
+    "file": "updates.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "The Updates tab names GitHub Releases as the update source and points you to Dashboard → Updates → Check again to check now."
+      }
+    ]
+  },
+  "deactivate": {
+    "file": "deactivate.jpg",
+    "callouts": [
+      {
+        "n": 1,
+        "text": "Deactivate turns off the plugin without deleting its settings or content."
+      }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Landing Page Manager",
+  "slug": "landing-page-manager",
+  "version": "1",
+  "legacy_paths": ["landing-page-manager/guide"]
+}
