@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- **A new landing page no longer opens with "Missing required fields".** The warning appeared on the blank Add New form, before anything was typed. It still appears when you save or publish a page with required fields missing, and an incomplete page still stays a draft when you publish it.
+
+### Changed
+- The copyright and author lines in the plugin's files and `LICENSE` name Duppins Technology.
 
 ## [1.0.14] - 2026-10-17
 ### Fixed
