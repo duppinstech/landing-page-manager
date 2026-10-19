@@ -120,9 +120,51 @@ class Template_Loader {
         Template_Manager::set_current_template( $template_slug );
 
         $template_dir = Template_Manager::get_template_dir( $template_slug );
-        if ( '' !== $template_dir && file_exists( $template_dir . 'lib/fields/landing-page-fields.php' ) ) {
-            require_once $template_dir . 'lib/fields/landing-page-fields.php';
+        if ( '' === $template_dir || ! file_exists( $template_dir . 'lib/fields/landing-page-fields.php' ) ) {
+            return;
         }
+
+        // A broken uploaded template must not take down wp-admin: catch what PHP lets us catch
+        // (parse errors, calls to missing functions or classes, Carbon Fields exceptions) and say so.
+        try {
+            require_once $template_dir . 'lib/fields/landing-page-fields.php';
+        } catch ( \Throwable $e ) {
+            self::$field_load_error = [
+                'slug'    => $template_slug,
+                'message' => $e->getMessage(),
+                'file'    => wp_basename( $e->getFile() ),
+                'line'    => $e->getLine(),
+            ];
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( sprintf( 'Landing Page Manager: template "%s" fields failed to load: %s in %s:%d', $template_slug, $e->getMessage(), $e->getFile(), $e->getLine() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            }
+            add_action( 'admin_notices', [ __CLASS__, 'render_field_load_error_notice' ] );
+        }
+    }
+
+    /** Set when the active template's fields file threw while loading. */
+    private static $field_load_error = null;
+
+    /**
+     * Tell administrators that the active template's fields could not be loaded.
+     */
+    public static function render_field_load_error_notice() {
+        if ( ! self::$field_load_error || ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        $error = self::$field_load_error;
+        echo '<div class="notice notice-error"><p>';
+        echo esc_html(
+            sprintf(
+                /* translators: 1: template slug, 2: error message, 3: file name, 4: line number */
+                __( 'The fields of the "%1$s" template could not be loaded, so its landing page fields are missing or incomplete: %2$s (%3$s, line %4$d). Fix or re-upload the template, or choose another one under Landing Pages → Settings → Templates.', 'landing-page-manager' ),
+                $error['slug'],
+                $error['message'],
+                $error['file'],
+                (int) $error['line']
+            )
+        );
+        echo '</p></div>';
     }
 
     /**
@@ -138,7 +180,8 @@ class Template_Loader {
                 : self::get_custom_404_template();
         }
 
-        if ( get_query_var( 'force_lp_404' ) ) {
+        // A client subdomain whose page belongs to another client (see Rewrite_Rules) gets the template's 404.
+        if ( get_query_var( 'force_lp_404' ) || ( is_404() && get_query_var( 'lp_client' ) ) ) {
             return self::get_custom_404_template();
         }
 
