@@ -12,6 +12,7 @@ tests
 phpunit.xml.dist
 CLAUDE.md
 CLAUDE.local.md
+CLAUDE.local.md.example
 AGENTS.md
 INTENT.md
 PLAN.md
@@ -21,3 +22,6 @@ landing-page-manager-pro
 landing-page-manager.zip
 # Design mockups (client-named reference HTML) — kept in git, not shipped
 includes/templates/*/*.html
+# Local Docker WordPress (see CLAUDE.local.md); never in a zip
+docker-compose.yml
+.env
