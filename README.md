@@ -98,4 +98,4 @@ GPL-2.0-or-later. See [LICENSE](LICENSE) for details.
 
 ## Author
 
-Odell Duppins
+Duppins Technology (https://duppinstech.com)

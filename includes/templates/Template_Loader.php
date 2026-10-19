@@ -19,7 +19,7 @@ class Template_Loader {
      * Get effective template for a landing page.
      *
      * Core uses the global template setting. Choosing a template per client or page is a
-     * Pro feature, through the lpmanager_template_for_post filter (Odell, 10-16).
+     * Pro feature, through the lpmanager_template_for_post filter (owner decision, 10-16).
      *
      * @param int $post_id Landing page post ID.
      * @return string Template slug.

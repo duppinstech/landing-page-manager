@@ -1,5 +1,5 @@
 # Department review: custom templates outside the plugin, starter templates, client templates removed (`feature/external-templates`)
-**When:** 2026-10-17 13:06 EDT · **Scope:** `git diff 5811788..82e3de6`: `a714c86` (planned 1.0.10) and `82e3de6` (planned 1.0.11), plus the private repo `duppinstech/landing-page-manager-templates` · **Chair:** main session (landing-page-manager-pro session, with the core session's agreement) · **Owner:** Odell Duppins
+**When:** 2026-10-17 13:06 EDT · **Scope:** `git diff 5811788..82e3de6`: `a714c86` (planned 1.0.10) and `82e3de6` (planned 1.0.11), plus the private repo `duppinstech/landing-page-manager-templates` · **Chair:** main session (landing-page-manager-pro session, with the core session's agreement) · **Owner:** Duppins Technology
 
 Odell asked (2026-10-17) to take the client templates out of the public plugin into a private repository, ship two generic starter templates, and make sure plugin updates never delete the live sites' templates. His choices: plain folder delivery to `wp-content/lpmanager-templates/`, a private repo created now, a git history rewrite, and the names "Starter One / Starter Two".
 

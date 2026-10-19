@@ -12,8 +12,8 @@ Description: A dark starter layout: hero with call button, highlights, about, FA
  * Keep this notice in copies.
  *
  * @package   Landing_Page_Manager
- * @author    Odell Duppins / Duppins Technology
- * @copyright 2026 Odell Duppins (d/b/a Duppins Technology)
+ * @author    Duppins Technology
+ * @copyright 2026 Duppins Technology
  * @license   GPL-2.0-or-later
  */
 

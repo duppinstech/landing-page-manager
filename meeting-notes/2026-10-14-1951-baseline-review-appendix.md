@@ -57,12 +57,12 @@ Correction for 1.0.6 line 28: `**Template A template** for towing and roadside s
   - **Brandfetch:** the client domain (admin).
   - **GitHub API:** the update check.
   - **Google Fonts, cdnjs and jsDelivr:** the visitor's IP, until the assets are served locally.
-- **Author:** "Odell Duppins / Duppins Technology (https://duppinstech.com)". Also add: "See CREDITS.md for bundled third-party components."
+- **Author:** "Duppins Technology (https://duppinstech.com)". Also add: "See CREDITS.md for bundled third-party components."
 
 ## Plugin header _(marketing, legal, ops)_
 ```
  * Description: Launch fast, client-branded landing pages on subdomains for every service, keyword and city.
- * Author: Odell Duppins / Duppins Technology
+ * Author: Duppins Technology
  * Author URI: https://duppinstech.com
  * Requires at least: 5.9
  * Requires PHP: 7.4

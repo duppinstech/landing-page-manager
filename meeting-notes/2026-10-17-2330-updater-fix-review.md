@@ -1,5 +1,5 @@
 # Department review: updater fix (1.0.14)
-**When:** 2026-10-17 23:30 EDT · **Scope:** `fix/updater-source-dir` (Update_Checker::normalize_install_source_dir, version 1.0.14) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-17 23:30 EDT · **Scope:** `fix/updater-source-dir` (Update_Checker::normalize_install_source_dir, version 1.0.14) · **Chair:** main session · **Owner:** Duppins Technology
 
 Security, release/ops, QA and support, one combined pass.
 

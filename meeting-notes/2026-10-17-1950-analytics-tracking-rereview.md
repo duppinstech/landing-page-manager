@@ -1,5 +1,5 @@
 # Department re-review: Analytics and Tracking screens, round 2
-**When:** 2026-10-17 19:50 EDT · **Scope:** the round-1 fixes in `70697f6` on `feature/analytics-tracking-slots` · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-17 19:50 EDT · **Scope:** the round-1 fixes in `70697f6` on `feature/analytics-tracking-slots` · **Chair:** main session · **Owner:** Duppins Technology
 
 All eight departments, one combined pass.
 

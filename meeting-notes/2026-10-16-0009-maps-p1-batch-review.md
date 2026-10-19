@@ -1,5 +1,5 @@
 # Department review: Maps lazy-load and P1 front-end batch (`perf/maps-lazy-load-p1-batch`)
-**When:** 2026-10-16 00:09 EDT · **Scope:** `git diff 24eb45e..7a8892a`, six commits stacked on `fix/review-p0-batch`. They cover the P0 Maps JS lazy-load and four P1s: no jQuery on Template A, Swiper only with reviews (minified), the Template C mobile menu, and the empty-server-key notice. · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-16 00:09 EDT · **Scope:** `git diff 24eb45e..7a8892a`, six commits stacked on `fix/review-p0-batch`. They cover the P0 Maps JS lazy-load and four P1s: no jQuery on Template A, Swiper only with reviews (minified), the Template C mobile menu, and the empty-server-key notice. · **Chair:** main session · **Owner:** Duppins Technology
 
 ## Since the last meeting
 - **CI proof (P0) closed.** On throwaway draft PR #4, the branch passed lint on PHP 7.4, 8.1 and 8.3 as-is, then failed on all three with a deliberate parse error. The PR was closed and its branch deleted.

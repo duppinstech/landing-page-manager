@@ -144,7 +144,7 @@ function lpmanager_get_landing_phone( $post_id = 0 ) {
 
 /**
  * Filter rich-text template content like post content, but keep embedded video and map iframes
- * from approved providers (Odell, 10-16).
+ * from approved providers (owner decision, 10-16).
  *
  * Iframes are never passed through as written. Each one is read with WordPress's HTML parser
  * (which takes the first `src`, decoded, as browsers do), its src is checked against strict

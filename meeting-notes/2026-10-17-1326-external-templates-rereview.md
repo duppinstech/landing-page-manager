@@ -1,5 +1,5 @@
 # Department re-review: external templates, round 2 (`feature/external-templates`)
-**When:** 2026-10-17 13:26 EDT · **Scope:** the round-1 fixes in `0209ef5`, and the doc and workflow parts of the removal commit (now on `feature/remove-client-templates`) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-17 13:26 EDT · **Scope:** the round-1 fixes in `0209ef5`, and the doc and workflow parts of the removal commit (now on `feature/remove-client-templates`) · **Chair:** main session · **Owner:** Duppins Technology
 
 All eight departments re-reviewed, in three combined passes.
 

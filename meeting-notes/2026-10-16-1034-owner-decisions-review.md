@@ -1,5 +1,5 @@
 # Department review: owner decisions batch (`fix/owner-decisions-p0`)
-**When:** 2026-10-16 10:34 EDT (started 02:03, paused by the account session limit) · **Scope:** `git diff ac03c0a^..2964472`, 19 commits implementing Odell's 10-16 Q&A decisions · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-16 10:34 EDT (started 02:03, paused by the account session limit) · **Scope:** `git diff ac03c0a^..2964472`, 19 commits implementing Odell's 10-16 Q&A decisions · **Chair:** main session · **Owner:** Duppins Technology
 
 ## Since the last meeting
 - **Odell answered 20 open decisions in a Q&A** (recorded in `.claude/memory/decisions.md`, "Owner Q&A").

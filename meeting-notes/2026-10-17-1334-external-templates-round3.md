@@ -1,5 +1,5 @@
 # Department re-review: external templates, round 3
-**When:** 2026-10-17 13:34 EDT · **Scope:** the round-2 fixes (`37cc54b` on `feature/external-templates`) and the rebased removal (`feature/remove-client-templates`) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-17 13:34 EDT · **Scope:** the round-2 fixes (`37cc54b` on `feature/external-templates`) and the rebased removal (`feature/remove-client-templates`) · **Chair:** main session · **Owner:** Duppins Technology
 
 All eight departments, in two combined passes.
 

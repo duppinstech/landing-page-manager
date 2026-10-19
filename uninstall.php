@@ -16,7 +16,7 @@
  * no longer need it.
  *
  * @package LandingPageManager
- * @author  Odell Duppins / Duppins Technology
+ * @author  Duppins Technology
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
@@ -60,7 +60,7 @@ function lpmanager_uninstall_site() {
         }
     }
 
-    // Orphaned client meta from the removed per-client "Landing Page Template" field (Odell, 10-16).
+    // Orphaned client meta from the removed per-client "Landing Page Template" field (owner decision, 10-16).
     // Carbon Fields stores it as `_lpmanager_client_template` (plus `|`-suffixed rows).
     $wpdb->query(
         $wpdb->prepare(

@@ -9,7 +9,7 @@
  * The notes are kept in the plugin so they still show if the guide page is
  * unavailable. No options, AJAX or requests: the panel is static markup.
  *
- * @author Odell Duppins / Duppins Technology
+ * @author Duppins Technology
  */
 namespace LPManager\admin;
 

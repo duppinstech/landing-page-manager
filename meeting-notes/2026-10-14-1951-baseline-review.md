@@ -1,5 +1,5 @@
 # Department review: baseline (initial reports)
-**When:** 2026-10-14 19:51 EDT · **Scope:** the whole plugin, `main` at v1.0.6 (00d196f) plus the uncommitted WIP on `chore/template-field-cleanup` (per-client template field removed, Template A Style Variant moved into the template) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-14 19:51 EDT · **Scope:** the whole plugin, `main` at v1.0.6 (00d196f) plus the uncommitted WIP on `chore/template-field-cleanup` (per-client template field removed, Template A Style Variant moved into the template) · **Chair:** main session · **Owner:** Duppins Technology
 
 First meeting of the department reviewers. Each department reviewed the whole product, not just a diff, so the backlog would start from a full baseline.
 Drafted text (CHANGELOG, help text, README, privacy text, credits): [appendix](2026-10-14-1951-baseline-review-appendix.md).

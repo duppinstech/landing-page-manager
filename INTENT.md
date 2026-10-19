@@ -28,7 +28,7 @@ page platform**:
 ## Users
 - **Operator** (agency admin): creates clients, picks templates, publishes pages, reads analytics.
 - **Visitor**: lands from an ad, must convert quickly on any device.
-- **Developer** (Odell / contractors): adds templates and features without breaking live sites.
+- **Developer** (Duppins Technology and its contractors): adds templates and features without breaking live sites.
 
 ## Success looks like
 - A new client landing page goes live in minutes, not days.
@@ -42,6 +42,6 @@ page platform**:
 - Not multisite-specific (works on single site with subdomain rewrites).
 
 ## Ownership
-Product of Odell Duppins / Duppins Technology. Bundled templates are reusable
+Product of Duppins Technology. Bundled templates are reusable
 Duppins Technology products; clients pay for customization, and source ownership
 stays with Duppins Technology (see [OWNERSHIP.md](OWNERSHIP.md)).

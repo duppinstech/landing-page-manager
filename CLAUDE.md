@@ -5,7 +5,7 @@ Loaded every session. Keep under 200 lines; push detail into `.claude/rules/`.
 ## What this is
 A WordPress plugin for managing multi-client landing pages with subdomain
 routing, switchable templates, and (via the separate Pro add-on) conversion
-analytics. Owned by **Odell Duppins / Duppins Technology** — see
+analytics. Owned by **Duppins Technology** — see
 [OWNERSHIP.md](OWNERSHIP.md). Why it exists: [INTENT.md](INTENT.md).
 Open action items: [PLAN.md](PLAN.md). Agent roster: [AGENTS.md](AGENTS.md).
 
@@ -49,7 +49,7 @@ Local PHP: `C:\xampp\php\php.exe`. GitHub CLI `gh` is installed and authenticate
 - **Never** commit `.env`, `*.pem`, `CLAUDE.local.md`, `.claude/settings.local.json`.
 - **Never** bump `Version:` or tag a release without being asked — releases ship to live sites via the GitHub updater.
 - Do not commit someone else's uncommitted WIP alongside your change; stage only your files.
-- Copyright/author lines: Odell Duppins / Duppins Technology. Client names only describe who work is *for*.
+- Copyright/author lines: Duppins Technology. Never name a person as author or owner. Client names only describe who work is *for*.
 
 ## Safety boundaries
 - Ask before: pushing to `main`, creating tags/releases, deleting files, rewriting history, changing the updater.
