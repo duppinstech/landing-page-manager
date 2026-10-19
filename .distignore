@@ -2,6 +2,7 @@
 .git
 .github
 .claude
+marketing/
 .mcp.json
 .gitignore
 .gitattributes

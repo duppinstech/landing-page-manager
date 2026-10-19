@@ -8,6 +8,7 @@
 # .distignore.
 .github             export-ignore
 .claude             export-ignore
+marketing/**        export-ignore
 .mcp.json           export-ignore
 .gitignore          export-ignore
 .gitattributes      export-ignore
