@@ -4,6 +4,31 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- **The "Missing required fields" notice stays until the fields are filled in**, instead of disappearing after a minute. It names each field with its label and the tab it is on.
+- **Scheduling an incomplete landing page keeps it as a draft**, as publishing already did. Previously the check ran only when the scheduled time came.
+- **The Landing Pages list names pages that were kept as drafts**, for example after Quick Edit, bulk edit or a scheduled publish, with a link to each.
+- Editors see "Landing page published", "Landing page draft updated" and so on, instead of WordPress's generic "Post …" messages.
+- **Previews open on the main site**, where you are logged in, for drafts and published pages alike. Previews on a client subdomain didn't work on most sites, because login cookies don't reach subdomains: a published page's preview showed the live page or "Sorry, you are not allowed to preview drafts", and a new draft's preview went to a broken address.
+- **API keys are shown as dots** (password fields) on Settings → API Keys, and password managers are asked not to fill them. To change a key, clear the field and paste the new one.
+- **Client colors**: when Brandfetch has no colors for the client's domain, or no Brandfetch key is saved, the colors now come from the client's logo. Previously the client got the generic blue and red. Brandfetch answers are kept for a week per domain, so saving a client again doesn't make another call.
+- **Client addresses are looked up again only when the client's name or address changes.** Saving a client for any other reason no longer makes three Google calls.
+
+### Fixed
+- A broken template no longer takes down wp-admin: if its fields file has an error, administrators see a notice that names the template and the error.
+- A new draft's View and Preview links no longer point to `https://<client>.<domain>//`.
+
+### Security
+- **A client's subdomain shows only that client's landing pages.** Another client's page, reached by its slug, `?p=`, `?landing_page=` or any other way, now gets the template's not-found page. Only hosts that end in `.` plus the site's domain, and whose subdomain is a client's slug, are treated as client subdomains (previously, for example, `evilexample.com` counted as a subdomain of `example.com`).
+- The plain-text copies of the Google and Brandfetch keys that each Settings save kept in the `carbon_fields_theme_options_container` option are deleted.
+- Brandfetch requests accept only a valid domain name, and are skipped when no Brandfetch key is saved.
+
+### Privacy
+- Google's terms allow keeping a place's latitude and longitude for 30 days. A daily task now refreshes coordinates older than that from the saved place ID (one Google Place Details call per client per month, on the server key), or deletes them when they can't be refreshed. The place ID is kept.
+
+### Upgrade notes
+- **Reload the Settings → API Keys tab** if it was open during the update before saving it. (A tab opened before the update shows the keys masked with asterisks; saving it keeps the stored keys.)
+- After the update, each client with saved coordinates gets one refresh within a day.
 
 ## [1.0.15] - 2026-10-19
 ### Fixed

@@ -124,3 +124,8 @@ All four batches passed department review with no `block`.
 **Context:** Author lines mixed "Odell Duppins / Duppins Technology", "Odell Duppins Jr (d/b/a Duppins Technology)" and plain "Duppins Technology", and OWNERSHIP.md contradicted itself.
 **Decision (owner):** Every author, owner and copyright attribution in this repo names **Duppins Technology** and no person. That covers the plugin header, `@author` and `@copyright` tags, LICENSE, README, OWNERSHIP.md, CONTRIBUTING, CLAUDE.md, reviewer agents and meeting-note Owner headers. Shipped code comments use "(owner decision, …)".
 **Consequences:** New files and notices use Duppins Technology. Decision-log mentions in PLAN.md, memory and meeting notes were left as written, pending the owner's call.
+
+## 2026-10-19: Previews on the main site; the client comes only from the host
+**Context:** Subdomain previews didn't work where login cookies don't reach client subdomains (live page, 403, or a `//` URL for drafts), and a subdomain draft-preview path could show another user's same-slug draft (security review of `fix/p1-core-batch`).
+**Decision (engineering, within the approved P1 items):** Every landing-page preview opens on the main site (`?post_type=landing_page&p=ID&preview=true` plus WordPress's preview arguments). Client subdomains serve published pages only, looked up by slug among published pages, and 404 any page that isn't that client's. `lp_client` is not a public query var; only `Rewrite_Rules::parse_subdomain()` sets it, from the host.
+**Consequences:** Previews show the main-site URL, not the subdomain. A template must not rely on `lp_client` being set during previews. Search, feeds and archives on client hosts are still unscoped (P2 in PLAN.md).
