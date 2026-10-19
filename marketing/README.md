@@ -49,7 +49,7 @@ The plugin has no published plan price or checkout URL. Product support is avail
 - `guide/landing-page-editor.md` — Shared page fields and template sections.
 - `guide/analytics.md` — Pro-gated Analytics screen.
 - `guide/settings-templates.md` — Global template selection and template upload.
-- `guide/settings-conversion-tracking.md` — Conversion Tracking (Pro) availability.
+- `guide/tracking.md` — Tracking screen (Pro conversion-tracking settings).
 - `guide/settings-api-keys.md` — Optional third-party keys and Additional Scripts.
 - `guide/settings-updates.md` — GitHub update source.
 - `guide/logs.md` — Failure checks and log locations; no plugin Logs screen exists.
@@ -69,7 +69,7 @@ The plugin has no published plan price or checkout URL. Product support is avail
 - `screenshots/admin/landing-page-editor.jpg` — New Landing Page fields.
 - `screenshots/admin/analytics.jpg` — Pro-gated Analytics menu screen.
 - `screenshots/admin/templates.jpg` — Settings → Templates.
-- `screenshots/admin/conversion-tracking.jpg` — Settings → Conversion Tracking (Pro).
+- `screenshots/admin/tracking.jpg` — Landing Pages → Tracking.
 - `screenshots/admin/api-keys.jpg` — Settings → API Keys with key values blank.
 - `screenshots/admin/updates.jpg` — Settings → Updates.
 - `screenshots/admin/deactivate.jpg` — Installed Plugins deactivation action.

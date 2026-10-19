@@ -8,7 +8,7 @@ Landing Page Manager lets you create client-branded landing pages in WordPress, 
 2. Choose the site-wide template in [Settings: Templates](settings-templates) and optionally configure [API Keys](settings-api-keys).
 3. Add a [client](clients), complete its [details](client-editor), and add a [keyword](keywords).
 4. Create and publish a page from [Landing Pages](landing-pages) using the [Landing Page editor](landing-page-editor).
-5. Review [Analytics](analytics) and [Conversion Tracking (Pro)](settings-conversion-tracking) only on a Pro-enabled site or to see the core availability notice.
+5. Review [Analytics](analytics) and [Tracking](tracking) on a Pro-enabled site, or to see what Pro adds.
 
 ## If Help was opened on this screen
 
@@ -23,13 +23,13 @@ Landing Page Manager lets you create client-branded landing pages in WordPress, 
 | Keywords list | [Keywords](keywords#keywords) |
 | Keyword editor | [Keyword editor](keyword-editor#keyword-editor) |
 | Analytics | [Analytics](analytics#analytics) |
+| Tracking | [Tracking](tracking#tracking) |
 | Settings: Templates | [Templates](settings-templates#settings-templates) |
-| Settings: Conversion Tracking (Pro) | [Conversion Tracking](settings-conversion-tracking#settings-conversion-tracking) |
 | Settings: API Keys | [API Keys](settings-api-keys#settings-api-keys) |
 | Settings: Updates | [Updates](settings-updates#settings-updates) |
 
 Support: support@duppinstech.com | (240) 397-8221
 
-Copyright (C) 2025-2026 Odell Duppins / Duppins Technology (https://duppinstech.com)
+Copyright (C) 2025-2026 Duppins Technology (https://duppinstech.com)
 
 This guide describes the product and is not a warranty.
