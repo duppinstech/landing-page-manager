@@ -17,32 +17,93 @@ class Plugin_Settings {
         add_action( 'admin_post_lpmanager_approve_additional_scripts', [ __CLASS__, 'handle_approve_additional_scripts' ] );
         add_action( 'admin_notices', [ __CLASS__, 'render_additional_scripts_notice' ] );
         add_action( 'lpmanager_landing_page_footer', [ __CLASS__, 'print_additional_scripts' ] );
-		add_action('carbon_fields_theme_options_container_saved', function() {
-            $fields = [
-                'lpmanager_google_maps_api_key',
-                'lpmanager_brandfetch_api_key'
-            ];
-            foreach ($fields as $field) {
-                $value = carbon_get_theme_option($field);
-                // If the value is all asterisks or matches the masked pattern, revert to previous value
-                if ($value && preg_match('/^\\*+.{0,6}$/', $value)) {
-                    // Get the previous value from the database directly
-                    $option = get_option('carbon_fields_theme_options_container');
-                    if (isset($option[$field . '_previous'])) {
-                        $real_value = $option[$field . '_previous'];
-                        carbon_set_theme_option($field, $real_value);
-                    } else {
-                        // If no previous value, just delete
-                        carbon_set_theme_option($field, '');
-                    }
-                } else {
-                    // Save the current value as previous for next time
-                    $option = get_option('carbon_fields_theme_options_container');
-                    $option[$field . '_previous'] = $value;
-                    update_option('carbon_fields_theme_options_container', $option);
-                }
+        add_action( 'admin_init', [ __CLASS__, 'remove_plaintext_key_copies' ] );
+        add_filter( 'carbon_fields_should_delete_field_value_on_save', [ __CLASS__, 'keep_key_on_masked_submit' ], 10, 2 );
+        add_filter( 'carbon_fields_should_save_field_value', [ __CLASS__, 'keep_key_on_masked_save' ], 10, 3 );
+    }
+
+    /** API key fields. Before 1.0.16, admin.js showed them masked as asterisks plus the last four characters. */
+    const SECRET_FIELDS = [ 'lpmanager_google_maps_api_key', 'lpmanager_google_server_api_key', 'lpmanager_brandfetch_api_key' ];
+
+    /**
+     * Whether a submitted API key is the old asterisk mask rather than a key: a settings tab opened
+     * before the update, or a cached old admin.js, still submits it.
+     *
+     * @param \Carbon_Fields\Field\Field $field Field being saved.
+     * @return bool
+     */
+    private static function is_masked_key_submit( $field ) {
+        return in_array( $field->get_base_name(), self::SECRET_FIELDS, true )
+            && 1 === preg_match( '/^\*{4,}[^*]{0,6}$/', (string) $field->get_value() );
+    }
+
+    /**
+     * carbon_fields_should_delete_field_value_on_save: keep the stored key when the mask was submitted.
+     *
+     * @param bool                       $delete Default true.
+     * @param \Carbon_Fields\Field\Field $field  Field being saved.
+     * @return bool
+     */
+    public static function keep_key_on_masked_submit( $delete, $field ) {
+        return self::is_masked_key_submit( $field ) ? false : $delete;
+    }
+
+    /**
+     * carbon_fields_should_save_field_value: don't store the mask over the key.
+     *
+     * @param bool                       $save  Default true.
+     * @param mixed                      $value Submitted value.
+     * @param \Carbon_Fields\Field\Field $field Field being saved.
+     * @return bool
+     */
+    public static function keep_key_on_masked_save( $save, $value, $field ) {
+        return self::is_masked_key_submit( $field ) ? false : $save;
+    }
+
+    /**
+     * Before 1.0.16 the API key inputs were masked with asterisks by admin.js, and each save kept a
+     * plaintext copy of the keys (`<field>_previous`) in the `carbon_fields_theme_options_container`
+     * option to undo the mask. The inputs are now password fields, so remove those copies once.
+     * Other plugins may use the same option: only our keys are removed.
+     */
+    public static function remove_plaintext_key_copies() {
+        $container = get_option( 'carbon_fields_theme_options_container' );
+        if ( ! is_array( $container ) ) {
+            return;
+        }
+        $before = count( $container );
+        foreach ( array_keys( $container ) as $key ) {
+            if ( 0 === strpos( (string) $key, 'lpmanager_' ) && 0 !== strpos( (string) $key, 'lpmanager_pro_' ) ) {
+                unset( $container[ $key ] );
             }
-        });
+        }
+        if ( count( $container ) === $before ) {
+            return;
+        }
+        if ( empty( $container ) ) {
+            delete_option( 'carbon_fields_theme_options_container' );
+        } else {
+            update_option( 'carbon_fields_theme_options_container', $container );
+        }
+    }
+
+    /**
+     * A text field for a secret: shown as dots, not offered for autofill (including by password
+     * managers, which could otherwise fill in the admin's login password). Carbon Fields 3 has no
+     * password field type (the vendored carbon-field-password is a Carbon Fields 2 field), so this
+     * sets the input's type instead.
+     *
+     * @param string $name  Field name.
+     * @param string $label Field label.
+     * @return \Carbon_Fields\Field\Field
+     */
+    private static function secret_field( $name, $label ) {
+        return Field::make( 'text', $name, $label )
+            ->set_attribute( 'type', 'password' )
+            ->set_attribute( 'autocomplete', 'new-password' )
+            ->set_attribute( 'data-lpignore', 'true' )
+            ->set_attribute( 'data-1p-ignore', 'true' )
+            ->set_attribute( 'data-bwignore', 'true' );
     }
 
 	public static function enqueue_admin_styles( $hook ) {
@@ -58,11 +119,13 @@ class Plugin_Settings {
             '1.0.0'
         );
         
+        // Versioned by file time: a cached pre-1.0.16 admin.js would mask the API keys with asterisks,
+        // and nothing restores the real key on save any more.
         wp_enqueue_script(
-        	'lpmanager-admin-js', 
-            LP_MANAGER_PLUGIN_URL . 'assets/js/admin.js', 
-            ['jquery'], 
-            '1.0', 
+        	'lpmanager-admin-js',
+            LP_MANAGER_PLUGIN_URL . 'assets/js/admin.js',
+            ['jquery'],
+            (string) filemtime( LP_MANAGER_PLUGIN_PATH . 'assets/js/admin.js' ),
             true
         );
         
@@ -152,11 +215,11 @@ class Plugin_Settings {
                 ->set_html(
                     '<p>' . esc_html__( 'Google bills usage to the billing account linked to the Google Cloud project that owns each key, and use of these keys is subject to the Google Maps Platform Terms of Service. In the Google Cloud console, set API quotas for the project and a budget alert on its billing account.', 'landing-page-manager' ) . '</p>'
                 ),
-            Field::make( 'text', 'lpmanager_google_maps_api_key', __( 'Google Maps browser key', 'landing-page-manager' ) )
+            self::secret_field( 'lpmanager_google_maps_api_key', __( 'Google Maps browser key', 'landing-page-manager' ) )
                 ->set_help_text( __( 'Used in visitors\' browsers to show maps (Maps JavaScript API). It is visible in page source, so in Google Cloud restrict it to websites (HTTP referrers) covering this site and every client subdomain, for example https://example.com/* and https://*.example.com/*, and to the Maps JavaScript API. Save a Google Maps server key below before you restrict this key.', 'landing-page-manager' ) ),
-            Field::make( 'text', 'lpmanager_google_server_api_key', __( 'Google Maps server key', 'landing-page-manager' ) )
+            self::secret_field( 'lpmanager_google_server_api_key', __( 'Google Maps server key', 'landing-page-manager' ) )
                 ->set_help_text( __( 'Used by this site\'s server to look up client addresses and fetch reviews. It needs the Places API (the original "Places API", not "Places API (New)"). Restrict it to your server\'s IP address and to that API. If left empty, the browser key is used, which only works while the browser key has no website restriction.', 'landing-page-manager' ) ),
-            Field::make( 'text', 'lpmanager_brandfetch_api_key', __( 'Brandfetch API key', 'landing-page-manager' ) )
+            self::secret_field( 'lpmanager_brandfetch_api_key', __( 'Brandfetch API key', 'landing-page-manager' ) )
                 ->set_help_text( __( 'Used to fetch client brand colors. Usage is billed to the Brandfetch account that owns this key.', 'landing-page-manager' ) ),
             self::additional_scripts_field(),
         ];

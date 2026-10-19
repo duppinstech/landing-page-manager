@@ -53,16 +53,5 @@ jQuery(document).ready(function($) {
       }
     });
   });
-	// mask API Keys
-    var selectors = [
-        'input[name="carbon_fields_compact_input[_lpmanager_google_maps_api_key]"]',
-        'input[name="carbon_fields_compact_input[_lpmanager_brandfetch_api_key]"]'
-    ];
-    selectors.forEach(function(selector) {
-        var $input = $(selector);
-        if ($input.length && $input.val()) {
-            var masked = '*'.repeat(Math.max(0, $input.val().length - 4)) + $input.val().slice(-4);
-            $input.val(masked);
-        }
-    });
+  // API key fields are password inputs (Plugin_Settings::secret_field), so they need no masking here.
 });
