@@ -1,5 +1,5 @@
 # Department re-review: owner decisions batch fixes (`fix/owner-decisions-p0`)
-**When:** 2026-10-16 13:00 EDT · **Scope:** `git diff 4b1f6e9..251332c` plus `384fea9`: the fixes from the [10:34 review](2026-10-16-1034-owner-decisions-review.md) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-16 13:00 EDT · **Scope:** `git diff 4b1f6e9..251332c` plus `384fea9`: the fixes from the [10:34 review](2026-10-16-1034-owner-decisions-review.md) · **Chair:** main session · **Owner:** Duppins Technology
 
 Seven departments re-reviewed. Finance was already ok at 10:34, and its area didn't change.
 

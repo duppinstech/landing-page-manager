@@ -289,7 +289,7 @@ class Plugin_Settings {
     const SERVER_KEY_NOTICE_DISMISSED = 'lpmanager_server_key_notice_dismissed';
 
     /**
-     * admin-post: hide the empty-server-key notice for the current user for 30 days (Odell, 10-16).
+     * admin-post: hide the empty-server-key notice for the current user for 30 days (owner decision, 10-16).
      */
     public static function handle_dismiss_server_key_notice() {
         check_admin_referer( 'lpmanager_dismiss_server_key_notice' );

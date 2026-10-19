@@ -36,7 +36,7 @@ without reproduction detail until it's fixed. Private financial numbers from
 ## Template
 ```markdown
 # Department review: <topic>
-**When:** YYYY-MM-DD HH:MM <TZ> · **Scope:** <branch / diff / release> · **Chair:** main session · **Owner:** Odell Duppins
+**When:** YYYY-MM-DD HH:MM <TZ> · **Scope:** <branch / diff / release> · **Chair:** main session · **Owner:** Duppins Technology
 
 ## Attendance and verdicts
 | Department | Verdict | Findings | Summary |

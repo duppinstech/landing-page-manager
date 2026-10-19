@@ -17,7 +17,7 @@ final class Reviews_Ajax {
      * The lock stores only a timestamp; the plugin keeps no copy of Google's response. (The
      * fetched HTML is inserted into the page's Reviews field by the editor; whether that may be
      * stored is an open attorney question in PLAN.md.) This replaced a 12-hour content cache
-     * (Odell, 10-16).
+     * (owner decision, 10-16).
      */
     const LOCK_TTL = 10 * MINUTE_IN_SECONDS;
 

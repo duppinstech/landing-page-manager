@@ -44,7 +44,7 @@ class Admin_Dashboard {
         if ( ! $on_lp_pages ) {
             return;
         }
-        // "Get Pro" everywhere (Odell, 10-17); where it leads is the lpmanager_get_pro_url default.
+        // "Get Pro" everywhere (owner decision, 10-17); where it leads is the lpmanager_get_pro_url default.
         $get_pro_url = apply_filters( 'lpmanager_get_pro_url', 'https://duppinstech.com/' );
         ?>
         <div class="notice lp-pro-banner" style="margin: 0 0 20px 0; padding: 12px 20px; border-left-color: #2271b1; background: #f0f6fc; border-left-width: 4px;">

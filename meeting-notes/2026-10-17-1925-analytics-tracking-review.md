@@ -1,5 +1,5 @@
 # Department review: Analytics and Tracking screens from Pro
-**When:** 2026-10-17 19:25 EDT · **Scope:** `feature/analytics-tracking-slots` (Analytics and Tracking menu items filled by Pro 1.0.6+, get-Pro messages without Pro, dashboard assets moved to Pro), checked with Pro's `feature/one-analytics-screen` · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-17 19:25 EDT · **Scope:** `feature/analytics-tracking-slots` (Analytics and Tracking menu items filled by Pro 1.0.6+, get-Pro messages without Pro, dashboard assets moved to Pro), checked with Pro's `feature/one-analytics-screen` · **Chair:** main session · **Owner:** Duppins Technology
 
 All eight departments, one combined pass.
 

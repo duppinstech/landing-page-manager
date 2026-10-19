@@ -325,12 +325,12 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **Install:** from the release zip, not `composer install`.
   - **Release:** fix the tag example.
   - **New sections:** "Subdomains" (wildcard DNS and SSL, permalink re-save), "Templates", and "External services" (Google, Brandfetch, GitHub, CDNs, with links to their terms).
-  - **Author:** "Odell Duppins / Duppins Technology", plus a link to CREDITS.md.
+  - **Author:** "Duppins Technology", plus a link to CREDITS.md.
   - **Opening line:** the new positioning line (marketing).
   - The text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(sup, legal, mkt · DR 10-14)_
 - [~] **Plugin header.** Author, Author URI, Requires and the description are done (10-14b). Still to do: the `template-b/style.css` header.
-  - `Author: Odell Duppins / Duppins Technology`
+  - `Author: Duppins Technology`
   - `Author URI: https://duppinstech.com`
   - `Requires at least: 5.9`
   - `Requires PHP: 7.4`

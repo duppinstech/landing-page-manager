@@ -1,5 +1,5 @@
 # Department re-review: Maps lazy-load and P1 batch fixes (`perf/maps-lazy-load-p1-batch`)
-**When:** 2026-10-16 00:22 EDT · **Scope:** `git diff 7a8892a..7bfef21`, the fixes from the [00:09 review](2026-10-16-0009-maps-p1-batch-review.md) · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-16 00:22 EDT · **Scope:** `git diff 7a8892a..7bfef21`, the fixes from the [00:09 review](2026-10-16-0009-maps-p1-batch-review.md) · **Chair:** main session · **Owner:** Duppins Technology
 
 Only the five departments that asked for fixes re-reviewed. Security, legal and finance were ok at 00:09 and the fixes don't touch their areas. CI on draft PR #5 passed on PHP 7.4, 8.1 and 8.3.
 

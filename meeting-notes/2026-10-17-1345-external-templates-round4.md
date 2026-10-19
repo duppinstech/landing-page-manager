@@ -1,5 +1,5 @@
 # Department re-review: external templates, round 4 (final check)
-**When:** 2026-10-17 13:45 EDT · **Scope:** the round-3 fixes (`b92d8e7`) and the corrected removal commit on `feature/remove-client-templates` · **Chair:** main session · **Owner:** Odell Duppins
+**When:** 2026-10-17 13:45 EDT · **Scope:** the round-3 fixes (`b92d8e7`) and the corrected removal commit on `feature/remove-client-templates` · **Chair:** main session · **Owner:** Duppins Technology
 
 All eight departments, one combined pass.
 

@@ -2,7 +2,7 @@
  * Landing Page Manager Help button: toggles the per-screen help panel.
  * No jQuery and no requests; the panel markup is printed by Help_Widget::render().
  *
- * @author Odell Duppins / Duppins Technology
+ * @author Duppins Technology
  */
 (function () {
     'use strict';

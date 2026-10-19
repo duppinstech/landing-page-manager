@@ -6,7 +6,7 @@
  * Deactivate, then Sponsor after the author and Support at the end of the
  * Version / By line.
  *
- * @author Odell Duppins / Duppins Technology
+ * @author Duppins Technology
  */
 namespace LPManager\admin;
 
