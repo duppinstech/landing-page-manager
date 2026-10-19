@@ -35,7 +35,7 @@ class Landing_Page_Validator {
 
     /**
      * Remember landing pages moving to "publish" from another status, so the validator can keep
-     * an incomplete page as a draft instead of publishing it (Odell, 10-16).
+     * an incomplete page as a draft instead of publishing it (owner decision, 10-16).
      *
      * @param string   $new_status New status.
      * @param string   $old_status Old status.
@@ -61,6 +61,12 @@ class Landing_Page_Validator {
         }
 
         if ( $post->post_type !== 'landing_page' ) {
+            return;
+        }
+
+        // Add New creates an empty auto-draft through save_post before anything is typed; checking
+        // it would show "Missing required fields" on a blank form. Real saves are still checked.
+        if ( 'auto-draft' === $post->post_status ) {
             return;
         }
 
