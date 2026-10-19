@@ -4,11 +4,16 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.15] - 2026-10-19
 ### Fixed
 - **A new landing page no longer opens with "Missing required fields".** The warning appeared on the blank Add New form, before anything was typed. It still appears when you save or publish a page with required fields missing, and an incomplete page still stays a draft when you publish it.
 
 ### Changed
 - The copyright and author lines in the plugin's files and `LICENSE` name Duppins Technology.
+
+### Upgrade notes
+- **Sites on 1.0.13 or earlier: install this version once by hand.** Their updater can't install updates (fixed in 1.0.14). Download **`landing-page-manager.zip`** from the [1.0.15 release](https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.15) (not "Source code (zip)"), then go to **Plugins → Add New Plugin → Upload Plugin**, choose the file, and select **Replace current with uploaded**. Sites on 1.0.14 update normally.
 
 ## [1.0.14] - 2026-10-17
 ### Fixed
@@ -203,7 +208,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.14...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.15...HEAD
+[1.0.15]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.14...v1.0.15
 [1.0.14]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.13...v1.0.14
 [1.0.13]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.11...v1.0.12
