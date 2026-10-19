@@ -11,7 +11,7 @@ mkdir "$stage/landing-page-manager"
 excludes=()
 while IFS= read -r line; do
   line="${line%%#*}"; line="${line//[[:space:]]/}"
-  [ -n "$line" ] && excludes+=(--exclude="./$line")
+  [ -n "$line" ] && excludes+=(--exclude="./${line%/}")
 done < "$root/.distignore"
 
 (cd "$root" && tar -cf - "${excludes[@]}" .) | tar -xf - -C "$stage/landing-page-manager"
