@@ -250,14 +250,15 @@ class Help_Widget {
                 'notes' => [
                     __( 'Enter a title, then choose Client Name and Keyword under Landing Page Details.', 'landing-page-manager' ),
                     __( 'Page phone (optional) replaces the client\'s Contact Phone on this page only.', 'landing-page-manager' ),
-                    __( 'The other fields come from the active template. A new page stays a draft until its required fields are filled in.', 'landing-page-manager' ),
+                    __( 'The other fields come from the active template. If required fields are missing when you publish or schedule a page, it is kept as a draft, and a notice lists each missing field and its tab until you fill them in.', 'landing-page-manager' ),
+                    __( 'Preview opens on the main site, where you are logged in, not on the client subdomain.', 'landing-page-manager' ),
                 ],
             ],
             'client-list'       => [
                 'title' => __( 'Clients', 'landing-page-manager' ),
                 'notes' => [
                     __( 'Enter the client\'s Name and details, then select Add New Client.', 'landing-page-manager' ),
-                    __( 'The client slug is used as its subdomain, so DNS for that subdomain must point to this site.', 'landing-page-manager' ),
+                    __( 'The client slug is used as its subdomain, so DNS for that subdomain must point to this site. Each landing page opens only on its own client\'s subdomain, so changing a client\'s slug changes its pages\' addresses.', 'landing-page-manager' ),
                     __( 'Select a client\'s name in the list to open its editor.', 'landing-page-manager' ),
                 ],
             ],
@@ -265,7 +266,7 @@ class Help_Widget {
                 'title' => __( 'Client editor', 'landing-page-manager' ),
                 'notes' => [
                     __( 'Branding & Identity, Contact Info, Tracking & Integration, and Social Media hold the settings this client\'s landing pages use.', 'landing-page-manager' ),
-                    __( 'Client Logo, Contact Address, Contact Phone, and Client Domain are required. Latitude, Longitude, Google Place ID, and Google Search URL are read-only.', 'landing-page-manager' ),
+                    __( 'Client Logo, Contact Address, Contact Phone, and Client Domain are required. Latitude, Longitude, Google Place ID, and Google Search URL are read-only. Latitude and Longitude are refreshed from Google every 30 days. Brand colors come from Brandfetch, or from the logo when Brandfetch has none.', 'landing-page-manager' ),
                     __( 'Select Update to save the client.', 'landing-page-manager' ),
                 ],
             ],
@@ -327,7 +328,8 @@ class Help_Widget {
                 'title' => sprintf( '%1$s: %2$s', __( 'Settings', 'landing-page-manager' ), $tabs['api-keys'] ),
                 'notes' => [
                     __( 'The Google Maps browser key shows maps to visitors and is visible in page source, so restrict it to this site and its client subdomains.', 'landing-page-manager' ),
-                    __( 'The Google Maps server key looks up addresses and fetches reviews with the original Places API. The Brandfetch API key fetches client brand colors.', 'landing-page-manager' ),
+                    __( 'The Google Maps server key looks up addresses, refreshes map coordinates and fetches reviews with the original Places API. The Brandfetch API key fetches client brand colors.', 'landing-page-manager' ),
+                    __( 'Saved keys show as dots. To change one, clear the field, paste the new key, then select Save Changes. Leave a field untouched to keep its saved key.', 'landing-page-manager' ),
                     __( 'Additional Scripts print on landing pages only after an administrator who can post unfiltered HTML saves or approves them.', 'landing-page-manager' ),
                 ],
             ],

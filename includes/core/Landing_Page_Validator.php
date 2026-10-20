@@ -174,12 +174,12 @@ class Landing_Page_Validator {
                         foreach ( $container->settings['tabs'] as $tab => $names ) {
                             if ( in_array( $carbon_field->get_name(), (array) $names, true ) ) {
                                 /* translators: 1: box title, for example "Starter One", 2: tab name */
-                                $where = sprintf( __( '%1$s → %2$s tab', 'landing-page-manager' ), $container->title, $tab );
+                                $where = sprintf( __( '%1$s, %2$s tab', 'landing-page-manager' ), $container->title, $tab );
                                 break;
                             }
                         }
                     }
-                    /* translators: 1: field label, 2: where it is, for example "Starter One → Hero tab" */
+                    /* translators: 1: field label, 2: where it is, for example "Starter One, Hero tab" */
                     return sprintf( __( '%1$s (%2$s)', 'landing-page-manager' ), $carbon_field->get_label(), $where );
                 }
             } catch ( \Exception $e ) {
@@ -208,15 +208,26 @@ class Landing_Page_Validator {
             return;
         }
 
+        // An error only once a publish or schedule was refused; while a draft is being built, a reminder.
         $kept = get_post_meta( $post_id, self::KEPT_DRAFT_META, true );
+        $type = 'notice-warning';
         if ( is_array( $kept ) && 'draft' === $post->post_status ) {
+            $type    = 'notice-error';
             $message = ( isset( $kept['target'] ) && 'future' === $kept['target'] )
-                ? __( 'This landing page was saved as a draft instead of being scheduled, because required fields are missing. Your changes were saved. Fill in the fields below, then schedule it again.', 'landing-page-manager' )
-                : __( 'This landing page was saved as a draft instead of being published, because required fields are missing. Your changes were saved. Fill in the fields below, then publish again.', 'landing-page-manager' );
-            echo '<div class="notice notice-warning"><p>' . esc_html( $message ) . '</p></div>';
+                ? __( 'Kept as a draft instead of being scheduled, because required fields are missing. Your changes are saved. Fill in the fields below, then schedule it again.', 'landing-page-manager' )
+                : __( 'Kept as a draft instead of being published, because required fields are missing. Your changes are saved. Fill in the fields below, then publish again.', 'landing-page-manager' );
+            echo '<div class="notice notice-error"><p>' . esc_html( $message ) . '</p></div>';
         }
 
-        echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'Missing required fields for this template:', 'landing-page-manager' ) . '</strong></p><ul>';
+        if ( 'publish' === $post->post_status ) {
+            $heading = __( 'This landing page is live, but required fields are empty. It stays published; fill these in so it shows correctly:', 'landing-page-manager' );
+        } elseif ( 'notice-error' === $type ) {
+            $heading = __( 'Fill in these required fields:', 'landing-page-manager' );
+        } else {
+            $heading = __( 'Fill these in before publishing:', 'landing-page-manager' );
+        }
+
+        echo '<div class="notice ' . esc_attr( $type ) . '"><p><strong>' . esc_html( $heading ) . '</strong></p><ul>';
         foreach ( $missing_fields as $field ) {
             echo '<li>' . esc_html( self::field_label( $field, $post_id ) ) . '</li>';
         }
@@ -233,7 +244,7 @@ class Landing_Page_Validator {
             return;
         }
 
-        $query = new \WP_Query( [
+        $args = [
             'post_type'              => 'landing_page',
             'post_status'            => 'draft',
             'meta_key'               => self::KEPT_DRAFT_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
@@ -242,7 +253,14 @@ class Landing_Page_Validator {
             'order'                  => 'DESC',
             'no_found_rows'          => false,
             'update_post_term_cache' => false,
-        ] );
+            'update_post_meta_cache' => false,
+        ];
+        // Users who can't edit others' pages see (and count) only their own.
+        $type_object = get_post_type_object( 'landing_page' );
+        if ( $type_object && ! current_user_can( $type_object->cap->edit_others_posts ) ) {
+            $args['author'] = get_current_user_id();
+        }
+        $query = new \WP_Query( $args );
         $items = [];
         foreach ( $query->posts as $post ) {
             if ( ! current_user_can( 'edit_post', $post->ID ) ) {
@@ -259,8 +277,9 @@ class Landing_Page_Validator {
             . esc_html( _n( 'This landing page was kept as a draft instead of going live, because required fields are missing. Open it to see which:', 'These landing pages were kept as drafts instead of going live, because required fields are missing. Open each one to see which:', count( $items ), 'landing-page-manager' ) )
             . ' ' . implode( ', ', $items ); // Each item is escaped above.
         if ( (int) $query->found_posts > count( $query->posts ) ) {
+            $more = (int) $query->found_posts - count( $query->posts );
             /* translators: %d: number of further pages */
-            echo ' ' . esc_html( sprintf( __( 'and %d more.', 'landing-page-manager' ), (int) $query->found_posts - count( $query->posts ) ) );
+            echo ' ' . esc_html( sprintf( _n( 'and %d more.', 'and %d more.', $more, 'landing-page-manager' ), $more ) );
         }
         echo '</p></div>';
     }

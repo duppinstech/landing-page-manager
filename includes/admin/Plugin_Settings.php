@@ -95,15 +95,26 @@ class Plugin_Settings {
      *
      * @param string $name  Field name.
      * @param string $label Field label.
+     * @param string $help  Help text; the saved key's last four characters and how to replace it are added.
      * @return \Carbon_Fields\Field\Field
      */
-    private static function secret_field( $name, $label ) {
+    private static function secret_field( $name, $label, $help ) {
+        // The dots don't say which key is saved, so name its last four characters (read directly:
+        // Carbon stores theme options as `_<field>` options, and fields are being registered here).
+        $saved = trim( (string) get_option( '_' . $name, '' ) );
+        if ( strlen( $saved ) > 8 ) {
+            /* translators: %s: last four characters of the saved key */
+            $help .= ' ' . sprintf( __( 'Saved key ends in …%s.', 'landing-page-manager' ), esc_html( substr( $saved, -4 ) ) ); // Carbon prints help text as HTML.
+        }
+        $help .= ' ' . __( 'To replace a key, clear the field, then paste the new one.', 'landing-page-manager' );
+
         return Field::make( 'text', $name, $label )
             ->set_attribute( 'type', 'password' )
             ->set_attribute( 'autocomplete', 'new-password' )
             ->set_attribute( 'data-lpignore', 'true' )
             ->set_attribute( 'data-1p-ignore', 'true' )
-            ->set_attribute( 'data-bwignore', 'true' );
+            ->set_attribute( 'data-bwignore', 'true' )
+            ->set_help_text( $help );
     }
 
 	public static function enqueue_admin_styles( $hook ) {
@@ -215,12 +226,9 @@ class Plugin_Settings {
                 ->set_html(
                     '<p>' . esc_html__( 'Google bills usage to the billing account linked to the Google Cloud project that owns each key, and use of these keys is subject to the Google Maps Platform Terms of Service. In the Google Cloud console, set API quotas for the project and a budget alert on its billing account.', 'landing-page-manager' ) . '</p>'
                 ),
-            self::secret_field( 'lpmanager_google_maps_api_key', __( 'Google Maps browser key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Used in visitors\' browsers to show maps (Maps JavaScript API). It is visible in page source, so in Google Cloud restrict it to websites (HTTP referrers) covering this site and every client subdomain, for example https://example.com/* and https://*.example.com/*, and to the Maps JavaScript API. Save a Google Maps server key below before you restrict this key.', 'landing-page-manager' ) ),
-            self::secret_field( 'lpmanager_google_server_api_key', __( 'Google Maps server key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Used by this site\'s server to look up client addresses and fetch reviews. It needs the Places API (the original "Places API", not "Places API (New)"). Restrict it to your server\'s IP address and to that API. If left empty, the browser key is used, which only works while the browser key has no website restriction.', 'landing-page-manager' ) ),
-            self::secret_field( 'lpmanager_brandfetch_api_key', __( 'Brandfetch API key', 'landing-page-manager' ) )
-                ->set_help_text( __( 'Used to fetch client brand colors. Usage is billed to the Brandfetch account that owns this key.', 'landing-page-manager' ) ),
+            self::secret_field( 'lpmanager_google_maps_api_key', __( 'Google Maps browser key', 'landing-page-manager' ), __( 'Used in visitors\' browsers to show maps (Maps JavaScript API). It is visible in page source, so in Google Cloud restrict it to websites (HTTP referrers) covering this site and every client subdomain, for example https://example.com/* and https://*.example.com/*, and to the Maps JavaScript API. Save a Google Maps server key below before you restrict this key.', 'landing-page-manager' ) ),
+            self::secret_field( 'lpmanager_google_server_api_key', __( 'Google Maps server key', 'landing-page-manager' ), __( 'Used by this site\'s server to look up client addresses, refresh their map coordinates every 30 days, and fetch reviews. It needs the Places API (the original "Places API", not "Places API (New)"). Restrict it to your server\'s IP address and to that API. If left empty, the browser key is used, which only works while the browser key has no website restriction. Coordinates that can\'t be refreshed are deleted, as Google\'s terms require, and maps that need them stop showing until they are looked up again.', 'landing-page-manager' ) ),
+            self::secret_field( 'lpmanager_brandfetch_api_key', __( 'Brandfetch API key', 'landing-page-manager' ), __( 'Used to fetch client brand colors. Usage is billed to the Brandfetch account that owns this key. Without it, colors come from the client\'s logo.', 'landing-page-manager' ) ),
             self::additional_scripts_field(),
         ];
 

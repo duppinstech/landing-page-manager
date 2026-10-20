@@ -157,7 +157,7 @@ class Template_Loader {
         echo esc_html(
             sprintf(
                 /* translators: 1: template slug, 2: error message, 3: file name, 4: line number */
-                __( 'The fields of the "%1$s" template could not be loaded, so its landing page fields are missing or incomplete: %2$s (%3$s, line %4$d). Fix or re-upload the template, or choose another one under Landing Pages → Settings → Templates.', 'landing-page-manager' ),
+                __( 'The fields of the "%1$s" template could not be loaded, so its landing page fields are missing or incomplete: %2$s (%3$s, line %4$d). Fix, re-upload or redeploy the template, or choose another one under Landing Pages → Settings → Templates.', 'landing-page-manager' ),
                 $error['slug'],
                 $error['message'],
                 $error['file'],

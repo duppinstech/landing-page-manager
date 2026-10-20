@@ -59,7 +59,7 @@ class Landing_Page_CPT {
         if ( is_post_type_viewable( 'landing_page' ) && 'publish' === $post->post_status ) {
             $view = sprintf( ' <a href="%s">%s</a>', esc_url( get_permalink( $post ) ), esc_html__( 'View landing page', 'landing-page-manager' ) );
         }
-        $preview = sprintf( ' <a target="_blank" href="%s">%s</a>', esc_url( get_preview_post_link( $post ) ), esc_html__( 'Preview landing page', 'landing-page-manager' ) );
+        $preview = sprintf( ' <a target="_blank" href="%s">%s<span class="screen-reader-text"> %s</span></a>', esc_url( get_preview_post_link( $post ) ), esc_html__( 'Preview landing page', 'landing-page-manager' ), esc_html__( '(opens in a new tab)', 'landing-page-manager' ) );
         /* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
         $scheduled_date = __( 'M j, Y @ H:i', 'landing-page-manager' );
 
