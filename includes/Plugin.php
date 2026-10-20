@@ -61,5 +61,6 @@ final class Plugin {
      */
     public static function deactivate() {
         wp_clear_scheduled_hook( Client_Taxonomy::GEOCODE_REFRESH_EVENT );
+        wp_clear_scheduled_hook( Client_Taxonomy::GEOCODE_REFRESH_EVENT . '_more' );
     }
 }

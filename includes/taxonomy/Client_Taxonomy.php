@@ -24,7 +24,22 @@ class Client_Taxonomy {
     /** Google's terms allow keeping latitude and longitude for up to 30 days; the place ID may be kept. */
     const GEOCODE_MAX_AGE = 30 * DAY_IN_SECONDS;
 
-    /** Daily WP-Cron event that refreshes (or clears) coordinates older than GEOCODE_MAX_AGE. */
+    /** Coordinates are refreshed from this age, so a late or busy WP-Cron run still beats GEOCODE_MAX_AGE. */
+    const GEOCODE_REFRESH_AGE = 28 * DAY_IN_SECONDS;
+
+    /** Term meta: failed refresh attempts after a client's coordinates were deleted (retried up to GEOCODE_MAX_RETRIES days). */
+    const GEOCODE_RETRY_META = '_lpmanager_geocode_retries';
+
+    /** Daily retries after a failed refresh, so a one-day Google or key problem doesn't remove a map for good. */
+    const GEOCODE_MAX_RETRIES = 3;
+
+    /** Clients handled per WP-Cron run; when a run is full, another is scheduled. */
+    /** Term meta: when the daily task last tried this client (Unix time), so a failing batch isn't re-run all day. */
+    const GEOCODE_ATTEMPTED_META = '_lpmanager_geocode_attempted_at';
+
+    const GEOCODE_BATCH = 20; // Each client is one call with a 10-second timeout; keep a run well inside PHP time limits.
+
+    /** Daily WP-Cron event that refreshes coordinates older than GEOCODE_REFRESH_AGE (or clears them). */
     const GEOCODE_REFRESH_EVENT = 'lpmanager_refresh_geocodes';
 
     /** Seconds to keep a Brandfetch answer per domain, so repeat saves don't make billed calls. */
@@ -51,6 +66,7 @@ class Client_Taxonomy {
         add_filter( 'redirect_term_location', [ __CLASS__, 'redirect_client_term_location' ], 10, 2 );
 
         add_action( self::GEOCODE_REFRESH_EVENT, [ __CLASS__, 'refresh_stale_geocodes' ] );
+        add_action( self::GEOCODE_REFRESH_EVENT . '_more', [ __CLASS__, 'refresh_stale_geocodes' ] );
         add_action( 'init', [ __CLASS__, 'schedule_geocode_refresh' ] );
     }
 
@@ -602,8 +618,8 @@ class Client_Taxonomy {
      * Look up the client's Google place ID and coordinates after a save.
      *
      * Skipped when the client name and address are unchanged and the coordinates are less than
-     * GEOCODE_MAX_AGE old. When only the coordinates are old, they are refreshed from the saved
-     * place ID (one Details call) instead of repeating the search.
+     * GEOCODE_REFRESH_AGE old. When only the coordinates are old (or were deleted), they are
+     * refreshed from the saved place ID (one Details call) instead of repeating the search.
      *
      * @param int $term_id Client term ID.
      */
@@ -622,7 +638,7 @@ class Client_Taxonomy {
         $source      = md5( $company_name . '|' . $address );
         $saved_place = (string) carbon_get_term_meta( $term_id, 'client_place_id' );
         if ( '' !== $saved_place && get_term_meta( $term_id, self::GEOCODE_SOURCE_META, true ) === $source ) {
-            if ( (int) get_term_meta( $term_id, self::GEOCODED_AT_META, true ) <= time() - self::GEOCODE_MAX_AGE ) {
+            if ( (int) get_term_meta( $term_id, self::GEOCODED_AT_META, true ) <= time() - self::GEOCODE_REFRESH_AGE ) {
                 self::refresh_coordinates( $term_id, $saved_place, $api_key );
             }
             return;
@@ -688,6 +704,7 @@ class Client_Taxonomy {
             carbon_set_term_meta( $term_id, 'client_address_lat', (string) (float) $location->lat );
             carbon_set_term_meta( $term_id, 'client_address_lng', (string) (float) $location->lng );
             update_term_meta( $term_id, self::GEOCODED_AT_META, time() );
+            delete_term_meta( $term_id, self::GEOCODE_RETRY_META );
             return true;
         }
         if ( (int) get_term_meta( $term_id, self::GEOCODED_AT_META, true ) <= time() - self::GEOCODE_MAX_AGE ) {
@@ -709,16 +726,19 @@ class Client_Taxonomy {
     }
 
     /**
-     * Daily: refresh coordinates older than GEOCODE_MAX_AGE (including ones saved before this
-     * check existed, which have no fetch time), or clear them when they can't be refreshed.
-     * About one Details call per client per 30 days.
+     * Daily: refresh coordinates older than GEOCODE_REFRESH_AGE (including ones saved before this
+     * check existed, which have no fetch time); they are deleted once a refresh fails past
+     * GEOCODE_MAX_AGE. A client whose coordinates were deleted that way is retried for up to
+     * GEOCODE_MAX_RETRIES days. About one Details call per client per 28 days.
      */
     public static function refresh_stale_geocodes() {
-        $term_ids = get_terms( [
+        $base = [
             'taxonomy'   => 'client',
             'hide_empty' => false,
             'fields'     => 'ids',
-            'number'     => 50,
+            'number'     => self::GEOCODE_BATCH,
+        ];
+        $stale = get_terms( $base + [
             'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'AND',
                 [
@@ -734,25 +754,73 @@ class Client_Taxonomy {
                     ],
                     [
                         'key'     => self::GEOCODED_AT_META,
-                        'value'   => time() - self::GEOCODE_MAX_AGE,
+                        'value'   => time() - self::GEOCODE_REFRESH_AGE,
+                        'type'    => 'NUMERIC',
+                        'compare' => '<=',
+                    ],
+                ],
+                // Not tried in the last 20 hours: a batch that keeps failing must not re-run all day.
+                [
+                    'relation' => 'OR',
+                    [
+                        'key'     => self::GEOCODE_ATTEMPTED_META,
+                        'compare' => 'NOT EXISTS',
+                    ],
+                    [
+                        'key'     => self::GEOCODE_ATTEMPTED_META,
+                        'value'   => time() - 20 * HOUR_IN_SECONDS,
                         'type'    => 'NUMERIC',
                         'compare' => '<=',
                     ],
                 ],
             ],
         ] );
-        if ( is_wp_error( $term_ids ) || empty( $term_ids ) ) {
-            return;
-        }
+        $retry = get_terms( $base + [
+            'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                [
+                    'key'     => self::GEOCODE_RETRY_META,
+                    'compare' => 'EXISTS',
+                ],
+            ],
+        ] );
+        $stale = is_wp_error( $stale ) ? [] : array_map( 'intval', $stale );
+        $retry = is_wp_error( $retry ) ? [] : array_diff( array_map( 'intval', $retry ), $stale );
 
         $api_key = lpmanager_google_server_api_key();
-        foreach ( $term_ids as $term_id ) {
+        foreach ( $stale as $term_id ) {
+            update_term_meta( $term_id, self::GEOCODE_ATTEMPTED_META, time() );
             $place_id = (string) carbon_get_term_meta( $term_id, 'client_place_id' );
             if ( '' === $api_key || '' === $place_id ) {
-                self::clear_coordinates( $term_id );
+                // Nothing to refresh from: they can only be deleted, once they reach GEOCODE_MAX_AGE.
+                if ( (int) get_term_meta( $term_id, self::GEOCODED_AT_META, true ) <= time() - self::GEOCODE_MAX_AGE ) {
+                    self::clear_coordinates( $term_id );
+                }
                 continue;
             }
-            self::refresh_coordinates( $term_id, $place_id, $api_key );
+            if ( ! self::refresh_coordinates( $term_id, $place_id, $api_key ) && '' === (string) carbon_get_term_meta( $term_id, 'client_address_lat' ) ) {
+                update_term_meta( $term_id, self::GEOCODE_RETRY_META, 1 ); // Deleted just now: try again tomorrow.
+            }
+        }
+        foreach ( $retry as $term_id ) {
+            $place_id = (string) carbon_get_term_meta( $term_id, 'client_place_id' );
+            $attempts = (int) get_term_meta( $term_id, self::GEOCODE_RETRY_META, true );
+            if ( '' === $api_key || '' === $place_id || $attempts >= self::GEOCODE_MAX_RETRIES ) {
+                delete_term_meta( $term_id, self::GEOCODE_RETRY_META );
+                continue;
+            }
+            // Once a day: follow-up runs (the `_more` event) must not use up the retries in minutes.
+            if ( (int) get_term_meta( $term_id, self::GEOCODE_ATTEMPTED_META, true ) > time() - 20 * HOUR_IN_SECONDS ) {
+                continue;
+            }
+            update_term_meta( $term_id, self::GEOCODE_ATTEMPTED_META, time() );
+            if ( ! self::refresh_coordinates( $term_id, $place_id, $api_key ) ) {
+                update_term_meta( $term_id, self::GEOCODE_RETRY_META, $attempts + 1 );
+            }
+        }
+
+        // A full batch may have left clients waiting: run again shortly instead of tomorrow.
+        if ( count( $stale ) >= self::GEOCODE_BATCH && ! wp_next_scheduled( self::GEOCODE_REFRESH_EVENT . '_more' ) ) {
+            wp_schedule_single_event( time() + 5 * MINUTE_IN_SECONDS, self::GEOCODE_REFRESH_EVENT . '_more' );
         }
     }
 

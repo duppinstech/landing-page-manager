@@ -11,6 +11,10 @@
  *
  *     define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );
  *
+ * Google coordinates (client latitude and longitude) are always removed, because Google's terms limit
+ * how long they may be kept. The Google place ID is kept, and coordinates are fetched again after a
+ * reinstall.
+ *
  * Templates in wp-content/lpmanager-templates/ are always kept: they are site content shared by
  * every site on a network, and a reinstall uses them again. Delete that folder yourself if you
  * no longer need it.
@@ -69,14 +73,20 @@ function lpmanager_uninstall_site() {
         )
     );
 
-    // Bookkeeping meta: the "kept as draft" flag on landing pages, and when each client's
-    // coordinates were fetched (Client_Taxonomy). Not content, so always removed.
+    // Bookkeeping meta: the "kept as draft" flag on landing pages, and the client geocode records
+    // (Client_Taxonomy). Not content, so always removed. Google's latitude and longitude go too,
+    // even when content is kept: Google's terms limit how long they may be stored, and nothing
+    // refreshes them once the plugin is gone. The place ID stays; a reinstall fetches them again.
     $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s", '_lpmanager_kept_draft' ) );
     $wpdb->query(
         $wpdb->prepare(
-            "DELETE FROM {$wpdb->termmeta} WHERE meta_key IN ( %s, %s )",
+            "DELETE FROM {$wpdb->termmeta} WHERE meta_key IN ( %s, %s, %s, %s, %s, %s )",
             '_lpmanager_geocode_source',
-            '_lpmanager_geocoded_at'
+            '_lpmanager_geocoded_at',
+            '_lpmanager_geocode_retries',
+            '_lpmanager_geocode_attempted_at',
+            '_client_address_lat',
+            '_client_address_lng'
         )
     );
 
@@ -99,6 +109,7 @@ function lpmanager_uninstall_site() {
     delete_transient( 'lpmanager_templates_copy_retry' );
     wp_clear_scheduled_hook( 'lpmanager_copy_templates' );
     wp_clear_scheduled_hook( 'lpmanager_refresh_geocodes' );
+    wp_clear_scheduled_hook( 'lpmanager_refresh_geocodes_more' );
 
     if ( defined( 'LPMANAGER_UNINSTALL_DELETE_CONTENT' ) && LPMANAGER_UNINSTALL_DELETE_CONTENT ) {
         // Direct query: get_posts( 'any' ) skips trash and auto-draft.
