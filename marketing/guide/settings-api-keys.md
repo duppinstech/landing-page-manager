@@ -11,6 +11,7 @@
 2. Enter a **Google Maps server key** for server-side address lookups and review fetching. Restrict it to your server IP and the original **Places API**, not Places API (New). If this field is blank, the browser key is used as a fallback.
 3. Optionally enter a **Brandfetch API key** to retrieve client brand colors, then select **Save Changes**.
 4. Use **Additional Scripts** only for scripts you trust. An administrator who can post unfiltered HTML must save or approve the value before it is printed at the bottom of landing pages.
+5. Saved keys are shown as dots, and each field's help names the last four characters of the saved key. To replace a key, clear the field, paste the new key, and select **Save Changes**. If this tab was open during a plugin update, reload it before saving.
 
 ![Settings: API Keys](../screenshots/admin/api-keys.jpg)
 

@@ -5,30 +5,34 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 ### Changed
-- **The "Missing required fields" notice stays until the fields are filled in**, instead of disappearing after a minute. It names each field with its label and the tab it is on.
+- **The required-fields notice stays until the fields are filled in**, instead of disappearing after a minute. It names each field with its label and the tab it is on. While a draft is being built it is a reminder; after a refused publish or schedule it is an error; on a live page it says the page stays published.
 - **Scheduling an incomplete landing page keeps it as a draft**, as publishing already did. Previously the check ran only when the scheduled time came.
 - **The Landing Pages list names pages that were kept as drafts**, for example after Quick Edit, bulk edit or a scheduled publish, with a link to each.
 - Editors see "Landing page published", "Landing page draft updated" and so on, instead of WordPress's generic "Post …" messages.
 - **Previews open on the main site**, where you are logged in, for drafts and published pages alike. Previews on a client subdomain didn't work on most sites, because login cookies don't reach subdomains: a published page's preview showed the live page or "Sorry, you are not allowed to preview drafts", and a new draft's preview went to a broken address.
-- **API keys are shown as dots** (password fields) on Settings → API Keys, and password managers are asked not to fill them. To change a key, clear the field and paste the new one.
-- **Client colors**: when Brandfetch has no colors for the client's domain, or no Brandfetch key is saved, the colors now come from the client's logo. Previously the client got the generic blue and red. Brandfetch answers are kept for a week per domain, so saving a client again doesn't make another call.
+- **A landing page opens only on its own client's subdomain.** Its address on another client's subdomain, on the main domain, on `www.` or on a subdomain that is no client's (for example after a client's slug was renamed) redirects to the page's own address, keeping the query string so ad tracking survives. Before, those addresses showed the page. On the main domain this happens only where WordPress has nothing at that address, so its own pages, posts, feeds and sitemaps still win. A link through `?p=` or `?landing_page=` on another client's subdomain shows the not-found page.
+- **API keys are shown as dots** (password fields) on Settings → API Keys, and password managers are asked not to fill them. Each field's help says which saved key it holds (its last four characters). To change a key, clear the field and paste the new one. The keys are hidden on screen; they are stored as before.
+- **Client colors**: when Brandfetch has no colors for the client's domain, or no Brandfetch key is saved, new clients get colors from their logo instead of the generic blue and red. Existing clients keep their saved colors; to pick up logo colors, clear Primary and Secondary color and update the client. Brandfetch answers are reused for a week per domain.
 - **Client addresses are looked up again only when the client's name or address changes.** Saving a client for any other reason no longer makes three Google calls.
+- **Saved map coordinates are refreshed every 28 days.** Google Maps Platform terms limit how long latitude and longitude from the Places API may be cached (30 days at the time of writing); the place ID may be kept. A daily background task refreshes older coordinates from the saved place ID, using about one billed Place Details request per client per month on the Google Maps server key. If a refresh fails and the coordinates are past 30 days, they are deleted and retried for three days. Uninstalling the plugin always deletes them. While the plugin is deactivated they aren't refreshed; within a day of reactivation they are refreshed or deleted.
 
 ### Fixed
-- A broken template no longer takes down wp-admin: if its fields file has an error, administrators see a notice that names the template and the error.
+- **Most errors in a template's fields file no longer take down wp-admin.** Administrators see a notice that names the template and the error. (A few fatal errors, such as a function declared twice, can't be caught.)
 - A new draft's View and Preview links no longer point to `https://<client>.<domain>//`.
 
 ### Security
-- **A client's subdomain shows only that client's landing pages.** Another client's page, reached by its slug, `?p=`, `?landing_page=` or any other way, now gets the template's not-found page. Only hosts that end in `.` plus the site's domain, and whose subdomain is a client's slug, are treated as client subdomains (previously, for example, `evilexample.com` counted as a subdomain of `example.com`).
+- Only hosts that end in `.` plus the site's domain, and whose subdomain is a client's slug, are treated as client subdomains (previously, for example, `evilexample.com` counted as a subdomain of `example.com`). The client can no longer be chosen with a URL parameter.
 - The plain-text copies of the Google and Brandfetch keys that each Settings save kept in the `carbon_fields_theme_options_container` option are deleted.
 - Brandfetch requests accept only a valid domain name, and are skipped when no Brandfetch key is saved.
 
-### Privacy
-- Google's terms allow keeping a place's latitude and longitude for 30 days. A daily task now refreshes coordinates older than that from the saved place ID (one Google Place Details call per client per month, on the server key), or deletes them when they can't be refreshed. The place ID is kept.
-
 ### Upgrade notes
-- **Reload the Settings → API Keys tab** if it was open during the update before saving it. (A tab opened before the update shows the keys masked with asterisks; saving it keeps the stored keys.)
-- After the update, each client with saved coordinates gets one refresh within a day.
+- **Each landing page now opens only on its own client's subdomain.** Links on another subdomain or the main domain redirect to it, so update ads and QR codes to the page's own address when you can, and check the Client column on Landing Pages (a page with no client redirects to its main-site address, `/landing-page/<slug>/`). Then purge your page cache: cached copies keep serving the old addresses until it is cleared.
+- **Check the Google Maps server key before updating.** Within a day of updating (20 clients per run, with more runs scheduled until all are done), each client's saved latitude and longitude are refreshed from Google with that key. If that fails, for example because no key is saved or the key doesn't allow the original Places API, the coordinates are deleted and maps that need them stop showing. Afterwards, open a client and check Latitude and Longitude; if they're empty, fix the key and save the client.
+- Live landing pages with empty required fields now show the required-fields notice in the editor each time. The page stays published.
+- If Settings → API Keys was open during the update, reload it before saving. Saving the old tab is safe (the stored keys are kept), but it won't show the new password fields.
+
+### Rollback
+- **If you go back to 1.0.15, re-enter the Google Maps browser key and the Brandfetch key before saving Settings.** 1.0.15 masks those fields and restores them from plain-text copies that this version deletes, so its first Settings save would clear them.
 
 ## [1.0.15] - 2026-10-19
 ### Fixed
