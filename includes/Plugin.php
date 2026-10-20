@@ -54,4 +54,13 @@ final class Plugin {
         Keyword_Taxonomy::register_taxonomy();
         flush_rewrite_rules();
     }
+
+    /**
+     * Remove scheduled events. Client_Taxonomy schedules the coordinate refresh again on the next
+     * request after reactivation.
+     */
+    public static function deactivate() {
+        wp_clear_scheduled_hook( Client_Taxonomy::GEOCODE_REFRESH_EVENT );
+        wp_clear_scheduled_hook( Client_Taxonomy::GEOCODE_REFRESH_EVENT . '_more' );
+    }
 }

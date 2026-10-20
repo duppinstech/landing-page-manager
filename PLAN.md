@@ -124,7 +124,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [ ] **P2 — Who can run Fetch Reviews?** _(security · 10-16)_ The 10-minute lock allows up to 144 billed calls per place per day, and anyone who can edit a page for that client can trigger them. **Recommendation:** require Editor-level access (`edit_others_posts`), and optionally add a daily cap per place.
 - [ ] **P1 — Client B template names and the hotlinked Template C heroes.** Both templates still carry a client's name, and the Template C default hero images load from the client's own server. **Recommendation:** rename the templates' display names (keep the slugs), as was done for Template A, or record the client's written consent. _(legal, mkt _(DR 10-16c)_)_
 - [ ] **P1 — car-care brand–named default hero images in Template C, and how far the image rights reach.** Do the rights you confirmed cover use by every operator? **Recommendation:** remove the two car-care brand images from the defaults, or ask the attorney. _(legal _(DR 10-16c)_)_
-- [ ] **P0 — Template A fallback colours.** Clients with no brand match are stored with the fallback `#007BFF`/`#FF4136`, so their Template A pages turn generic blue and red on update. **Recommendation:** treat that pair as "no brand colour" and keep Template A's own palette. _(prod, sup, ops _(DR 10-16c)_)_
+- [ ] **P0 — Template A fallback colours.** Clients with no brand match are stored with the fallback `#007BFF`/`#FF4136`, so their Template A pages turn generic blue and red on update. **Recommendation:** treat that pair as "no brand colour" and keep Template A's own palette. _(prod, sup, ops _(DR 10-16c)_)_ **10-19:** new clients with no Brandfetch colours now get logo colours (`fix/p1-core-batch`); stored `#007BFF`/`#FF4136` pairs are unchanged.
 - [ ] **P1 — API keys are per install, not per client.** "Clients supply their own keys" only works with one install per client. **Options:** one install per client on Duppins-run sites; a per-client key override in core; or Duppins' key with the cost passed through. _(fin _(DR 10-16c)_)_
 - [ ] **P1 — Early-access link target.** The buttons go to the duppinstech.com home page. **Recommendation:** a contact or early-access page with UTM tags. _(fin, mkt _(DR 10-16c)_)_
 - [ ] **P1 — Sites with `DISALLOW_UNFILTERED_HTML`.** Nobody, admins included, can save or approve Additional Scripts or change Header Tracking Code there. **Options:** document it (done in the CHANGELOG), or fall back to `manage_options` on single-site installs. _(ops _(DR 10-16c)_)_
@@ -144,8 +144,12 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - (d) Should the published v1.0.6 GitHub release notes be corrected (Template A variant count)? _(sup)_
   - _(DR 10-14)_
 
+- [ ] **Brandfetch colours are stored for good (Attorney review).** Brandfetch's terms (section 5.1) require cached content to be refreshed at least every 30 days or deleted, and the licence gives no right to reproduce it. The plugin saves the fetched colours as client meta with no refresh (this predates 1.0.16; the new 7-day cache of answers is within the terms). Questions for the attorney: are hex colours "Content", does showing them on client pages count as reproducing them, and does your Brandfetch plan allow caching? **Legal's options:** (a) store a fetch time and refresh or clear every 30 days, like the coordinates; (b) use Brandfetch colours only as a suggestion the operator confirms; (c) logo colours only. Doesn't block merging. _(legal · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Confirm: redirect old landing-page addresses instead of a 404?** _Default already built on `fix/p1-core-batch`, reversible._ 1.0.15 served any landing page on any of the site's hosts by accident (the main domain, `www.`, another client's subdomain, renamed slugs). 1.0.16 serves a page only on its own client's subdomain and 302-redirects those other addresses to it, keeping the query string, so live ads don't land on a 404. A page or post on the main domain with the same slug wins. UX and finance asked for this, and ops called the 404 a High risk. The alternative is a 404 everywhere except the page's own address (stricter branding, but old ad URLs break). _(ops, ux, fin, sup · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+
 ## P0 — before the next release
 
+- [ ] **Before releasing 1.0.16 (Odell, on both live sites):** (1) check the Google Maps server key is saved and has the original Places API, or client footer maps lose their coordinates within a day; (2) check the Client column on Landing Pages and the ad, QR and Google Ads final URLs against each page's client (wrong-host links now redirect; update them); (3) search the access logs for main-domain hits on landing slugs; (4) purge page caches after updating. Run the ops smoke test in the [appendix](meeting-notes/2026-10-19-0420-p1-core-batch-review-appendix.md). Push `fix/p1-core-batch` and confirm CI (7.4/8.1/8.3) before merging. _(ops, prod, fin, sup · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
 - [ ] **Post-release checks for v1.0.9:** on a site still running v1.0.8, open Dashboard → Updates and select Check again within a minute of opening the page. v1.0.9 should be offered. Then check the Plugins row: Settings | Help | Deactivate, and Version | By Duppins Technology | Sponsor | Visit plugin site | Support. _(security reviewer asked for the manual Check again run, 10-17)_
 - [ ] **Post-release checks for v1.0.8:** on a live site, open the Help button on the Dashboard, Landing Pages list and editor, Clients, Keywords, Analytics and each Settings tab. Check that the notes match the selected Settings tab, Escape closes it, the guide link opens the right section, and the panel fits on a phone. Rewrite `marketing/guide/help-button.md`, which still describes the removed Help tab. _(Odell waived review, 10-16)_
 - [ ] **Post-release checks for v1.0.7 on each live site** (the smoke test was waived): Template A colours and phone numbers (run smoke step 26's phone audit), approve Additional Scripts, check Header Tracking Code, purge page caches, and look for 404s and console errors. _(Odell waiver, 10-16)_
@@ -162,12 +166,10 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 
   _(DR 10-16c)_
 
-- [~] **Remove or re-wire the per-client template field.**
+- [x] **Remove or re-wire the per-client template field.** **Closed 10-19:** removed in v1.0.7, the CHANGELOG entry landed 10-14, and Odell decided 10-16 that per-client templates are a Pro feature (`lpmanager_template_for_post`).
   - **Done:** the WIP on `chore/template-field-cleanup` removes it. The README already matches.
-  - **To close:** the CHANGELOG entry (below) and Odell's global-vs-per-client decision.
-- [~] **Move the Template A "Style Variant" field out of core.**
+- [x] **Move the Template A "Style Variant" field out of core.** **Closed 10-19:** shipped in v1.0.7 (smoke test waived by Odell, 10-16). Template A left the plugin in v1.0.11; any follow-up belongs to the private templates repo.
   - **Done:** the WIP moves it to `template_a/lib/fields/` and keeps the `_wra_style_variant` key, so saved styles survive.
-  - **To close:** the CHANGELOG entry and the smoke test (style_1/2/3, switching templates, rolling back to v1.0.6).
 - [x] **CHANGELOG `[Unreleased]` for the WIP.** _(done on `fix/review-p0-batch`, 10-14)_
   - Add a "Removed" entry for the client template field and a "Changed" entry for Style variant moving to Template A → Layout.
   - Correct the 1.0.6 Template A line: it has three layout styles, not four variants.
@@ -227,7 +229,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Review fixes ([19:25 review](meeting-notes/2026-10-17-1925-analytics-tracking-review.md)): no "coming soon" banner on these two screens; "update Pro" wording for Pro before 1.0.4 (Settings → Conversion Tracking) separate from 1.0.4–1.0.5 (Pro Analytics / Pro Settings); "(opens in a new tab)" for screen readers only; upgrade note to update Pro at the same time. Release Pro 1.0.6 before or with 1.0.13.
 
 
-- [ ] **Draft-on-publish polish.**
+- [x] **Draft-on-publish polish.** **Done 10-19** on `fix/p1-core-batch`: scheduling is validated like publishing; a `_lpmanager_kept_draft` post meta flag replaces the 60-second transients, so the edit-screen notice lasts until the page passes; the Landing Pages list names pages kept as drafts (cron, Quick Edit, bulk edit, REST). The Pro note below is still for the Pro session.
   - Validate a page when it is scheduled, not when it goes live.
   - Keep a lasting notice when cron reverts a scheduled page.
   - Show a notice on the list screen when Quick Edit, bulk edit or REST publishes are reverted.
@@ -259,14 +261,14 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 - [ ] **After 1.0.11: move the client-template backlog to the private repo** (Template A fallback colours and accents, Client B names and hotlinked Template C heroes, mockups, per-style items) and split CREDITS (Bootstrap, Popper, Swiper, Animate and WOW leave with the templates). _(prod, legal · DR 10-17)_
 - [ ] **P2: show where each template is stored** (plugin or custom folder) on the Templates tab or in Site Health, to confirm the 1.0.10 rollout before 1.0.11. _(prod · DR 10-17)_
 - [ ] **P2: `LPMANAGER_TEMPLATES_DIR`** (location stays `wp-content/lpmanager-templates/`, decided 10-17; this is only for hosts that need another place) for hosts where wp-content isn't writable (Pantheon, VIP, immutable deploys). _(ops · DR 10-17)_
-- [ ] **Guard template field loading.** (From the security review.) `Template_Loader` `require_once`s `<slug>/lib/fields/landing-page-fields.php` on wp-admin requests, so a broken uploaded template can take down wp-admin. Do this after the WIP in `Template_Loader.php` is committed.
+- [x] **Guard template field loading.** **Done 10-19** on `fix/p1-core-batch`: the require is wrapped in `try`/`catch ( \Throwable )` and administrators get a notice naming the template and error (compile-time fatals such as a redeclared function still can't be caught). (From the security review.) `Template_Loader` `require_once`s `<slug>/lib/fields/landing-page-fields.php` on wp-admin requests, so a broken uploaded template can take down wp-admin.
 - [x] **Uninstall routine.** `uninstall.php` removes `lpmanager_*` and `_lpmanager_*` options (but not `lpmanager_pro_*`) and the validation transients, on every site in a multisite network. Content is kept unless `LPMANAGER_UNINSTALL_DELETE_CONTENT` is true. Needs a test on a WP site.
 - [x] **Repo moved to `duppinstech/landing-page-manager`.** Updated the remote, the updater API URL, the Plugin URI and the docs.
 
 ### P1 — from the 2026-10-14 baseline department review
 
 **Security and hardening**
-- [ ] **Scope subdomain routing to the page's client.**
+- [x] **Scope subdomain routing to the page's client.** **Done 10-19** on `fix/p1-core-batch` (security review, two rounds): `"." . $main_domain` suffix and client-slug check; only published pages are looked up by slug; another client's page 404s with the template's 404, including via `?p=`, `?landing_page=` and other routes; `lp_client` is no longer a public query var; `filter_landing_pages_query` removed (WP_Query ignores `tax_query` on singular queries, so `has_term()` does the check).
   - Require the `'.' . $main_domain` suffix in the host check.
   - Use `has_term( $subdomain, 'client', $post )`, otherwise redirect or 404.
   - Hook or remove `filter_landing_pages_query`.
@@ -287,13 +289,13 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Add `wp_nonce_url` + `check_admin_referer`.
   - Remove the duplicate `init()` call at `Landing_Page_CPT_Enhancements.php:145`, which registers every hook twice.
   - _(sec · DR 10-14)_
-- [ ] **Brandfetch hardening.**
+- [x] **Brandfetch hardening.** **Done 10-19** on `fix/p1-core-batch`: hostname validation (`Client_Taxonomy::normalize_domain()`), `rawurlencode`, skipped without a key, 10s timeout, `sanitize_hex_color`, a 7-day per-domain transient, and a REST `args` schema. With no Brandfetch colors the logo colors are used, instead of the generic blue/red.
   - Validate the domain as a hostname and `rawurlencode` it.
   - Skip the call when the key is empty, and add a timeout.
   - Run `sanitize_hex_color` on the saved colors.
   - Cache results per domain.
   - _(sec, fin · DR 10-14)_
-- [ ] **API key fields use the password field type.**
+- [x] **API key fields use the password field type.** **Done 10-19** on `fix/p1-core-batch`: `carbon-field-password` is a Carbon Fields 2 field and doesn't render in Carbon Fields 3, so the three key fields are text fields with `type="password"` (plus password-manager ignore attributes). The `admin.js` masking and the `*_previous` save hook are gone; an `admin_init` cleanup deletes the plaintext copies; a save guard keeps the stored key if an old tab submits the asterisk mask. Follow-up (P2): drop the now-unused `carbon-field-password` Composer dependency.
   - Use `carbon-field-password`, and remove the `admin.js` masking (which may save `****` over the real key) and the plaintext `*_previous` copies.
   - Include the new `lpmanager_google_server_api_key`. It's the more sensitive key and is currently shown in clear. _(DR 10-14b)_
   - _(sec, ux · DR 10-14)_
@@ -304,7 +306,7 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - Add an accessible region name.
   - Never show admin "Map unavailable" messages to visitors.
   - _(fin, ux · DR 10-14)_
-- [ ] **Geocode hygiene.**
+- [x] **Geocode hygiene.** **Done 10-19** on `fix/p1-core-batch`: lookups are skipped when the client name and address are unchanged (`_lpmanager_geocode_source`); `_lpmanager_geocoded_at` records the fetch; a daily WP-Cron event (`lpmanager_refresh_geocodes`, cleared on deactivation and uninstall) refreshes coordinates older than 30 days from the place ID, or deletes them.
   - Skip the lookup when the name and address are unchanged.
   - Store a `_fetched` timestamp and refresh lat/lng after 30 days, per Google's caching terms. The place ID may persist.
   - _(fin, legal · DR 10-14)_
@@ -356,11 +358,11 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
   - **"Client Phone":** add help text once the phone decision is made.
   - The text is in [the appendix](meeting-notes/2026-10-14-1951-baseline-review-appendix.md).
   - _(sup, prod · DR 10-14)_
-- [~] **Validator messages** (raised to P0 by DR 10-16c: publishing is now blocked, so the notice must say what to fix). **Done 10-16:** labels for client, keyword and phone, and a kept-as-draft notice with a "Draft updated" message. **Still to do:** labels and tabs for template-specific required fields, and a notice that stays until the fields are fixed. Show field labels and which tab each is on, say the page was saved anyway, and keep the notice until the fields are fixed. _(prod, sup · DR 10-14)_
-- [ ] **Draft preview on client subdomains.**
-  - Allow draft and pending posts when `preview=true` and the user can edit the post.
-  - Fall back to the default preview link when the slug is empty.
-  - Verify on a WP site.
+- [x] **Validator messages** **Done 10-19** on `fix/p1-core-batch`: template fields are listed with their label and tab (from Carbon Fields, or labels a template passes to `Required_Fields_Registry::register()`), and the notice is worked out on each load, so it stays until the fields are filled in. (Raised to P0 by DR 10-16c: publishing is now blocked, so the notice must say what to fix). **Done 10-16:** labels for client, keyword and phone, and a kept-as-draft notice with a "Draft updated" message. _(prod, sup · DR 10-14)_
+- [x] **Draft preview on client subdomains.** **Done 10-19, differently** on `fix/p1-core-batch`: every landing-page preview opens on the main site (`?post_type=landing_page&p=ID&preview=true` plus WordPress's preview arguments), where the editor is logged in. Login cookies usually don't reach subdomains, so subdomain previews showed the live page, a 403 or a broken `//` URL. A subdomain draft path was tried and dropped after the security review (same-slug drafts could leak).
+  - _Superseded (not built):_ allow draft and pending posts when `preview=true` and the user can edit the post.
+  - _Superseded:_ fall back to the default preview link when the slug is empty (all previews now use the main site).
+  - Verified in the local Docker site, 10-19.
   - _(prod · DR 10-14)_
 - [ ] **Template screenshots are page captures, not client logos.** Use 1200×900 hero captures, and one per Template A style or a montage. _(mkt · DR 10-14)_
 
@@ -400,7 +402,20 @@ These were forwarded by department reviews. Nothing here gets built until Odell 
 
 - [ ] **Remove unused dashboard code:** `Admin_Dashboard::enqueue_assets()` (depends on a `chart-js-handle` script that no longer exists), `assets/js/dashboard.js` and `views/admin-dashboard.php`. Check each is unused before removing. Keep `get_dashboard_data()`: it serves the `lpmanager/v1/dashboard-data` REST route and its `lpmanager_dashboard_data` filter, which Pro hooks. `assets/js/tracking.js` is not part of this: Pro 1.0.1–1.0.2 still load it (see the analytics item above). _(prod · [DR 10-17 19:25](meeting-notes/2026-10-17-1925-analytics-tracking-review.md))_
 
-- [ ] **Register `post_updated_messages` for `landing_page`**, so editors see "Landing page draft updated" and "Landing page published" instead of the generic "Post …" messages. _(prod · DR 10-16c re-review)_
+- [ ] **Client hosts: limit search, feeds and archives to that client.** `https://a.example.com/?s=term` (and feeds, and REST `/wp/v2/landing_page`) can list client B's published pages under client A's host. Only already-public content, so a branding and duplicate-content issue. Fix: in `pre_get_posts`, when the host is a client subdomain and a main-query search or feed includes `landing_page`, add a client `tax_query`, or 404 non-singular requests on client hosts. Also: on a client subdomain a one-level WordPress route whose slug matches another client's landing page (`a.example.com/feed/` with a page slugged `feed`) is redirected to that page; handle it with the same `is_404()` approach as `redirect_stray_landing_url()`, or skip feed and embed routes (`$wp->matched_rule`). Needs `security-reviewer`. _(sec · 10-19 review of `fix/p1-core-batch`)_
+- [ ] **Admin notice when coordinate refreshes fail** ("Coordinates for N clients couldn't be refreshed; check the Google Maps server key"), especially on `REQUEST_DENIED`. _(prod, sup, ops · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Kept-draft list banner:** list only pages kept as drafts in the last 30 days, or let each user dismiss it (like the server-key warning). _(prod, ux · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Safe mode for template fatals:** an `LPMANAGER_SKIP_TEMPLATE_FIELDS` constant, or a flag set on shutdown after a fatal from the template folder, so a template with a redeclared function can't lock out wp-admin. Needs `security-reviewer`. _(prod, sup · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Skip coordinate lookups for templates that don't use them.** Only one private client template reads latitude and longitude; a filter (or template metadata) could let core look up the place ID only (free) and skip Details and the monthly refresh. Record which templates need coordinates in the template contract. _(fin · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Remember "no Google match"** for an unchanged name and address, so saves don't repeat Find Place plus Text Search. Optionally cache Brandfetch 429 answers for an hour. _(fin · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **API key fields: Show/Hide button** (`type="button"`, `aria-pressed`, `aria-controls`), and test whether Chrome offers "Suggest strong password" on `autocomplete="new-password"` (switch to `off` if it does). _(ux · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Client editor: show the Brandfetch REST error** ("Enter a domain name such as example.com.") under the domain field in a `role="status"` area, and say when no Brandfetch key is saved. _(ux · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Network deactivation:** clear the geocode events on every site (`$network_wide`). Harmless today: the event fires with no callback. _(ops · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Privacy tutorial line (optional):** in `Privacy.php`'s tutorial text, say client names, addresses and domains are sent to Google and Brandfetch, which is personal data when a client is an individual. _(legal · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Marketing assets for 1.0.16:** retake `marketing/screenshots/admin/api-keys.jpg` (keys as dots; also WordPress.org screenshot 6), optionally the editor and list screenshots with the new notices; in `marketing/website.md`, colours no longer need a Brandfetch key. Updating duppinstech.com itself is Odell's. Add "Publishing checks", "Each client subdomain serves only that client's pages" and "Brand colours from Brandfetch or the logo" to the WordPress.org feature list. _(mkt, sup · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+- [ ] **Drop the unused `pkostadinov-2create/carbon-field-password` dependency** (a Carbon Fields 2 field; the key fields use `type="password"` since 10-19). Change `composer.json`, run `composer install`, and check the zip. _(sec, prod · [2026-10-19 department review](meeting-notes/2026-10-19-0420-p1-core-batch-review.md))_
+
+- [x] **Done 10-19** (`Landing_Page_CPT::updated_messages()`). **Register `post_updated_messages` for `landing_page`**, so editors see "Landing page draft updated" and "Landing page published" instead of the generic "Post …" messages. _(prod · DR 10-16c re-review)_
 
 - [ ] **Move the Template A `.html` mockups to a private repo.** Needs a destination from Odell. _(legal, prod _(DR 10-16c)_)_
 - [ ] **Remove core's tracking-toggle definitions** once Pro 1.0.3 is no longer supported. The support window is a decision for Odell. _(prod _(DR 10-16c)_)_

@@ -12,7 +12,7 @@ The editor combines the WordPress title with shared Landing Page Details and fie
 3. Complete the fields for the active template, then save as a draft or select **Publish**.
 4. Review the generated URL in the Landing Pages list and test it on the client subdomain.
 
-Client, keyword, a usable phone number, and the active template's required fields are needed before a new page can publish. If required values are missing, the plugin keeps the new page as a draft and lists the missing fields. An already-published page is not unpublished when edited with missing fields.
+Client, keyword, a usable phone number, and the active template's required fields are needed before a page can be published or scheduled. If any are missing, the plugin saves the page as a draft and lists each missing field with its tab. The list stays until the fields are filled in. An already-published page is not unpublished; it shows the same list. **Preview** opens the page on the main site, where you are logged in, not on the client subdomain.
 
 Template fields vary. Template B has **Hero**, **Trust Bar**, **Opening**, **Reviews**, **Icon Boxes**, **Service Area**, **Roads & Highways**, **FAQ**, and **Closing**. Template C has **Hero**, **Company**, **Benefits**, **More**, and **Apply Now**. Template A has **Layout**, **Header & branding**, **Hero**, **Trust bar & strips**, **Intro (near me)**, **Services grid**, **Stats row**, **Feature / roadside**, **CTA banner**, **Service area**, **FAQ**, **Footer**, and **Advanced**.
 

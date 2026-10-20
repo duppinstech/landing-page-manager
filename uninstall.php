@@ -11,6 +11,10 @@
  *
  *     define( 'LPMANAGER_UNINSTALL_DELETE_CONTENT', true );
  *
+ * Google coordinates (client latitude and longitude) are always removed, because Google's terms limit
+ * how long they may be kept. The Google place ID is kept, and coordinates are fetched again after a
+ * reinstall.
+ *
  * Templates in wp-content/lpmanager-templates/ are always kept: they are site content shared by
  * every site on a network, and a reinstall uses them again. Delete that folder yourself if you
  * no longer need it.
@@ -69,10 +73,27 @@ function lpmanager_uninstall_site() {
         )
     );
 
-    // Transients (validation notices, Google reviews locks).
+    // Bookkeeping meta: the "kept as draft" flag on landing pages, and the client geocode records
+    // (Client_Taxonomy). Not content, so always removed. Google's latitude and longitude go too,
+    // even when content is kept: Google's terms limit how long they may be stored, and nothing
+    // refreshes them once the plugin is gone. The place ID stays; a reinstall fetches them again.
+    $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s", '_lpmanager_kept_draft' ) );
     $wpdb->query(
         $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
+            "DELETE FROM {$wpdb->termmeta} WHERE meta_key IN ( %s, %s, %s, %s, %s, %s )",
+            '_lpmanager_geocode_source',
+            '_lpmanager_geocoded_at',
+            '_lpmanager_geocode_retries',
+            '_lpmanager_geocode_attempted_at',
+            '_client_address_lat',
+            '_client_address_lng'
+        )
+    );
+
+    // Transients (validation notices from before 1.0.16, Google reviews locks, Brandfetch answers).
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
             $wpdb->esc_like( '_transient_lp_missing_fields_' ) . '%',
             $wpdb->esc_like( '_transient_timeout_lp_missing_fields_' ) . '%',
             $wpdb->esc_like( '_transient_lp_kept_draft_' ) . '%',
@@ -80,11 +101,15 @@ function lpmanager_uninstall_site() {
             $wpdb->esc_like( '_transient_lpmanager_additional_scripts_approved_' ) . '%',
             $wpdb->esc_like( '_transient_timeout_lpmanager_additional_scripts_approved_' ) . '%',
             $wpdb->esc_like( '_transient_lpmanager_reviews_' ) . '%',
-            $wpdb->esc_like( '_transient_timeout_lpmanager_reviews_' ) . '%'
+            $wpdb->esc_like( '_transient_timeout_lpmanager_reviews_' ) . '%',
+            $wpdb->esc_like( '_transient_lpmanager_brandfetch_' ) . '%',
+            $wpdb->esc_like( '_transient_timeout_lpmanager_brandfetch_' ) . '%'
         )
     );
     delete_transient( 'lpmanager_templates_copy_retry' );
     wp_clear_scheduled_hook( 'lpmanager_copy_templates' );
+    wp_clear_scheduled_hook( 'lpmanager_refresh_geocodes' );
+    wp_clear_scheduled_hook( 'lpmanager_refresh_geocodes_more' );
 
     if ( defined( 'LPMANAGER_UNINSTALL_DELETE_CONTENT' ) && LPMANAGER_UNINSTALL_DELETE_CONTENT ) {
         // Direct query: get_posts( 'any' ) skips trash and auto-draft.

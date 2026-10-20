@@ -39,6 +39,47 @@ class Landing_Page_CPT {
         // Quick Edit field render and save
         add_action( 'quick_edit_custom_box', [ __CLASS__, 'quick_edit_fields' ], 10, 2 );
         add_action( 'save_post', [ __CLASS__, 'save_quick_edit_fields' ], 10, 1 );
+
+        add_filter( 'post_updated_messages', [ __CLASS__, 'updated_messages' ] );
+    }
+
+    /**
+     * "Landing page published" and similar, instead of WordPress's generic "Post …" messages.
+     *
+     * @param array $messages Messages by post type, indexed by the `message` query arg.
+     * @return array
+     */
+    public static function updated_messages( $messages ) {
+        $post = get_post();
+        if ( ! $post || 'landing_page' !== $post->post_type ) {
+            return $messages;
+        }
+
+        $view = '';
+        if ( is_post_type_viewable( 'landing_page' ) && 'publish' === $post->post_status ) {
+            $view = sprintf( ' <a href="%s">%s</a>', esc_url( get_permalink( $post ) ), esc_html__( 'View landing page', 'landing-page-manager' ) );
+        }
+        $preview = sprintf( ' <a target="_blank" href="%s">%s<span class="screen-reader-text"> %s</span></a>', esc_url( get_preview_post_link( $post ) ), esc_html__( 'Preview landing page', 'landing-page-manager' ), esc_html__( '(opens in a new tab)', 'landing-page-manager' ) );
+        /* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
+        $scheduled_date = __( 'M j, Y @ H:i', 'landing-page-manager' );
+
+        $messages['landing_page'] = [
+            0  => '',
+            1  => esc_html__( 'Landing page updated.', 'landing-page-manager' ) . $view,
+            2  => esc_html__( 'Custom field updated.', 'landing-page-manager' ),
+            3  => esc_html__( 'Custom field deleted.', 'landing-page-manager' ),
+            4  => esc_html__( 'Landing page updated.', 'landing-page-manager' ),
+            /* translators: %s: date and time of the revision */
+            5  => isset( $_GET['revision'] ) ? esc_html( sprintf( __( 'Landing page restored to revision from %s.', 'landing-page-manager' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            6  => esc_html__( 'Landing page published.', 'landing-page-manager' ) . $view,
+            7  => esc_html__( 'Landing page saved.', 'landing-page-manager' ),
+            8  => esc_html__( 'Landing page submitted.', 'landing-page-manager' ) . $preview,
+            /* translators: %s: scheduled date */
+            9  => sprintf( esc_html__( 'Landing page scheduled for: %s.', 'landing-page-manager' ), '<strong>' . esc_html( date_i18n( $scheduled_date, strtotime( $post->post_date ) ) ) . '</strong>' ) . $preview,
+            10 => esc_html__( 'Landing page draft updated.', 'landing-page-manager' ) . $preview,
+        ];
+
+        return $messages;
     }
 	
     public static function remove_default_taxonomy_columns( $columns ) {

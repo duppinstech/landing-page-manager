@@ -306,6 +306,7 @@ add_action( 'plugins_loaded', function() {
 
 // Register activation hook (must be outside class)
 register_activation_hook( __FILE__, [ Plugin::class, 'activate' ] );
+register_deactivation_hook( __FILE__, [ Plugin::class, 'deactivate' ] );
 
 // Start output buffering early for REST API requests (avoids stray output in JSON)
 add_action( 'rest_api_init', function () {
@@ -326,6 +327,15 @@ add_action( 'rest_api_init', function () {
         'permission_callback' => function () {
             return current_user_can( 'manage_options' );
         },
+        'args'                => [
+            'domain' => [
+                'type'              => 'string',
+                'required'          => true,
+                'validate_callback' => function ( $value ) {
+                    return is_string( $value ) && '' !== LPManager\taxonomy\Client_Taxonomy::normalize_domain( $value );
+                },
+            ],
+        ],
     ] );
     // Analytics route is registered by the Pro plugin only.
 }, 10 );

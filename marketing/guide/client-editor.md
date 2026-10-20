@@ -11,7 +11,7 @@ The client editor stores branding, contact defaults, subdomain slug, tracking op
 2. Use **Branding & Identity**, **Contact Info**, **Tracking & Integration**, and **Social Media** to edit its fields.
 3. Select **Update** to save the client.
 
-**Client Logo**, **Contact Address**, **Contact Phone**, and **Client Domain** are required. **Latitude**, **Longitude**, **Google Place ID**, and **Google Search URL** are read-only. A landing page's optional **Page phone** overrides the client's **Contact Phone** on that page.
+**Client Logo**, **Contact Address**, **Contact Phone**, and **Client Domain** are required. **Latitude**, **Longitude**, **Google Place ID**, and **Google Search URL** are read-only. **Latitude** and **Longitude** are refreshed from Google every 30 days. Brand colors come from Brandfetch, or from the logo when Brandfetch has none. A landing page's optional **Page phone** overrides the client's **Contact Phone** on that page.
 
 Only users allowed to post unfiltered HTML can change **Header tracking code (call tracking, pixels, tags)**. Tick **Tracking tags need jQuery** if this client's tags require jQuery.
 

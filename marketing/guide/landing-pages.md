@@ -20,6 +20,8 @@
 2. The **All Clients** dropdown filters the page list by client.
 3. **Export CSV** downloads the filtered list for administrators.
 
+If a page was kept as a draft because required fields are missing (after Quick Edit, bulk edit or a scheduled publish), a notice above the list links to it.
+
 ## Next
 
 [Landing Page editor](landing-page-editor)
