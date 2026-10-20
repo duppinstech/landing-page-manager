@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.16] - 2026-10-19
 ### Changed
 - **The required-fields notice stays until the fields are filled in**, instead of disappearing after a minute. It names each field with its label and the tab it is on. While a draft is being built it is a reminder; after a refused publish or schedule it is an error; on a live page it says the page stays published.
 - **Scheduling an incomplete landing page keeps it as a draft**, as publishing already did. Previously the check ran only when the scheduled time came.
@@ -26,6 +28,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Brandfetch requests accept only a valid domain name, and are skipped when no Brandfetch key is saved.
 
 ### Upgrade notes
+- **Sites on 1.0.13 or earlier: install this version once by hand.** Their updater can't install updates (fixed in 1.0.14). Download **`landing-page-manager.zip`** from the [1.0.16 release](https://github.com/duppinstech/landing-page-manager/releases/tag/v1.0.16) (not "Source code (zip)"), then go to **Plugins → Add New Plugin → Upload Plugin**, choose the file, and select **Replace current with uploaded**. Sites on 1.0.14 or later update normally.
 - **Each landing page now opens only on its own client's subdomain.** Links on another subdomain or the main domain redirect to it, so update ads and QR codes to the page's own address when you can, and check the Client column on Landing Pages (a page with no client redirects to its main-site address, `/landing-page/<slug>/`). Then purge your page cache: cached copies keep serving the old addresses until it is cleared.
 - **Check the Google Maps server key before updating.** Within a day of updating (20 clients per run, with more runs scheduled until all are done), each client's saved latitude and longitude are refreshed from Google with that key. If that fails, for example because no key is saved or the key doesn't allow the original Places API, the coordinates are deleted and maps that need them stop showing. Afterwards, open a client and check Latitude and Longitude; if they're empty, fix the key and save the client.
 - Live landing pages with empty required fields now show the required-fields notice in the editor each time. The page stays published.
@@ -237,7 +240,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [1.0.0]
 - Initial public release.
 
-[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.15...HEAD
+[Unreleased]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.16...HEAD
+[1.0.16]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.15...v1.0.16
 [1.0.15]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.14...v1.0.15
 [1.0.14]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.13...v1.0.14
 [1.0.13]: https://github.com/duppinstech/landing-page-manager/compare/v1.0.12...v1.0.13
